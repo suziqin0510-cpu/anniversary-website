@@ -2,78 +2,75 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, ChevronLeft, ChevronRight, MapPin, Calendar, Heart, Quote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Calendar } from 'lucide-react';
+
+// 手绘风格心形 - 跳动效果
+const BeatingHeart = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 animate-heartbeat">
+    <path
+      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+      fill="#F8AD9D"
+      stroke="#F8AD9D"
+      strokeWidth="1.5"
+    />
+  </svg>
+);
+
+// 手绘风格引号
+const HandDrawnQuote = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
+    <path d="M4 10c0-3 2-5 5-5v3c-1 0-2 1-2 2v1h3v7H4v-8zM13 10c0-3 2-5 5-5v3c-1 0-2 1-2 2v1h3v7h-6v-8z" fill="#F8AD9D" fillOpacity="0.5" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
 const chapters = [
   {
     id: 'chapter-1',
     number: '01',
     title: '初见',
-    subtitle: '那顿被打破剧本的火锅',
+    subtitle: '那顿打破剧本的火锅',
     date: '2025.05.20',
     location: '昆明长水机场 & 同德旁边的火锅店',
-    story: `从三亚回昆明的你，在机场见到了那个有点小情绪的女孩。
+    story: `2025.05.20，长水机场。你带着一身小情绪出现在我面前。
 
-在同德吃完火锅，你本以为这只是又一次普通的面基，结果17岁的她执意要AA。
+在同德吃完火锅，你极其认真地坚持要 AA。那一刻我心里的震撼大过好奇：这个才 17 岁的小丫头，骨子里怎么会有这么酷的自尊？
 
-那一刻我觉得你真酷，不是那种装出来的酷，而是骨子里的自尊。
-
-我当时想：这个女孩，我得护着。`,
-    quote: '那一刻我觉得你真酷，不是那种装出来的酷，而是骨子里的自尊。',
+从那天起，我想护着你的念头，就再也没断过。`,
+    quote: '这个才 17 岁的小丫头，骨子里怎么会有这么酷的自尊？',
     highlights: ['机场初见', '同德火锅', '坚持AA'],
     tags: ['昆明', '初见', '火锅'],
   },
   {
     id: 'chapter-2',
     number: '02',
-    title: '热恋',
-    subtitle: '在路上的风与痛',
+    title: '旅程',
+    subtitle: '轮椅上的落日与温柔',
     date: '2025.06 - 2025.08',
     location: '香格里拉 · 芒市 · 腾冲',
-    story: `香格里拉的楼顶温泉，没看到的日照金山，芒市街头我推着的轮椅。
+    story: `我们在香格里拉顶楼温泉听歌，在腾冲接走'盼盼'。
 
-丽江的果酒让你睡了一路，我在芒市为你奔波索赔，在腾冲我们带走了盼盼。
+最难忘是芒市，看你脚肿得像馒头，我推着轮椅带你走街串巷。那时候我才发现，比起看美景，我更想看你开开心心的。
 
-在芒市看你腿肿得像个馒头，我比你还疼。
-
-但我那时候确认了，只要你在副驾，去哪儿我都不累。`,
-    quote: '只要你在副驾，去哪儿我都不累。',
+只要你在副驾，这一路翻山越岭，我都不觉得累。`,
+    quote: '比起看美景，我更想看你开开心心的。',
     highlights: ['香格里拉温泉', '芒市轮椅', '带走盼盼'],
     tags: ['旅行', '香格里拉', '芒市', '腾冲'],
   },
   {
     id: 'chapter-3',
     number: '03',
-    title: '日常',
-    subtitle: '150平米的烟火气',
+    title: '生活',
+    subtitle: '我们的小窝与烟火气',
     date: '2025.09 - 2025.12',
     location: '我们的家',
-    story: `我在卫生间洗着你的内衣裤，你在沙发上刷着抖音，盼盼在屋里跑，石榴在它屁股后面追。
+    story: `在北海接回了石榴，我们的小窝终于整整齐齐了。
 
-打王者时虽然你总因为"段位拉开"而不开心，但我知道，只要你拿了MVP并且赢了，你就会笑得像个孩子。
+最温暖的回忆，是你妈妈硬塞给我们的那一罐猪油和土豆片——那是长辈对我们最踏实的认可。
 
-生活不是天天看雪山，而是我愿意在这个租来的房子里，为你打一辈子杂。`,
-    quote: '生活不是天天看雪山，而是我愿意在这个租来的房子里，为你打一辈子杂。',
-    highlights: ['洗内衣裤', '刷抖音', '打王者', '盼盼石榴'],
+生活就是我在卫生间给你手洗内衣裤，你在沙发刷抖音；是我们在王者峡谷并肩作战。这间屋子因为有你，才真的成了'家'。`,
+    quote: '这间屋子因为有你，才真的成了"家"。',
+    highlights: ['接回石榴', '妈妈的猪油', '洗内衣裤', '王者峡谷'],
     tags: ['日常', '居家', '游戏'],
-  },
-  {
-    id: 'chapter-4',
-    number: '04',
-    title: '一周年',
-    subtitle: '跨越山海的笃定',
-    date: '2026.05.20',
-    location: '匈牙利 · 马来西亚',
-    story: `这一年，我们吵了无数次架，砸过车门，也有过委屈。
-
-但从匈牙利到马来西亚，我们都没放手。
-
-老婆，我正在学AI，正在拼命回款，我在给我们的"石榴"和"盼盼"建一个更稳的家。
-
-等我回血，带你去走遍世界。`,
-    quote: '等我回血，带你去走遍世界。',
-    highlights: ['匈牙利', '马来西亚', 'USM', '没放手'],
-    tags: ['一周年', '跨国', '未来'],
   },
 ];
 
@@ -98,11 +95,11 @@ export default function TimelinePage() {
   const chapter = chapters[currentChapter];
 
   return (
-    <div className="min-h-screen bg-[#0F0F13] pt-24 pb-12 overflow-hidden">
-      {/* 背景 */}
+    <div className="min-h-screen bg-gradient-to-br from-[#FDF5E6] via-[#FFFBF0] to-[#FFF8E7] pt-24 pb-12 overflow-hidden">
+      {/* 装饰背景 */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(212,165,116,0.08)_0%,_transparent_50%)]" />
-        <div className="absolute top-1/2 left-0 w-1 h-full bg-gradient-to-b from-transparent via-[#D4A574]/20 to-transparent" />
+        <div className="absolute top-20 right-10 w-64 h-64 bg-[#F8AD9D]/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-[#FBC3B6]/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -110,26 +107,23 @@ export default function TimelinePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-12"
         >
-          <div className="inline-flex items-center space-x-2 px-4 py-2 glass-effect rounded-full mb-4">
-            <Terminal className="w-4 h-4 text-[#D4A574]" />
-            <span className="text-xs text-[#8A8A92] font-mono">TIMELINE_DATA</span>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient-gold mb-2">
-            时间线
+          <h1 className="text-4xl md:text-5xl font-bold text-[#5D4037] mb-2 font-handwriting">
+            我们的故事
           </h1>
-          <p className="text-[#8A8A92]">我们的故事，从昆明开始</p>
+          <p className="text-[#8D6E63]">从昆明开始，到一起的未来</p>
         </motion.div>
 
         {/* 章节导航 - 横向时间轴 */}
         <div className="mb-12">
-          <div className="flex items-center justify-between relative">
-            {/* 连接线 */}
-            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-[#2A2A32]" />
+          <div className="flex items-center justify-between relative px-4">
+            {/* 连接线 - 点状虚线 */}
+            <div className="absolute top-1/2 left-4 right-4 h-0 border-t-2 border-dashed border-[#F8AD9D]/40" />
+
+            {/* 进度线 */}
             <div
-              className="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-[#D4A574] to-[#E8843C] transition-all duration-500"
+              className="absolute top-1/2 left-4 h-0 border-t-2 border-[#F8AD9D] transition-all duration-500"
               style={{ width: `${(currentChapter / (chapters.length - 1)) * 100}%` }}
             />
 
@@ -145,19 +139,26 @@ export default function TimelinePage() {
                 <div
                   className={`w-4 h-4 rounded-full border-2 transition-all duration-300 ${
                     index <= currentChapter
-                      ? 'bg-[#D4A574] border-[#D4A574]'
-                      : 'bg-[#0F0F13] border-[#2A2A32]'
+                      ? 'bg-[#F8AD9D] border-[#F8AD9D]'
+                      : 'bg-[#FFFBF0] border-[#F8AD9D]/40'
                   }`}
                 />
                 <span
-                  className={`mt-2 text-xs font-mono transition-colors ${
-                    index === currentChapter ? 'text-[#D4A574]' : 'text-[#8A8A92]'
+                  className={`mt-3 text-sm font-medium transition-colors ${
+                    index === currentChapter ? 'text-[#F8AD9D]' : 'text-[#8D6E63]'
                   }`}
                 >
                   {ch.number}
                 </span>
               </button>
             ))}
+
+            {/* 末尾的跳动小心 */}
+            <div className="absolute -right-2 top-1/2 -translate-y-1/2 transform translate-x-0">
+              <div className="flex flex-col items-center">
+                <BeatingHeart />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -177,37 +178,33 @@ export default function TimelinePage() {
                 {/* 章节编号和标题 */}
                 <div>
                   <div className="flex items-center space-x-4 mb-4">
-                    <span className="text-6xl font-bold text-[#D4A574]/20 font-mono">
+                    <span className="text-6xl font-bold text-[#F8AD9D]/30 font-handwriting">
                       {chapter.number}
                     </span>
                     <div>
-                      <h2 className="text-3xl md:text-4xl font-bold text-[#E8E8EC]">
+                      <h2 className="text-3xl md:text-4xl font-bold text-[#5D4037]">
                         {chapter.title}
                       </h2>
-                      <p className="text-[#D4A574] text-lg">{chapter.subtitle}</p>
+                      <p className="text-[#F8AD9D] text-lg">{chapter.subtitle}</p>
                     </div>
                   </div>
 
                   {/* 元信息 */}
                   <div className="flex flex-wrap gap-3">
-                    <div className="flex items-center space-x-2 px-3 py-1.5 glass-effect rounded-full">
-                      <Calendar className="w-4 h-4 text-[#D4A574]" />
-                      <span className="text-sm text-[#8A8A92]">{chapter.date}</span>
+                    <div className="flex items-center space-x-2 px-4 py-2 warm-card rounded-full">
+                      <Calendar className="w-4 h-4 text-[#F8AD9D]" />
+                      <span className="text-sm text-[#5D4037]">{chapter.date}</span>
                     </div>
-                    <div className="flex items-center space-x-2 px-3 py-1.5 glass-effect rounded-full">
-                      <MapPin className="w-4 h-4 text-[#D4A574]" />
-                      <span className="text-sm text-[#8A8A92]">{chapter.location}</span>
+                    <div className="flex items-center space-x-2 px-4 py-2 warm-card rounded-full">
+                      <MapPin className="w-4 h-4 text-[#F8AD9D]" />
+                      <span className="text-sm text-[#5D4037]">{chapter.location}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* 故事内容 */}
-                <div className="glass-effect rounded-2xl p-6">
-                  <div className="flex items-center space-x-2 mb-4 text-[#D4A574]">
-                    <Terminal className="w-4 h-4" />
-                    <span className="text-xs font-mono">STORY_LOG</span>
-                  </div>
-                  <p className="text-[#E8E8EC] leading-relaxed whitespace-pre-line">
+                <div className="warm-card rounded-3xl p-6">
+                  <p className="text-[#5D4037] leading-relaxed whitespace-pre-line text-lg">
                     {chapter.story}
                   </p>
                 </div>
@@ -217,7 +214,7 @@ export default function TimelinePage() {
                   {chapter.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-3 py-1 rounded-full bg-[#D4A574]/10 text-xs text-[#D4A574] border border-[#D4A574]/20"
+                      className="px-4 py-1.5 rounded-full bg-[#F8AD9D]/10 text-sm text-[#5D4037] border border-[#F8AD9D]/30"
                     >
                       #{tag}
                     </span>
@@ -228,31 +225,31 @@ export default function TimelinePage() {
               {/* 右侧：引用和亮点 */}
               <div className="space-y-6">
                 {/* 引用卡片 */}
-                <div className="glass-effect rounded-2xl p-6 border-l-4 border-[#D4A574]">
-                  <Quote className="w-6 h-6 text-[#D4A574] mb-4" />
-                  <p className="text-xl text-[#E8E8EC] italic leading-relaxed">
+                <div className="warm-card rounded-3xl p-6 border-l-4 border-[#F8AD9D]">
+                  <HandDrawnQuote />
+                  <p className="text-xl text-[#5D4037] italic leading-relaxed mt-4 font-light">
                     "{chapter.quote}"
                   </p>
-                  <div className="mt-4 flex items-center space-x-2 text-[#8A8A92] text-sm">
-                    <Heart className="w-4 h-4 text-[#D4A574] fill-[#D4A574]" />
-                    <span>苏子钦的内心独白</span>
+                  <div className="mt-4 flex items-center space-x-2 text-[#8D6E63] text-sm">
+                    <BeatingHeart />
+                    <span>苏子钦</span>
                   </div>
                 </div>
 
                 {/* 高光时刻 */}
-                <div className="glass-effect rounded-2xl p-6">
-                  <h3 className="text-sm font-mono text-[#8A8A92] mb-4 flex items-center">
-                    <span className="w-2 h-2 bg-[#D4A574] rounded-full mr-2" />
-                    HIGHLIGHTS
+                <div className="warm-card rounded-3xl p-6">
+                  <h3 className="text-sm text-[#8D6E63] mb-4 flex items-center font-medium">
+                    <span className="w-2 h-2 bg-[#F8AD9D] rounded-full mr-2" />
+                    高光时刻
                   </h3>
                   <div className="space-y-3">
                     {chapter.highlights.map((highlight, index) => (
                       <div
                         key={highlight}
-                        className="flex items-center space-x-3 text-[#E8E8EC]"
+                        className="flex items-center space-x-3 text-[#5D4037]"
                       >
-                        <span className="text-[#D4A574] font-mono text-sm">
-                          [{String(index + 1).padStart(2, '0')}]
+                        <span className="text-[#F8AD9D] font-handwriting text-lg">
+                          {String(index + 1)}.
                         </span>
                         <span>{highlight}</span>
                       </div>
@@ -261,14 +258,18 @@ export default function TimelinePage() {
                 </div>
 
                 {/* 照片占位 */}
-                <div className="glass-effect rounded-2xl p-6 text-center">
-                  <div className="aspect-video bg-[#1A1A1F] rounded-xl flex items-center justify-center">
+                <div className="warm-card rounded-3xl p-6 text-center">
+                  <div className="aspect-video bg-[#FFF0D4]/50 rounded-2xl flex items-center justify-center border-2 border-dashed border-[#F8AD9D]/30">
                     <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-[#D4A574]/10 flex items-center justify-center">
-                        <span className="text-3xl">📸</span>
+                      <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[#F8AD9D]/20 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
+                          <rect x="3" y="6" width="18" height="15" rx="2" stroke="#F8AD9D" strokeWidth="1.5" fill="none"/>
+                          <circle cx="12" cy="13" r="3" stroke="#F8AD9D" strokeWidth="1.5"/>
+                          <path d="M8 6L9 3h6l1 3" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
                       </div>
-                      <p className="text-[#8A8A92] text-sm">这里可以放你们的照片</p>
-                      <p className="text-[#8A8A92]/60 text-xs mt-1">上传至图床后替换链接</p>
+                      <p className="text-[#8D6E63] text-sm">这里可以放你们的照片</p>
+                      <p className="text-[#8D6E63]/60 text-xs mt-1">上传后替换链接</p>
                     </div>
                   </div>
                 </div>
@@ -277,28 +278,28 @@ export default function TimelinePage() {
           </AnimatePresence>
 
           {/* 导航按钮 */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-4">
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-0 md:-mx-4">
             <button
               onClick={handlePrev}
               disabled={currentChapter === 0}
-              className={`pointer-events-auto p-3 rounded-full glass-effect transition-all ${
+              className={`pointer-events-auto p-3 rounded-full warm-card warm-card-hover transition-all ${
                 currentChapter === 0
                   ? 'opacity-0'
-                  : 'opacity-100 hover:bg-[#D4A574]/20'
+                  : 'opacity-100'
               }`}
             >
-              <ChevronLeft className="w-6 h-6 text-[#D4A574]" />
+              <ChevronLeft className="w-6 h-6 text-[#F8AD9D]" />
             </button>
             <button
               onClick={handleNext}
               disabled={currentChapter === chapters.length - 1}
-              className={`pointer-events-auto p-3 rounded-full glass-effect transition-all ${
+              className={`pointer-events-auto p-3 rounded-full warm-card warm-card-hover transition-all ${
                 currentChapter === chapters.length - 1
                   ? 'opacity-0'
-                  : 'opacity-100 hover:bg-[#D4A574]/20'
+                  : 'opacity-100'
               }`}
             >
-              <ChevronRight className="w-6 h-6 text-[#D4A574]" />
+              <ChevronRight className="w-6 h-6 text-[#F8AD9D]" />
             </button>
           </div>
         </div>

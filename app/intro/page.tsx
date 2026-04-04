@@ -3,44 +3,58 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Lock, Unlock, Terminal, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+
+// 手绘风格心形
+const HandDrawnHeart = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 animate-heartbeat">
+    <path
+      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+      fill="#F8AD9D"
+      stroke="#F8AD9D"
+      strokeWidth="1.5"
+    />
+  </svg>
+);
+
+// 手绘风格锁
+const HandDrawnLock = ({ locked }: { locked: boolean }) => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+    {locked ? (
+      <>
+        <rect x="5" y="11" width="14" height="10" rx="2" fill="#F8AD9D" fillOpacity="0.3" stroke="#F8AD9D" strokeWidth="1.5"/>
+        <path d="M8 11V7a4 4 0 118 0v4" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round"/>
+      </>
+    ) : (
+      <>
+        <rect x="5" y="11" width="14" height="10" rx="2" fill="#F8AD9D" fillOpacity="0.3" stroke="#F8AD9D" strokeWidth="1.5"/>
+        <path d="M8 11V7a4 4 0 118 0v4" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 2"/>
+        <path d="M12 16l2 2M12 16l-2 2" stroke="#5D4037" strokeWidth="1.5" strokeLinecap="round"/>
+      </>
+    )}
+  </svg>
+);
 
 export default function IntroPage() {
   const router = useRouter();
   const [input, setInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [typingText, setTypingText] = useState('');
   const [showContent, setShowContent] = useState(false);
 
   const password = '啾米啾米';
   const response = '米啾米啾';
 
-  const welcomeMessage = `> 初始化系统...
-> 建立安全连接...
-> 验证用户身份...
-> 欢迎来到苏子钦 & 李丹的赛博空间。`;
-
-  // 打字机效果
+  // 显示欢迎内容
   useEffect(() => {
-    let index = 0;
-    const timer = setInterval(() => {
-      if (index <= welcomeMessage.length) {
-        setTypingText(welcomeMessage.slice(0, index));
-        index++;
-      } else {
-        clearInterval(timer);
-        setShowContent(true);
-      }
-    }, 50);
-    return () => clearInterval(timer);
+    const timer = setTimeout(() => setShowContent(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = () => {
     if (input === password) {
       setIsUnlocked(true);
       setShowError(false);
-      // 播放解锁音效（可选）
       setTimeout(() => {
         localStorage.setItem('authenticated', 'true');
         router.push('/');
@@ -58,56 +72,44 @@ export default function IntroPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F0F13] flex items-center justify-center px-4 relative overflow-hidden">
-      {/* 背景网格 */}
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(212, 165, 116, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(212, 165, 116, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px'
-          }}
-        />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#FDF5E6] via-[#FFFBF0] to-[#FFF8E7] flex items-center justify-center px-4 relative overflow-hidden">
+      {/* 装饰背景 */}
+      <div className="absolute top-20 left-10 w-64 h-64 bg-[#F8AD9D]/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#FBC3B6]/10 rounded-full blur-3xl" />
 
-      {/* 发光球体装饰 */}
-      <div className="absolute top-20 left-20 w-64 h-64 bg-[#D4A574]/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#E8843C]/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* 手绘装饰 */}
+      <div className="absolute top-32 right-20 opacity-20 animate-float">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="15" stroke="#F8AD9D" strokeWidth="2" strokeDasharray="4 2"/>
+        </svg>
+      </div>
+      <div className="absolute bottom-32 left-20 opacity-20 animate-gentle-bounce">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#F8AD9D"/>
+        </svg>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative z-10 w-full max-w-lg"
       >
-        {/* 终端窗口 */}
-        <div className="glass-effect rounded-2xl overflow-hidden border-glow">
-          {/* 终端标题栏 */}
-          <div className="bg-[#1A1A1F] px-4 py-3 flex items-center space-x-2 border-b border-[#D4A574]/20">
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 rounded-full bg-red-500/80" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-              <div className="w-3 h-3 rounded-full bg-green-500/80" />
-            </div>
-            <div className="flex-1 text-center">
-              <span className="text-xs text-[#8A8A92] font-mono">suzi_lidan_terminal — 李丹专属通道</span>
+        {/* 卡片 */}
+        <div className="warm-card rounded-3xl overflow-hidden">
+          {/* 标题栏 */}
+          <div className="bg-[#F8AD9D]/10 px-6 py-4 flex items-center justify-center border-b border-[#F8AD9D]/20">
+            <div className="flex items-center space-x-2">
+              <HandDrawnHeart />
+              <span className="text-[#5D4037] font-medium">李丹专属通道</span>
             </div>
           </div>
 
-          {/* 终端内容 */}
+          {/* 内容 */}
           <div className="p-8 space-y-6">
-            {/* 终端输出 */}
-            <div className="font-mono text-sm text-[#D4A574]/80 min-h-[120px]">
-              <pre className="whitespace-pre-wrap">{typingText}</pre>
-              {showContent && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="inline-block w-2 h-4 bg-[#D4A574] ml-1 animate-pulse"
-                />
-              )}
+            {/* 欢迎语 */}
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-[#5D4037] mb-2 font-handwriting">欢迎来到我们的小窝</h2>
+              <p className="text-[#8D6E63]">这里是专属于你和苏子钦的空间</p>
             </div>
 
             <AnimatePresence mode="wait">
@@ -120,28 +122,27 @@ export default function IntroPage() {
                   className="space-y-4"
                 >
                   {/* 密码提示 */}
-                  <div className="flex items-center space-x-2 text-[#8A8A92] text-sm">
-                    <Lock className="w-4 h-4" />
-                    <span className="font-mono">请输入暗号以继续...</span>
+                  <div className="flex items-center justify-center space-x-2 text-[#8D6E63]">
+                    <HandDrawnLock locked={true} />
+                    <span>请输入暗号...</span>
                   </div>
 
                   {/* 输入框 */}
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D4A574] font-mono">$</div>
                     <input
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="输入暗号..."
-                      className="w-full bg-[#0F0F13] border border-[#D4A574]/30 rounded-xl py-4 pl-10 pr-12 text-[#E8E8EC] placeholder-[#8A8A92]/50 focus:border-[#D4A574] focus:outline-none focus:ring-1 focus:ring-[#D4A574]/50 font-mono transition-all"
+                      className="w-full bg-[#FFFBF0] border border-[#F8AD9D]/30 rounded-2xl py-4 pl-5 pr-12 text-[#5D4037] placeholder-[#8D6E63]/50 focus:border-[#F8AD9D] focus:outline-none focus:ring-2 focus:ring-[#F8AD9D]/20 transition-all text-center"
                       autoFocus
                     />
                     <button
                       onClick={handleSubmit}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#D4A574] hover:text-[#E8843C] transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#F8AD9D] hover:text-[#FBC3B6] transition-colors"
                     >
-                      <ChevronRight className="w-5 h-5" />
+                      <ChevronRight className="w-6 h-6" />
                     </button>
                   </div>
 
@@ -152,16 +153,15 @@ export default function IntroPage() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="text-red-400 text-sm font-mono flex items-center space-x-2"
+                        className="text-red-400 text-sm text-center"
                       >
-                        <span>✗</span>
-                        <span>暗号错误，请重试</span>
+                        <span>暗号不对哦，再想想~</span>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
                   {/* 提示 */}
-                  <p className="text-xs text-[#8A8A92]/60 text-center font-mono">
+                  <p className="text-xs text-[#8D6E63]/60 text-center">
                     💡 提示：这是只有你们两个人知道的暗号
                   </p>
                 </motion.div>
@@ -176,17 +176,17 @@ export default function IntroPage() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 200 }}
-                    className="w-16 h-16 mx-auto bg-[#D4A574]/20 rounded-full flex items-center justify-center border-glow"
+                    className="w-20 h-20 mx-auto bg-[#F8AD9D]/20 rounded-full flex items-center justify-center"
                   >
-                    <Unlock className="w-8 h-8 text-[#D4A574]" />
+                    <HandDrawnLock locked={false} />
                   </motion.div>
                   <div className="space-y-2">
-                    <p className="text-[#D4A574] font-mono text-lg">{response}</p>
-                    <p className="text-[#8A8A92] text-sm font-mono">身份验证通过</p>
-                    <p className="text-[#E8E8EC] text-sm">正在进入我们的赛博空间...</p>
+                    <p className="text-[#F8AD9D] text-2xl font-handwriting">{response}</p>
+                    <p className="text-[#8D6E63] text-sm">身份验证通过</p>
+                    <p className="text-[#5D4037]">正在进入我们的小窝...</p>
                   </div>
                   <div className="flex justify-center">
-                    <Sparkles className="w-5 h-5 text-[#D4A574] animate-pulse" />
+                    <HandDrawnHeart />
                   </div>
                 </motion.div>
               )}
@@ -201,12 +201,16 @@ export default function IntroPage() {
           transition={{ delay: 0.5 }}
           className="mt-8 text-center"
         >
-          <div className="flex items-center justify-center space-x-2 text-[#8A8A92]/40 text-xs font-mono">
-            <Terminal className="w-3 h-3" />
-            <span>SUZI & LIDAN CYBERSPACE v1.0.0</span>
-            <span className="text-[#D4A574]/60">|</span>
-            <span>EST. 2025.05.20</span>
+          <div className="flex items-center justify-center space-x-3 text-[#8D6E63]/60 text-sm">
+            <span>啾米啾米</span>
+            <span className="text-[#F8AD9D] animate-heartbeat">
+              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#F8AD9D"/>
+              </svg>
+            </span>
+            <span>米啾米啾</span>
           </div>
+          <p className="text-[#8D6E63]/40 text-xs mt-2">始于 2025.05.20</p>
         </motion.div>
       </motion.div>
     </div>

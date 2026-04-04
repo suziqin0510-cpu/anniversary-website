@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Ma+Shan+Zheng&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -11,7 +11,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
-  --font-handwriting: 'JetBrains Mono', monospace;
+  --font-handwriting: 'Ma Shan Zheng', cursive;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,50 +48,51 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* Cyber Theme Colors - 深空灰+落日金 */
-  --color-sunset-gold: #D4A574;
-  --color-sunset-orange: #E8843C;
-  --color-deep-space: #0F0F13;
-  --color-cyber-gray: #1A1A1F;
-  --color-cyber-light: #2A2A32;
-  --color-glass-border: rgba(212, 165, 116, 0.2);
-  --color-glass-bg: rgba(26, 26, 31, 0.7);
+  /* Winter Warmth Theme Colors - 冬日暖阳·愈系日记 */
+  --color-warm-cream: #FDF5E6;
+  --color-warm-beige: #FFFBF0;
+  --color-caramel: #5D4037;
+  --color-coffee: #3E2723;
+  --color-coral: #F8AD9D;
+  --color-coral-light: #FBC3B6;
+  --color-soft-shadow: rgba(93, 64, 55, 0.08);
+  --color-card-bg: rgba(255, 251, 240, 0.85);
 }
 
 :root {
-  /* Cyberpunk Dark Theme */
-  --background: #0F0F13;
-  --foreground: #E8E8EC;
-  --card: rgba(26, 26, 31, 0.8);
-  --card-foreground: #E8E8EC;
-  --popover: #1A1A1F;
-  --popover-foreground: #E8E8EC;
-  --primary: #D4A574;
-  --primary-foreground: #0F0F13;
-  --secondary: #2A2A32;
-  --secondary-foreground: #E8E8EC;
-  --muted: #1A1A1F;
-  --muted-foreground: #8A8A92;
-  --accent: #E8843C;
-  --accent-foreground: #0F0F13;
-  --destructive: #EF4444;
-  --border: rgba(212, 165, 116, 0.2);
-  --input: rgba(212, 165, 116, 0.15);
-  --ring: #D4A574;
-  --chart-1: #D4A574;
-  --chart-2: #E8843C;
-  --chart-3: #2A2A32;
-  --chart-4: #1A1A1F;
-  --chart-5: #0F0F13;
-  --radius: 0.75rem;
-  --sidebar: #1A1A1F;
-  --sidebar-foreground: #E8E8EC;
-  --sidebar-primary: #D4A574;
-  --sidebar-primary-foreground: #0F0F13;
-  --sidebar-accent: #2A2A32;
-  --sidebar-accent-foreground: #E8E8EC;
-  --sidebar-border: rgba(212, 165, 116, 0.2);
-  --sidebar-ring: #D4A574;
+  /* Winter Warmth Theme */
+  --background: #FDF5E6;
+  --foreground: #5D4037;
+  --card: rgba(255, 251, 240, 0.9);
+  --card-foreground: #5D4037;
+  --popover: #FFFBF0;
+  --popover-foreground: #5D4037;
+  --primary: #F8AD9D;
+  --primary-foreground: #3E2723;
+  --secondary: #FFF8E7;
+  --secondary-foreground: #5D4037;
+  --muted: #FFF0D4;
+  --muted-foreground: #8D6E63;
+  --accent: #F8AD9D;
+  --accent-foreground: #3E2723;
+  --destructive: #EF5350;
+  --border: rgba(248, 173, 157, 0.3);
+  --input: rgba(248, 173, 157, 0.2);
+  --ring: #F8AD9D;
+  --chart-1: #F8AD9D;
+  --chart-2: #FBC3B6;
+  --chart-3: #FFF8E7;
+  --chart-4: #5D4037;
+  --chart-5: #3E2723;
+  --radius: 1.5rem;
+  --sidebar: #FFFBF0;
+  --sidebar-foreground: #5D4037;
+  --sidebar-primary: #F8AD9D;
+  --sidebar-primary-foreground: #3E2723;
+  --sidebar-accent: #FFF0D4;
+  --sidebar-accent-foreground: #5D4037;
+  --sidebar-border: rgba(248, 173, 157, 0.3);
+  --sidebar-ring: #F8AD9D;
 }
 
 /* Smooth Scrolling */
@@ -105,78 +106,91 @@ html {
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   html {
     @apply font-sans;
   }
 }
 
-/* Cyberpunk Utility Classes */
+/* Winter Warmth Utility Classes */
 @layer utilities {
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+  .font-handwriting {
+    font-family: 'Ma Shan Zheng', cursive;
   }
 
-  .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#D4A574] to-[#E8843C];
+  .text-gradient-warm {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#F8AD9D] to-[#FBC3B6];
   }
 
-  .bg-gradient-cyber {
-    background: linear-gradient(135deg, #0F0F13 0%, #1A1A1F 50%, #0F0F13 100%);
+  .bg-gradient-warm {
+    background: linear-gradient(135deg, #FDF5E6 0%, #FFFBF0 50%, #FFF8E7 100%);
   }
 
   .bg-gradient-hero {
-    background: radial-gradient(ellipse at top, rgba(212, 165, 116, 0.15) 0%, transparent 50%),
-                linear-gradient(180deg, #0F0F13 0%, #1A1A1F 100%);
+    background: radial-gradient(ellipse at top, rgba(248, 173, 157, 0.2) 0%, transparent 50%),
+                linear-gradient(180deg, #FDF5E6 0%, #FFFBF0 100%);
   }
 
-  /* 毛玻璃效果 */
-  .glass-effect {
-    @apply backdrop-blur-xl;
-    background: rgba(26, 26, 31, 0.7);
-    border: 1px solid rgba(212, 165, 116, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* 弥散投影效果 */
+  .soft-shadow {
+    box-shadow:
+      0 4px 20px rgba(93, 64, 55, 0.06),
+      0 2px 8px rgba(93, 64, 55, 0.04),
+      0 8px 40px rgba(248, 173, 157, 0.08);
   }
 
-  .glass-effect-light {
-    @apply backdrop-blur-lg;
-    background: rgba(42, 42, 50, 0.5);
-    border: 1px solid rgba(212, 165, 116, 0.15);
+  .soft-shadow-lg {
+    box-shadow:
+      0 8px 30px rgba(93, 64, 55, 0.08),
+      0 4px 12px rgba(93, 64, 55, 0.05),
+      0 16px 60px rgba(248, 173, 157, 0.1);
   }
 
-  .text-shadow-glow {
-    text-shadow: 0 0 20px rgba(212, 165, 116, 0.5),
-                 0 0 40px rgba(212, 165, 116, 0.3);
+  /* 卡片效果 */
+  .warm-card {
+    @apply backdrop-blur-md rounded-3xl;
+    background: rgba(255, 251, 240, 0.9);
+    border: 1px solid rgba(248, 173, 157, 0.2);
+    box-shadow:
+      0 4px 20px rgba(93, 64, 55, 0.06),
+      0 2px 8px rgba(93, 64, 55, 0.04);
   }
 
-  /* 赛博朋克边框发光 */
-  .border-glow {
-    box-shadow: 0 0 10px rgba(212, 165, 116, 0.3),
-                0 0 20px rgba(212, 165, 116, 0.1);
+  .warm-card-hover {
+    transition: all 0.3s ease;
+  }
+  .warm-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 8px 30px rgba(93, 64, 55, 0.1),
+      0 4px 12px rgba(93, 64, 55, 0.06),
+      0 16px 50px rgba(248, 173, 157, 0.12);
   }
 
-  /* 扫描线效果 */
-  .scanline {
-    position: relative;
+  /* 点状虚线 */
+  .dotted-line {
+    border-left: 3px dotted rgba(248, 173, 157, 0.6);
   }
-  .scanline::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.5), transparent);
-    animation: scan 3s linear infinite;
+
+  /* 跳动的心 */
+  .heartbeat {
+    animation: heartbeat 1.5s ease-in-out infinite;
   }
 }
 
 /* Animation Keyframes */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
 }
 
 @keyframes pulse-soft {
@@ -189,55 +203,54 @@ html {
   100% { background-position: 200% 0; }
 }
 
-@keyframes scan {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100vh); }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 5px rgba(212, 165, 116, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(212, 165, 116, 0.8), 0 0 40px rgba(212, 165, 116, 0.4); }
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
 .animate-pulse-soft {
-  animation: pulse-soft 2s ease-in-out infinite;
+  animation: pulse-soft 3s ease-in-out infinite;
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(248, 173, 157, 0.3), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
 
-.animate-glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
 }
 
-/* Custom Scrollbar - 赛博风格 */
+/* Custom Scrollbar - 温暖风格 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0F0F13;
+  background: #FDF5E6;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #D4A574, #E8843C);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #F8AD9D, #FBC3B6);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #E8B584, #F0944C);
+  background: linear-gradient(180deg, #FBC3B6, #F8AD9D);
 }
 
 /* Selection Color */
 ::selection {
-  background: rgba(212, 165, 116, 0.3);
-  color: #E8E8EC;
+  background: rgba(248, 173, 157, 0.3);
+  color: #5D4037;
 }
