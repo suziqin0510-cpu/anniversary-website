@@ -48,51 +48,54 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* Winter Warmth Theme Colors - 冬日暖阳·愈系日记 */
-  --color-warm-cream: #FDF5E6;
-  --color-warm-beige: #FFFBF0;
-  --color-caramel: #5D4037;
-  --color-coffee: #3E2723;
-  --color-coral: #F8AD9D;
-  --color-coral-light: #FBC3B6;
-  --color-soft-shadow: rgba(93, 64, 55, 0.08);
-  --color-card-bg: rgba(255, 251, 240, 0.85);
+  /* V5.5 微醺告白·落日橘粉 - 暧昧脸红色调 */
+  --color-blush-cream: #FFF5F5;
+  --color-blush-soft: #FFE4E1;
+  --color-blush-medium: #FFCDB5;
+  --color-sunset-gold: #F4A460;
+  --color-rose-deep: #E35D6A;
+  --color-rose-warm: #D4586E;
+  --color-red-heart: #DC2626;
+  --color-amber-gold: #D97706;
+  --color-text-warm: #7C444F;
+  --color-text-soft: #9B6A6C;
+  --color-soft-shadow: rgba(227, 93, 106, 0.08);
 }
 
 :root {
-  /* Winter Warmth Theme */
-  --background: #FDF5E6;
-  --foreground: #5D4037;
-  --card: rgba(255, 251, 240, 0.9);
-  --card-foreground: #5D4037;
-  --popover: #FFFBF0;
-  --popover-foreground: #5D4037;
-  --primary: #F8AD9D;
-  --primary-foreground: #3E2723;
-  --secondary: #FFF8E7;
-  --secondary-foreground: #5D4037;
-  --muted: #FFF0D4;
-  --muted-foreground: #8D6E63;
-  --accent: #F8AD9D;
-  --accent-foreground: #3E2723;
-  --destructive: #EF5350;
-  --border: rgba(248, 173, 157, 0.3);
-  --input: rgba(248, 173, 157, 0.2);
-  --ring: #F8AD9D;
-  --chart-1: #F8AD9D;
-  --chart-2: #FBC3B6;
-  --chart-3: #FFF8E7;
-  --chart-4: #5D4037;
-  --chart-5: #3E2723;
+  /* V5.5 微醺告白主题 - 落日橘粉暧昧感 */
+  --background: #FFF5F5;
+  --foreground: #7C444F;
+  --card: rgba(255, 255, 255, 0.45);
+  --card-foreground: #7C444F;
+  --popover: rgba(255, 255, 255, 0.85);
+  --popover-foreground: #7C444F;
+  --primary: #E35D6A;
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(255, 228, 225, 0.6);
+  --secondary-foreground: #7C444F;
+  --muted: rgba(255, 205, 181, 0.4);
+  --muted-foreground: #9B6A6C;
+  --accent: #F4A460;
+  --accent-foreground: #7C444F;
+  --destructive: #EF4444;
+  --border: rgba(255, 255, 255, 0.7);
+  --input: rgba(227, 93, 106, 0.12);
+  --ring: transparent;
+  --chart-1: #E35D6A;
+  --chart-2: #F4A460;
+  --chart-3: #D4586E;
+  --chart-4: #7C444F;
+  --chart-5: #9B6A6C;
   --radius: 1.5rem;
-  --sidebar: #FFFBF0;
-  --sidebar-foreground: #5D4037;
-  --sidebar-primary: #F8AD9D;
-  --sidebar-primary-foreground: #3E2723;
-  --sidebar-accent: #FFF0D4;
-  --sidebar-accent-foreground: #5D4037;
-  --sidebar-border: rgba(248, 173, 157, 0.3);
-  --sidebar-ring: #F8AD9D;
+  --sidebar: rgba(255, 255, 255, 0.85);
+  --sidebar-foreground: #7C444F;
+  --sidebar-primary: #E35D6A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(255, 228, 225, 0.7);
+  --sidebar-accent-foreground: #7C444F;
+  --sidebar-border: rgba(255, 255, 255, 0.7);
+  --sidebar-ring: transparent;
 }
 
 /* Smooth Scrolling */
@@ -102,78 +105,112 @@ html {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+  }
+
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #FFF5F5 0%, #FFE4E1 50%, #FFF0F0 100%);
+    min-height: 100vh;
   }
+
   html {
     @apply font-sans;
   }
+
+  button:focus, button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: 0 !important;
+  }
+
+  input:focus, input:focus-visible,
+  textarea:focus, textarea:focus-visible {
+    outline: none !important;
+    ring: 0 !important;
+  }
 }
 
-/* Winter Warmth Utility Classes */
+/* V5.5 玻璃拟态工具类 - 落日橘粉暧昧版 */
 @layer utilities {
   .font-handwriting {
     font-family: 'Ma Shan Zheng', cursive;
   }
 
-  .text-gradient-warm {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#F8AD9D] to-[#FBC3B6];
+  .text-gradient-blush {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(135deg, #E35D6A 0%, #F4A460 50%, #D4586E 100%);
   }
 
-  .bg-gradient-warm {
-    background: linear-gradient(135deg, #FDF5E6 0%, #FFFBF0 50%, #FFF8E7 100%);
+  .text-gradient-sunset {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(90deg, #E35D6A 0%, #F4A460 50%, #E35D6A 100%);
+    background-size: 200% auto;
+    animation: sunset-shimmer 3s ease-in-out infinite;
   }
 
-  .bg-gradient-hero {
-    background: radial-gradient(ellipse at top, rgba(248, 173, 157, 0.2) 0%, transparent 50%),
-                linear-gradient(180deg, #FDF5E6 0%, #FFFBF0 100%);
-  }
-
-  /* 弥散投影效果 */
-  .soft-shadow {
+  /* V5.5 暧昧玻璃卡片 */
+  .glass-card {
+    @apply backdrop-blur-xl rounded-3xl;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     box-shadow:
-      0 4px 20px rgba(93, 64, 55, 0.06),
-      0 2px 8px rgba(93, 64, 55, 0.04),
-      0 8px 40px rgba(248, 173, 157, 0.08);
+      0 4px 24px rgba(227, 93, 106, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
-  .soft-shadow-lg {
+  .glass-card-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-hover:hover {
+    transform: translateY(-6px) rotateX(2deg) rotateY(-2deg);
+    background: rgba(255, 255, 255, 0.55);
     box-shadow:
-      0 8px 30px rgba(93, 64, 55, 0.08),
-      0 4px 12px rgba(93, 64, 55, 0.05),
-      0 16px 60px rgba(248, 173, 157, 0.1);
+      0 12px 40px rgba(227, 93, 106, 0.1),
+      0 4px 16px rgba(244, 164, 96, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
 
-  /* 卡片效果 */
-  .warm-card {
-    @apply backdrop-blur-md rounded-3xl;
-    background: rgba(255, 251, 240, 0.9);
-    border: 1px solid rgba(248, 173, 157, 0.2);
+  /* V5.5 高亮玻璃卡片 */
+  .glass-card-highlight {
+    @apply backdrop-blur-2xl rounded-3xl;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     box-shadow:
-      0 4px 20px rgba(93, 64, 55, 0.06),
-      0 2px 8px rgba(93, 64, 55, 0.04);
+      0 4px 24px rgba(227, 93, 106, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
 
-  .warm-card-hover {
-    transition: all 0.3s ease;
-  }
-  .warm-card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow:
-      0 8px 30px rgba(93, 64, 55, 0.1),
-      0 4px 12px rgba(93, 64, 55, 0.06),
-      0 16px 50px rgba(248, 173, 157, 0.12);
-  }
-
-  /* 点状虚线 */
-  .dotted-line {
-    border-left: 3px dotted rgba(248, 173, 157, 0.6);
+  /* 波浪下划线 - 用于彩蛋触发 */
+  .wavy-underline {
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: #E35D6A;
+    text-underline-offset: 4px;
+    cursor: pointer;
+    position: relative;
   }
 
-  /* 跳动的心 */
+  .wavy-underline:hover {
+    text-decoration-color: #DC2626;
+  }
+
   .heartbeat {
     animation: heartbeat 1.5s ease-in-out infinite;
   }
@@ -203,9 +240,75 @@ html {
   100% { background-position: 200% 0; }
 }
 
+@keyframes sunset-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes gentle-bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
+}
+
+/* V5.5 环境漂浮光球 - 落日橘粉 */
+@keyframes ambient-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  25% { transform: translate(60px, -40px) scale(1.15); opacity: 0.3; }
+  50% { transform: translate(30px, 30px) scale(0.95); opacity: 0.45; }
+  75% { transform: translate(-20px, 20px) scale(1.1); opacity: 0.35; }
+}
+
+@keyframes ambient-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+  33% { transform: translate(-50px, 40px) scale(1.2); opacity: 0.25; }
+  66% { transform: translate(40px, -30px) scale(0.9); opacity: 0.4; }
+}
+
+@keyframes ambient-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  50% { transform: translate(50px, 60px) scale(1.25); opacity: 0.2; }
+}
+
+/* 呼吸波纹动画 - 玫瑰红 */
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(227, 93, 106, 0.5); }
+  50% { box-shadow: 0 0 20px 10px rgba(227, 93, 106, 0.25); }
+}
+
+/* 拍立得浮动动画 */
+@keyframes polaroid-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* 震动动画 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+/* 闪烁星星 */
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* 啾米雨飘落 */
+@keyframes fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* 气泡呼吸效果 */
+@keyframes bubble-breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(227, 93, 106, 0.3); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px 5px rgba(227, 93, 106, 0.2); }
 }
 
 .animate-float {
@@ -221,7 +324,7 @@ html {
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(248, 173, 157, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(227, 93, 106, 0.2), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -230,27 +333,183 @@ html {
   animation: gentle-bounce 2s ease-in-out infinite;
 }
 
-/* Custom Scrollbar - 温暖风格 */
+.animate-twinkle {
+  animation: twinkle 1.5s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-bubble-breathe {
+  animation: bubble-breathe 2s ease-in-out infinite;
+}
+
+/* V5.5 环境漂浮光球 */
+.ambient-blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-blob-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(244, 164, 96, 0.3) 0%, rgba(244, 164, 96, 0.05) 70%);
+  top: -100px;
+  right: -100px;
+  animation: ambient-float-1 25s ease-in-out infinite;
+}
+
+.ambient-blob-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(227, 93, 106, 0.25) 0%, rgba(227, 93, 106, 0.04) 70%);
+  bottom: -50px;
+  left: -100px;
+  animation: ambient-float-2 30s ease-in-out infinite;
+}
+
+.ambient-blob-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(255, 205, 181, 0.3) 0%, rgba(255, 205, 181, 0.04) 70%);
+  top: 40%;
+  left: 30%;
+  animation: ambient-float-3 20s ease-in-out infinite;
+}
+
+/* 呼吸波纹 Marker - 玫瑰红 */
+.ripple-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  background: #E35D6A;
+  border-radius: 50%;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.ripple-marker::before,
+.ripple-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(227, 93, 106, 0.35);
+  transform: translate(-50%, -50%);
+  animation: ripple 2s ease-out infinite;
+}
+
+.ripple-marker::after {
+  animation-delay: 1s;
+}
+
+/* 拍立得样式 */
+.polaroid {
+  background: white;
+  padding: 8px 8px 24px 8px;
+  border-radius: 4px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.polaroid img {
+  border-radius: 2px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Custom Scrollbar - V5.5 落日橘粉风格 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #FDF5E6;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #F8AD9D, #FBC3B6);
+  background: linear-gradient(180deg, rgba(227, 93, 106, 0.5), rgba(244, 164, 96, 0.5));
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #FBC3B6, #F8AD9D);
+  background: linear-gradient(180deg, rgba(227, 93, 106, 0.7), rgba(244, 164, 96, 0.7));
 }
 
-/* Selection Color */
+/* Selection Color - 玫瑰红 */
 ::selection {
-  background: rgba(248, 173, 157, 0.3);
-  color: #5D4037;
+  background: rgba(227, 93, 106, 0.25);
+  color: #7C444F;
+}
+
+/* Tilt container fixes */
+.tilt-container {
+  border-radius: 1.5rem !important;
+  overflow: hidden !important;
+}
+
+.tilt-container > div {
+  border-radius: 1.5rem !important;
+}
+
+/* Remove all default shadows */
+.no-dirty-shadow {
+  box-shadow: none !important;
+  outline: none !important;
+  border: none !important;
+}
+
+/* Icon hover - only color/scale */
+.icon-hover {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon-hover:hover {
+  transform: scale(1.1);
+}
+
+/* V5.5 重叠布局工具类 */
+.overlap-up {
+  margin-top: -2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.overlap-left {
+  margin-left: -2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.overlap-right {
+  margin-right: -2rem;
+  position: relative;
+  z-index: 10;
+}
+
+/* 正红色爱心 */
+.red-heart {
+  color: #DC2626;
+}
+
+/* 玫瑰红按钮 */
+.btn-rose {
+  background: linear-gradient(135deg, #E35D6A 0%, #D4586E 100%);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-rose:hover {
+  background: linear-gradient(135deg, #D4586E 0%, #C44B5E 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(227, 93, 106, 0.3);
 }

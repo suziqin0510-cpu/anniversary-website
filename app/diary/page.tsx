@@ -2,52 +2,80 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { X, BookOpen, Mail, Heart, Lock, Unlock } from 'lucide-react';
+import Tilt from 'react-parallax-tilt';
 
-// 手绘风格锁
-const HandDrawnLock = ({ locked }: { locked: boolean }) => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-    {locked ? (
-      <>
-        <rect x="5" y="11" width="14" height="10" rx="2" fill="#F8AD9D" fillOpacity="0.3" stroke="#F8AD9D" strokeWidth="1.5" />
-        <path d="M8 11V7a4 4 0 118 0v4" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round" />
-      </>
-    ) : (
-      <>
-        <rect x="5" y="11" width="14" height="10" rx="2" fill="#F8AD9D" fillOpacity="0.3" stroke="#F8AD9D" strokeWidth="1.5" />
-        <path d="M8 11V7a4 4 0 118 0v4" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 2" />
-        <path d="M12 16l2 2M12 16l-2 2" stroke="#5D4037" strokeWidth="1.5" strokeLinecap="round" />
-      </>
-    )}
-  </svg>
-);
-
-// 手绘风格心形
 const HandDrawnHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 animate-heartbeat">
     <path
       d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      fill="#F8AD9D"
-      stroke="#F8AD9D"
+      fill="#E35D6A"
+      stroke="#E35D6A"
       strokeWidth="1.5"
     />
   </svg>
 );
 
-// 手绘风格信封
-const HandDrawnEnvelope = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-12 h-12">
-    <rect x="2" y="5" width="20" height="14" rx="2" fill="#F8AD9D" fillOpacity="0.2" stroke="#F8AD9D" strokeWidth="1.5" />
-    <path d="M2 8l10 6 10-6" stroke="#F8AD9D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+interface Letter {
+  id: string;
+  title: string;
+  subtitle: string;
+  date: string;
+  content: string;
+  isLocked: boolean;
+  password?: string;
+  type: 'open' | 'encrypted';
+}
 
-const diaryEntries = [
+const letters: Letter[] = [
+  {
+    id: 'open',
+    title: '想对你说的话',
+    subtitle: '一封来自苏子钦的信',
+    date: '2025.05.20',
+    content: `李丹，
+
+谢谢你出现在我的生命里。
+
+记得第一次在昆明见到你的时候，你带着一点点小情绪站在我面前。那一刻我就知道，这个女孩值得我用一生去守护。
+
+这一年，我们一起走过了那么多地方。从大理的风到丽江的酒，从腾冲的盼盼到北海的石榴，每一个地方都有我们的回忆。
+
+我知道有时候我会惹你生气，有时候我会因为工作忙而忽略你的感受。但请相信，在我心里，你永远是最重要的那个人。
+
+未来的路还很长，我想和你一起走下去。不管是亚庇的落日，还是世界各地的风景，我都想牵着你的手一起看。
+
+你可以永远不用长大，我会一直在这里，陪你作，陪你笑。
+
+啾米啾米。`,
+    isLocked: false,
+    type: 'open',
+  },
+  {
+    id: 'inner',
+    title: '苏子钦的内心独白',
+    subtitle: '只有你能看到的秘密',
+    date: '永远',
+    content: `李丹，其实我有过压力。
+
+在你眼里我似乎什么都能搞定，但其实我也有焦虑回款、深夜死磕 AI 的时候。但我从没想过让你跟着操心。
+
+我知道你爱说气话，爱试探我，那是因为你太在乎。
+
+我大你 8 岁，这 8 年的阅历不是为了让我对你讲道理，而是为了让我有足够的肩膀，在这个充满变数的世界里，为你撑起一个永远恒温的小窝。
+
+你可以永远不用长大，我会一直在这里，陪你作，陪你笑。
+
+—— 苏子钦`,
+    isLocked: true,
+    password: '20260520',
+    type: 'encrypted',
+  },
   {
     id: '520',
+    title: '520 终极密信',
+    subtitle: '专属于我们的密码',
     date: '2026.05.20',
-    title: '520 密信',
-    isLocked: true,
     content: `老婆，
 
 我知道你爱说狠话，爱试探我。
@@ -61,144 +89,191 @@ const diaryEntries = [
 我爱你，不仅在 520，在每一天。
 
 啾米啾米。`,
+    isLocked: true,
+    password: '20250520',
+    type: 'encrypted',
   },
 ];
 
 export default function DiaryPage() {
-  const [selectedEntry, setSelectedEntry] = useState<typeof diaryEntries[0] | null>(null);
+  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showContent, setShowContent] = useState(false);
   const [password, setPassword] = useState('');
-  const [unlockedEntries, setUnlockedEntries] = useState<Set<string>>(new Set());
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [unlockedLetters, setUnlockedLetters] = useState<Set<string>>(new Set());
+  const [passwordError, setPasswordError] = useState(false);
 
-  const handleEntryClick = (entry: typeof diaryEntries[0]) => {
-    if (entry.isLocked && !unlockedEntries.has(entry.id) && !isUnlocked) {
-      setSelectedEntry(entry);
+  const handleViewClick = (letter: Letter) => {
+    if (letter.isLocked && !unlockedLetters.has(letter.id)) {
+      setSelectedLetter(letter);
       setShowPasswordModal(true);
+      setShowContent(false);
+      setPassword('');
+      setPasswordError(false);
     } else {
-      setSelectedEntry(entry);
+      setSelectedLetter(letter);
+      setShowContent(true);
     }
   };
 
   const handleUnlock = () => {
-    if (password === '5201314') {
-      setUnlockedEntries(new Set([...unlockedEntries, '520']));
-      setIsUnlocked(true);
+    if (selectedLetter && password === selectedLetter.password) {
+      setUnlockedLetters(new Set([...unlockedLetters, selectedLetter.id]));
+      setPasswordError(false);
       setShowPasswordModal(false);
-      setPassword('');
+      setShowContent(true);
     } else {
-      alert('密码不对哦，再想想~');
+      setPasswordError(true);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FDF5E6] via-[#FFFBF0] to-[#FFF8E7] pt-24 pb-12">
-      {/* 装饰背景 */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-20 right-10 w-64 h-64 bg-[#F8AD9D]/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-[#FBC3B6]/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* 头部 */}
+    <div className="min-h-screen pt-24 pb-12 relative z-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="flex justify-center mb-4">
-            <HandDrawnEnvelope />
-          </div>
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-full glass-card mb-6"
+          >
+            <Mail className="w-10 h-10 text-[#E35D6A]" />
+          </motion.div>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-[#5D4037] mb-2 font-handwriting">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#7C444F] mb-2 font-handwriting">
             私密日记
           </h1>
-          <p className="text-[#8D6E63]">
-            只属于我们的秘密空间
-          </p>
+          <p className="text-[#9B6A6C]">专属我们的秘密空间</p>
         </motion.div>
 
-        {/* 日记列表 */}
-        <div className="space-y-4">
-          {diaryEntries.map((entry, index) => (
+        <div className="grid md:grid-cols-3 gap-6">
+          {letters.map((letter, index) => (
             <motion.div
-              key={entry.id}
-              initial={{ opacity: 0, y: 20 }}
+              key={letter.id}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => handleEntryClick(entry)}
-              className="cursor-pointer"
+              transition={{ delay: index * 0.15 }}
             >
-              <div className="warm-card rounded-3xl p-6 warm-card-hover group">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#F8AD9D]/20 flex items-center justify-center">
-                      {entry.isLocked && !unlockedEntries.has(entry.id) && !isUnlocked ? (
-                        <HandDrawnLock locked={true} />
-                      ) : (
-                        <HandDrawnLock locked={false} />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium text-[#5D4037] group-hover:text-[#F8AD9D] transition-colors">
-                        {entry.isLocked && !unlockedEntries.has(entry.id) && !isUnlocked ? '🔒 加密密信' : entry.title}
-                      </h3>
-                      <p className="text-sm text-[#8D6E63]">{entry.date}</p>
-                    </div>
+              <Tilt
+                tiltMaxAngleX={15}
+                tiltMaxAngleY={15}
+                perspective={1000}
+                scale={1.02}
+                transitionSpeed={400}
+                glareEnable={true}
+                glareMaxOpacity={0.1}
+                glareColor="#E35D6A"
+                glarePosition="all"
+                glareBorderRadius="1.5rem"
+                style={{ borderRadius: '1.5rem' }}
+              >
+                <div
+                  onClick={() => handleViewClick(letter)}
+                  className="glass-card rounded-3xl p-6 cursor-pointer group h-full flex flex-col glass-card-hover"
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
+                    letter.type === 'open'
+                      ? 'bg-[#E35D6A]/20'
+                      : letter.isLocked && !unlockedLetters.has(letter.id)
+                        ? 'bg-[#9B6A6C]/20'
+                        : 'bg-[#E35D6A]/20'
+                  }`}>
+                    {letter.type === 'open' ? (
+                      <BookOpen className="w-7 h-7 text-[#E35D6A]" />
+                    ) : letter.isLocked && !unlockedLetters.has(letter.id) ? (
+                      <Lock className="w-7 h-7 text-[#9B6A6C]" />
+                    ) : (
+                      <Unlock className="w-7 h-7 text-[#E35D6A]" />
+                    )}
                   </div>
-                  <ChevronLeft className="w-5 h-5 text-[#8D6E63] rotate-180 group-hover:text-[#F8AD9D] transition-colors" />
+
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-[#7C444F] mb-1 group-hover:text-[#E35D6A] transition-colors">
+                      {letter.title}
+                    </h3>
+                    <p className="text-sm text-[#9B6A6C] mb-2">{letter.subtitle}</p>
+                    <p className="text-xs text-[#9B6A6C]/60">{letter.date}</p>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-white/30">
+                    <button className={`w-full py-2 rounded-xl text-sm font-medium transition-colors ${
+                      letter.type === 'open'
+                        ? 'bg-[#E35D6A]/20 text-[#E35D6A] hover:bg-[#E35D6A]/30'
+                        : letter.isLocked && !unlockedLetters.has(letter.id)
+                          ? 'bg-[#9B6A6C]/20 text-[#9B6A6C]'
+                          : 'bg-[#E35D6A]/20 text-[#E35D6A] hover:bg-[#E35D6A]/30'
+                    }`}>
+                      {letter.type === 'open'
+                        ? '阅读信件'
+                        : letter.isLocked && !unlockedLetters.has(letter.id)
+                          ? '🔒 需要密码'
+                          : '阅读信件'
+                      }
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </Tilt>
             </motion.div>
           ))}
         </div>
 
-        {/* 提示 */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-center text-sm text-[#8D6E63]/60 mt-8"
+          transition={{ delay: 0.6 }}
+          className="text-center text-sm text-[#9B6A6C]/60 mt-8"
         >
-          💡 提示：密信密码是你们在一起的日期（年月日8位数字）
+          💡 加密信件需要输入专属密码才能解锁
         </motion.p>
       </div>
 
-      {/* 密码弹窗 */}
       <AnimatePresence>
         {showPasswordModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#5D4037]/30 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="warm-card rounded-3xl p-8 max-w-sm w-full text-center"
+              className="glass-card rounded-3xl p-8 max-w-sm w-full text-center"
             >
-              <HandDrawnLock locked={true} />
-              <h3 className="text-xl font-bold text-[#5D4037] mb-2 mt-4">这是一封加密密信</h3>
-              <p className="text-sm text-[#8D6E63] mb-6">请输入密码查看内容</p>
+              <div className="w-16 h-16 rounded-full glass-card-highlight flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-[#E35D6A]" />
+              </div>
+              <h3 className="text-xl font-bold text-[#7C444F] mb-2">这是一封加密信件</h3>
+              <p className="text-sm text-[#9B6A6C] mb-6">请输入密码解锁</p>
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="输入8位数字密码"
-                className="w-full px-4 py-3 rounded-2xl bg-[#FFFBF0] border border-[#F8AD9D]/30 text-[#5D4037] placeholder-[#8D6E63]/50 focus:border-[#F8AD9D] focus:outline-none focus:ring-2 focus:ring-[#F8AD9D]/20 mb-4 text-center"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError(false);
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+                placeholder="输入密码"
+                className="w-full px-4 py-3 rounded-2xl bg-white/30 backdrop-blur-sm border border-white/50 text-[#7C444F] placeholder-[#9B6A6C]/50 focus:border-[#E35D6A] focus:outline-none mb-2 text-center"
               />
-              <div className="flex space-x-3">
+              {passwordError && (
+                <p className="text-red-400 text-sm mb-4">密码错误，请重试</p>
+              )}
+              <div className="flex space-x-3 mt-4">
                 <button
-                  onClick={() => { setShowPasswordModal(false); setPassword(''); }}
-                  className="flex-1 px-4 py-3 rounded-2xl border border-[#F8AD9D]/30 text-[#8D6E63] hover:bg-[#F8AD9D]/10 transition-colors"
+                  onClick={() => { setShowPasswordModal(false); setPassword(''); setPasswordError(false); }}
+                  className="flex-1 px-4 py-3 rounded-2xl border border-white/50 text-[#9B6A6C] hover:bg-white/30 transition-colors"
                 >
                   取消
                 </button>
                 <button
                   onClick={handleUnlock}
-                  className="flex-1 px-4 py-3 rounded-2xl bg-[#F8AD9D] text-white font-medium hover:bg-[#FBC3B6] transition-colors"
+                  className="flex-1 px-4 py-3 rounded-2xl bg-[#E35D6A] text-white font-medium hover:bg-[#F4A460] transition-colors"
                 >
                   解锁
                 </button>
@@ -208,57 +283,72 @@ export default function DiaryPage() {
         )}
       </AnimatePresence>
 
-      {/* 内容弹窗 */}
       <AnimatePresence>
-        {selectedEntry && (
+        {selectedLetter && showContent && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#5D4037]/30 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setSelectedEntry(null)}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => { setSelectedLetter(null); setShowContent(false); }}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={{ scale: 0.5, opacity: 0, rotateX: -30 }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+                rotateX: 0,
+                transition: { type: 'spring', stiffness: 100, damping: 20 }
+              }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="warm-card rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+              className="glass-card rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
-              <div className="p-6 border-b border-[#F8AD9D]/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#F8AD9D]/20 flex items-center justify-center">
-                      <HandDrawnLock locked={false} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-[#5D4037]">{selectedEntry.title}</h2>
-                      <p className="text-sm text-[#8D6E63]">{selectedEntry.date}</p>
-                    </div>
+              <div className="h-2 bg-gradient-to-r from-[#F8AD9D] via-[#FFB5A7] to-[#F8AD9D]" />
+
+              <div className="p-6 border-b border-white/30 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 rounded-xl glass-card-highlight flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-[#E35D6A]" />
                   </div>
-                  <button
-                    onClick={() => setSelectedEntry(null)}
-                    className="p-2 hover:bg-[#F8AD9D]/10 rounded-lg transition-colors"
-                  >
-                    <ChevronLeft className="w-5 h-5 text-[#8D6E63]" />
-                  </button>
+                  <div>
+                    <h2 className="text-xl font-bold text-[#7C444F]">{selectedLetter.title}</h2>
+                    <p className="text-sm text-[#9B6A6C]">{selectedLetter.date}</p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => { setSelectedLetter(null); setShowContent(false); }}
+                  className="p-2 hover:bg-white/30 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-[#9B6A6C]" />
+                </button>
               </div>
 
-              {/* Content */}
-              <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <pre className="text-[#5D4037] whitespace-pre-wrap text-base leading-relaxed">
-                  {selectedEntry.content}
-                </pre>
+              <div className="p-8 overflow-y-auto max-h-[60vh] relative">
+                <motion.pre
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-[#7C444F] whitespace-pre-wrap text-base leading-loose font-sans"
+                >
+                  {selectedLetter.content}
+                </motion.pre>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="mt-8 text-right"
+                >
+                  <p className="text-[#E35D6A] font-handwriting text-xl">—— 苏子钦</p>
+                </motion.div>
               </div>
 
-              {/* Footer */}
-              <div className="p-6 border-t border-[#F8AD9D]/20 bg-[#F8AD9D]/5">
-                <div className="flex items-center justify-center space-x-2 text-[#F8AD9D]">
+              <div className="p-6 border-t border-white/30 bg-white/20">
+                <div className="flex items-center justify-center space-x-2 text-[#E35D6A]">
                   <HandDrawnHeart />
                   <span className="text-sm">啾米啾米</span>
-                  <span className="text-[#8D6E63]">→</span>
+                  <Heart className="w-4 h-4 fill-[#F8AD9D] text-[#E35D6A]" />
                   <span className="text-sm">米啾米啾</span>
                   <HandDrawnHeart />
                 </div>
