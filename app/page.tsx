@@ -491,7 +491,7 @@ function ScatteredPolaroids() {
   );
 }
 
-// ===== 时光暗房 2.0 入口卡片 =====
+// ===== 我们的相册 入口卡片 =====
 function DarkroomCard() {
   return (
     <a href="/album" className="block h-full group">
@@ -499,7 +499,7 @@ function DarkroomCard() {
         {/* 左侧文案 */}
         <div className="flex flex-col items-start">
           <h3 className="text-rose-800 tracking-widest text-xl font-bold">
-            时光暗房
+            我们的相册
           </h3>
           <p className="text-rose-500 text-sm mt-1">
             亲手擦亮我们褪色的回忆
@@ -984,7 +984,7 @@ export default function HomePage() {
               <ScatteredPolaroids />
             </motion.div>
 
-            {/* 4.5 时光暗房 - 支线彩蛋 */}
+            {/* 4.5 我们的相册 - 支线彩蛋 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
