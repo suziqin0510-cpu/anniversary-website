@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Calendar } from 'lucide-react';
 
@@ -64,77 +64,28 @@ const WASHI_TAPES = [
   'bg-orange-200/60',
 ];
 
-// 单张照片组件 - 时光晾晒架
+// 单张照片组件 - 极简展示
 const HangingPhoto = ({
   photo,
-  onDeveloped,
   onClick,
   index,
 }: {
   photo: (typeof ALBUM_PHOTOS)[0];
-  onDeveloped: (id: number) => void;
   onClick: (photo: (typeof ALBUM_PHOTOS)[0]) => void;
   index: number;
 }) => {
-  const [isDeveloped, setIsDeveloped] = useState(false);
-  const [maskPosition, setMaskPosition] = useState({ x: 50, y: 50 });
-  const [maskSize, setMaskSize] = useState(0);
-  const [exploredArea, setExploredArea] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const explorationRef = useRef<Set<string>>(new Set());
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isDeveloped || !containerRef.current) return;
-
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-      setMaskPosition({ x, y });
-      setMaskSize(30);
-
-      // 记录探索区域
-      const gridX = Math.floor(x / 10);
-      const gridY = Math.floor(y / 10);
-      const key = `${gridX}-${gridY}`;
-      explorationRef.current.add(key);
-
-      // 计算探索面积百分比
-      const explored = (explorationRef.current.size / 100) * 100;
-      setExploredArea(explored);
-
-      // 探索超过30%触发完全显影
-      if (explored > 30 && !isDeveloped) {
-        setIsDeveloped(true);
-        onDeveloped(photo.id);
-      }
-    },
-    [isDeveloped, photo.id, onDeveloped]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setMaskSize(0);
-  }, []);
-
-  const handleClick = useCallback(() => {
-    if (isDeveloped) {
-      onClick(photo);
-    }
-  }, [isDeveloped, onClick, photo]);
-
   // 随机旋转角度，营造自然感
-  const rotation = (index % 3 - 1) * 2; // -2, 0, 2度
+  const rotation = (index % 3 - 1) * 2;
   const washiColor = WASHI_TAPES[index % WASHI_TAPES.length];
 
   return (
     <motion.div
-      ref={containerRef}
-      className="relative cursor-pointer"
+      className="relative cursor-pointer group"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.6 }}
       style={{ transform: `rotate(${rotation}deg)` }}
+      onClick={() => onClick(photo)}
     >
       {/* 悬挂绳 - 极细拉线 */}
       <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-px h-8 bg-gradient-to-b from-transparent via-rose-300 to-rose-300" />
@@ -144,80 +95,42 @@ const HangingPhoto = ({
 
       {/* 照片容器 - 白边拍立得风格 */}
       <div
-        className={`relative bg-white p-3 pb-16 shadow-md hover:shadow-xl transition-all duration-500 ease-out ${
-          isDeveloped ? 'scale-[1.02]' : ''
-        }`}
-        style={{
-          aspectRatio: '4/5',
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
+        className="relative bg-white p-3 pb-16 shadow-md hover:shadow-xl transition-all duration-500 ease-out group-hover:scale-[1.02]"
+        style={{ aspectRatio: '4/5' }}
       >
-        {/* 照片内容区 */}
+        {/* 照片内容区 - 直接显示彩色清晰图片 */}
         <div className="relative w-full h-0 pb-[100%] overflow-hidden bg-rose-50">
-          {/* 底层：灰度模糊图 */}
           <img
             src={photo.src}
             alt={photo.title}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${
-              isDeveloped ? 'grayscale-0 blur-0' : 'grayscale blur-sm opacity-70'
-            }`}
+            className="absolute inset-0 w-full h-full object-cover"
           />
-
-          {/* 显影进度指示 */}
-          {!isDeveloped && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-rose-600 text-xs font-medium">
-                {Math.round(exploredArea)}%
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* 照片标题 - 手写风格 */}
+        {/* 照片标题 */}
         <div className="absolute bottom-3 left-3 right-3">
-          <p className={`text-rose-800 font-medium text-sm transition-opacity duration-500 ${isDeveloped ? 'opacity-100' : 'opacity-40'}`}>
+          <p className="text-rose-800 font-medium text-sm">
             {photo.title}
           </p>
-          <p className={`text-rose-400 text-xs mt-0.5 transition-opacity duration-500 ${isDeveloped ? 'opacity-100' : 'opacity-30'}`}>
-            {isDeveloped ? '点击查看详情' : '移动鼠标显影'}
+          <p className="text-rose-400 text-xs mt-0.5">
+            点击查看详情
           </p>
         </div>
 
-        {/* 和纸胶带效果 - 显影后显示 */}
-        <AnimatePresence>
-          {isDeveloped && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="absolute -top-1 left-2 w-12 h-5 -rotate-6"
-            >
-              <div className={`w-full h-full ${washiColor} rounded-sm shadow-sm`}
-                style={{
-                  backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.3) 3px, rgba(255,255,255,0.3) 6px)',
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* 和纸胶带效果 */}
+        <div
+          className={`absolute -top-1 left-2 w-12 h-5 -rotate-6 ${washiColor} rounded-sm shadow-sm`}
+          style={{
+            backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.3) 3px, rgba(255,255,255,0.3) 6px)',
+          }}
+        />
 
         {/* 火漆印章效果 - 右下角 */}
-        <AnimatePresence>
-          {isDeveloped && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0, rotate: -20 }}
-              animate={{ opacity: 0.8, scale: 1, rotate: -12 }}
-              transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
-              className="absolute -bottom-1 -right-1 w-8 h-8"
-            >
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-rose-300 to-rose-400 shadow-md flex items-center justify-center border-2 border-rose-200">
-                <span className="text-white text-[10px]">✦</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="absolute -bottom-1 -right-1 w-8 h-8">
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-rose-300 to-rose-400 shadow-md flex items-center justify-center border-2 border-rose-200">
+            <span className="text-white text-[10px]">✦</span>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
@@ -255,7 +168,8 @@ const PhotoModal = ({
           >
             {/* 和纸装饰 - 顶部 */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-              <div className="w-24 h-6 bg-rose-200/70 rounded-sm -rotate-1 shadow-sm"
+              <div
+                className="w-24 h-6 bg-rose-200/70 rounded-sm -rotate-1 shadow-sm"
                 style={{
                   backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(255,255,255,0.4) 4px, rgba(255,255,255,0.4) 8px)',
                 }}
@@ -316,13 +230,8 @@ const PhotoModal = ({
 };
 
 export default function AlbumPage() {
-  const [developedPhotos, setDevelopedPhotos] = useState<Set<number>>(new Set());
   const [selectedPhoto, setSelectedPhoto] = useState<(typeof ALBUM_PHOTOS)[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleDeveloped = useCallback((id: number) => {
-    setDevelopedPhotos((prev) => new Set([...prev, id]));
-  }, []);
 
   const handlePhotoClick = useCallback((photo: (typeof ALBUM_PHOTOS)[0]) => {
     setSelectedPhoto(photo);
@@ -351,21 +260,11 @@ export default function AlbumPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-12"
         >
-          <div className="flex items-end justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-rose-800 tracking-wider">
-                时光暗房
-              </h1>
-              <p className="text-rose-400 text-sm mt-1">
-                已显影 {developedPhotos.size} / {ALBUM_PHOTOS.length}
-              </p>
-            </div>
-            <div className="text-rose-300 text-2xl">
-              ✦
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold text-rose-800 tracking-wider">
+            我们的相册
+          </h1>
         </motion.div>
 
         {/* 照片网格 - 时光晾晒架 */}
@@ -374,7 +273,6 @@ export default function AlbumPage() {
             <HangingPhoto
               key={photo.id}
               photo={photo}
-              onDeveloped={handleDeveloped}
               onClick={handlePhotoClick}
               index={index}
             />
