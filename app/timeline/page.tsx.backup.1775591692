@@ -350,7 +350,6 @@ interface Chapter {
   tags: string[];
   highlights: string[];
   photos: Photo[];
-  hiddenEmoji: { icon: string; index: number; hint: string };
   hiddenMessage: string;
 }
 
@@ -398,7 +397,6 @@ const chapters: Chapter[] = [
       { url: 'https://i.ibb.co/395z4SNH/cbdbaf26128bd62d05d7c0b6362c3dcb.jpg', caption: '记住这一刻' },
       { url: 'https://i.ibb.co/BHrcYyg6/d563e36f3ae370b8cf2458f077517b8e.jpg', caption: '我们的起点' }
     ],
-    hiddenEmoji: { icon: '🍲', index: 0, hint: '那顿火锅' },
     hiddenMessage: '李丹，那天你坚持要AA的样子，真的让我心动。那份独立和自尊，是我见过最美的风景。'
   },
   {
@@ -434,7 +432,6 @@ const chapters: Chapter[] = [
       { url: 'https://i.ibb.co/3m5DdXyK/ee1a4de3dbb68a3aeb7ac5fa6f8b403d.jpg', caption: '最美的风景' },
       { url: 'https://i.ibb.co/1t6dtXLh/f0bffa324bf1eeb3ac7818bc7f20b697.jpg', caption: '旅途终点也是起点' }
     ],
-    hiddenEmoji: { icon: '⛰️', index: 1, hint: '雪山脚下' },
     hiddenMessage: '这一年我们跑过那么多地方，但只要你在副驾，再远的路我都不觉得累。你是我最想炫耀的风景。'
   },
   {
@@ -459,7 +456,6 @@ const chapters: Chapter[] = [
       { url: 'https://i.ibb.co/KcCjppLf/2af65a81a2b97f7e91d50b4d867728a2.jpg', caption: '生活碎片' },
       { url: 'https://i.ibb.co/v6z4TLXv/0f4fbd691dc3071b1504909653f6c19e.jpg', caption: '幸福时刻' }
     ],
-    hiddenEmoji: { icon: '🐱', index: 2, hint: '石榴' },
     hiddenMessage: '洗衣服、做饭、遛狗、撸猫，这些平凡的日常因为有你和盼盼石榴而变得闪闪发光。这就是我想要的生活。'
   },
   {
@@ -495,7 +491,6 @@ const chapters: Chapter[] = [
       { url: 'https://i.ibb.co/gMkmW9DK/2b0c2638a82692bb056caec1c121e889.jpg', caption: '奔赴' },
       { url: 'https://i.ibb.co/nMyjhmPb/3fe013b5351f01758bc99767051740b4.jpg', caption: '只为见你一面' }
     ],
-    hiddenEmoji: { icon: '✈️', index: 3, hint: '跨越山海' },
     hiddenMessage: '2500公里的距离确实不近，以前跨越山海是为了初见，以后牵手前行是为了团圆。愿我们在新的 365 天里，能在昆明的小窝给盼盼和石榴筑个更温暖的家，去更多没去过的城市看第 N 场落日。不管世界如何变幻，只要你在副驾，这一路山海我都永远不会觉得累。李丹，我们的故事，才刚刚开始。'
   }
 ];
@@ -895,20 +890,15 @@ const DecryptionModal = ({
   onClose,
   chapter,
   isUnlocked,
-  onUnlock,
-  unlockedSlots,
-  onUnlockSlot
+  onUnlock
 }: {
   isOpen: boolean;
   onClose: () => void;
   chapter: Chapter;
   isUnlocked: boolean;
   onUnlock: () => void;
-  unlockedSlots: boolean[];
-  onUnlockSlot: (index: number) => void;
 }) => {
   const [currentGame, setCurrentGame] = useState<GameType>('password');
-
   const [gameWon, setGameWon] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   
@@ -942,7 +932,7 @@ const DecryptionModal = ({
     password: <PasswordGame onSuccess={handleGameSuccess} />,
     line: <LineGame onSuccess={handleGameSuccess} />,
     click: <ClickGame onSuccess={handleGameSuccess} />,
-    slot: <SlotPassword onSuccess={handleGameSuccess} unlockedSlots={unlockedSlots} onUnlockSlot={onUnlockSlot} />,
+    slot: <SlotPassword onSuccess={handleGameSuccess} />,
     fill: <HeartFillGame onSuccess={handleGameSuccess} />,
     puzzle: <PuzzleGame onSuccess={handleGameSuccess} />
   };
@@ -1147,21 +1137,6 @@ export default function TimelinePage() {
   const [showAABill, setShowAABill] = useState(false);
   const [showCatPopup, setShowCatPopup] = useState(false);
   const [catClickCount, setCatClickCount] = useState(0);
-
-  // 四重奏解锁状态: [火锅, 山, 猫, 飞机]
-  const [unlockedSlots, setUnlockedSlots] = useState([false, false, false, false]);
-
-  const unlockSlot = (index: number) => {
-    if (!unlockedSlots[index]) {
-      setUnlockedSlots(prev => {
-        const newState = [...prev];
-        newState[index] = true;
-        return newState;
-      });
-      return true;
-    }
-    return false;
-  };
 
   const handlePrev = () => {
     if (currentChapter > 0) {
@@ -1428,45 +1403,6 @@ export default function TimelinePage() {
                       {renderStory()}
                     </p>
                   </div>
-
-                  {/* 隐藏的回忆碎片 - emoji 收集器 */}
-                  {chapter.hiddenEmoji && isUnlocked && (
-                    <motion.button
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className={`absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all duration-300 ${
-                        unlockedSlots[chapter.hiddenEmoji.index]
-                          ? 'bg-green-100 text-green-600 shadow-lg cursor-default'
-                          : 'bg-white/80 hover:bg-white text-gray-400 hover:text-[#E35D6A] shadow-sm cursor-pointer hover:scale-110'
-                      }`}
-                      onClick={() => {
-                        if (!unlockedSlots[chapter.hiddenEmoji.index]) {
-                          const success = unlockSlot(chapter.hiddenEmoji.index);
-                          if (success) {
-                            // 显示 toast 提示
-                            const toast = document.createElement('div');
-                            toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-full shadow-xl border border-rose-100 z-[9999] flex items-center gap-2';
-                            toast.innerHTML = `<span class="text-2xl">✨</span><span class="text-[#7C444F] font-medium">发现回忆碎片：${chapter.hiddenEmoji.icon}！对应的密码锁已激活</span>`;
-                            document.body.appendChild(toast);
-                            setTimeout(() => toast.remove(), 2500);
-                          }
-                        }
-                      }}
-                      disabled={unlockedSlots[chapter.hiddenEmoji.index]}
-                      whileHover={!unlockedSlots[chapter.hiddenEmoji.index] ? { scale: 1.1 } : {}}
-                      whileTap={!unlockedSlots[chapter.hiddenEmoji.index] ? { scale: 0.95 } : {}}
-                      title={unlockedSlots[chapter.hiddenEmoji.index] ? '已收集' : chapter.hiddenEmoji.hint}
-                    >
-                      {unlockedSlots[chapter.hiddenEmoji.index] ? '✓' : chapter.hiddenEmoji.icon}
-                      {!unlockedSlots[chapter.hiddenEmoji.index] && (
-                        <motion.span
-                          className="absolute -top-1 -right-1 w-3 h-3 bg-[#E35D6A] rounded-full"
-                          animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        />
-                      )}
-                    </motion.button>
-                  )}
                 </div>
               </Tilt>
               
@@ -1602,8 +1538,6 @@ export default function TimelinePage() {
       <DecryptionModal
         isOpen={decryptionModalOpen}
         onClose={() => setDecryptionModalOpen(false)}
-        unlockedSlots={unlockedSlots}
-        onUnlockSlot={unlockSlot}
         chapter={chapter}
         isUnlocked={isUnlocked}
         onUnlock={() => {
@@ -1660,34 +1594,16 @@ export default function TimelinePage() {
 
 // ==================== 新增游戏组件 ====================
 
-// 第二章：复古拨轮密码锁 - 四重奏渐进式解密
-const SlotPassword = ({
-  onSuccess,
-  unlockedSlots,
-  onUnlockSlot
-}: {
-  onSuccess: () => void;
-  unlockedSlots: boolean[];
-  onUnlockSlot: (index: number) => void;
-}) => {
+// 第二章：复古拨轮密码锁 - 输入纪念日或生日
+const SlotPassword = ({ onSuccess }: { onSuccess: () => void }) => {
   const [digits, setDigits] = useState([0, 0, 0, 0]);
   const [activeSlot, setActiveSlot] = useState(0);
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
-
-  const allUnlocked = unlockedSlots.every(Boolean);
-
-  const targetCodes = ['0520', '0607'];
-  const slotIcons = ['🍲', '⛰️', '🐱', '✈️'];
-
-  const showToast = (msg: string, type: 'success' | 'error') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2000);
-  };
-
+  
+  const targetCodes = ['0520', '0607']; // 纪念日 0520 或李丹生日 0607
+  
   const handleDigitChange = (index: number, direction: 'up' | 'down') => {
-    if (!unlockedSlots[index]) return;
     setDigits(prev => {
       const newDigits = [...prev];
       if (direction === 'up') {
@@ -1698,12 +1614,8 @@ const SlotPassword = ({
       return newDigits;
     });
   };
-
+  
   const checkCode = () => {
-    if (!allUnlocked) {
-      showToast('🔒 请先收集所有回忆碎片', 'error');
-      return;
-    }
     const code = digits.join('');
     if (targetCodes.includes(code)) {
       setIsSuccess(true);
@@ -1713,109 +1625,68 @@ const SlotPassword = ({
       setTimeout(() => setIsError(false), 500);
     }
   };
-
+  
   return (
-    <div className="text-center space-y-4 relative">
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`absolute top-0 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium shadow-lg z-50 ${
-              toast.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {toast.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+    <div className="text-center space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-2"
+      >
         <div className="text-3xl">🔐</div>
         <h4 className="text-lg font-bold text-[#7C444F]">时光密码锁</h4>
-        <p className="text-xs text-[#9B6A6C]">
-          {allUnlocked ? '所有回忆碎片已收集！输入纪念日或生日解锁' : '收集 4 个回忆碎片以激活密码锁'}
-        </p>
-        <div className="flex justify-center space-x-2 mt-2">
-          {unlockedSlots.map((unlocked, idx) => (
-            <motion.div
-              key={idx}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                unlocked ? 'bg-green-100 text-green-600 shadow-lg' : 'bg-gray-100 text-gray-400'
-              }`}
-              animate={unlocked ? { scale: [1, 1.2, 1] } : {}}
-            >
-              {unlocked ? slotIcons[idx] : '🔒'}
-            </motion.div>
-          ))}
-        </div>
+        <p className="text-xs text-[#9B6A6C]">提示：你来到这世界的那个夏日，属于你的那颗双子星</p>
       </motion.div>
-
+      
+      {/* 拨轮 */}
       <div className="flex justify-center space-x-3">
         {digits.map((digit, index) => (
           <motion.div
             key={index}
-            className={`relative rounded-lg border-2 transition-all duration-300 ${
-              unlockedSlots[index]
-                ? activeSlot === index
-                  ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200'
-                  : 'border-amber-300 bg-gradient-to-b from-amber-100 to-amber-200'
-                : 'border-gray-300 bg-gray-100 opacity-60'
+            className={`relative bg-gradient-to-b from-amber-100 to-amber-200 rounded-lg border-2 ${
+              activeSlot === index ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)]' : 'border-amber-300'
             } ${isError ? 'animate-shake' : ''}`}
-            onClick={() => unlockedSlots[index] && setActiveSlot(index)}
-            whileTap={unlockedSlots[index] ? { scale: 0.95 } : {}}
+            onClick={() => setActiveSlot(index)}
+            whileTap={{ scale: 0.95 }}
           >
-            {!unlockedSlots[index] && (
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Lock className="w-5 h-5 text-gray-400" />
-              </div>
-            )}
+            {/* 上箭头 */}
             <button
               onClick={() => handleDigitChange(index, 'up')}
-              disabled={!unlockedSlots[index]}
-              className={`w-12 h-8 flex items-center justify-center transition-colors ${
-                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-gray-300 cursor-not-allowed'
-              }`}
+              className="w-12 h-8 flex items-center justify-center text-amber-600 hover:text-[#E35D6A] transition-colors"
             >
               ▲
             </button>
+            
+            {/* 数字显示 */}
             <div className={`w-12 h-14 flex items-center justify-center text-3xl font-bold ${
-              isSuccess ? 'text-green-500' : unlockedSlots[index] ? 'text-[#7C444F]' : 'text-gray-400'
+              isSuccess ? 'text-green-500' : 'text-[#7C444F]'
             }`}>
               {isSuccess ? '✓' : digit}
             </div>
+            
+            {/* 下箭头 */}
             <button
               onClick={() => handleDigitChange(index, 'down')}
-              disabled={!unlockedSlots[index]}
-              className={`w-12 h-8 flex items-center justify-center transition-colors ${
-                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-gray-300 cursor-not-allowed'
-              }`}
+              className="w-12 h-8 flex items-center justify-center text-amber-600 hover:text-[#E35D6A] transition-colors"
             >
               ▼
             </button>
-            {unlockedSlots[index] && (
-              <>
-                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full" />
-                <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full" />
-              </>
-            )}
+            
+            {/* 齿轮装饰 */}
+            <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full" />
+            <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full" />
           </motion.div>
         ))}
       </div>
-
+      
+      {/* 解锁按钮 */}
       <motion.button
-        whileHover={allUnlocked ? { scale: 1.05 } : {}}
-        whileTap={allUnlocked ? { scale: 0.95 } : {}}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={checkCode}
-        disabled={!allUnlocked}
-        className={`px-8 py-3 rounded-xl font-bold shadow-lg transition-all ${
-          allUnlocked
-            ? 'bg-gradient-to-r from-[#E35D6A] to-rose-500 text-white hover:shadow-xl'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-        }`}
+        className="px-8 py-3 bg-gradient-to-r from-[#E35D6A] to-rose-500 text-white rounded-xl font-bold shadow-lg"
       >
-        {isSuccess ? '解锁成功!' : allUnlocked ? '转动解锁' : `收集碎片 (${unlockedSlots.filter(Boolean).length}/4)`}
+        {isSuccess ? '解锁成功!' : '转动解锁'}
       </motion.button>
     </div>
   );
