@@ -1753,65 +1753,68 @@ const SlotPassword = ({
       </motion.div>
 
       <div className="flex justify-center space-x-3">
-        {digits.map((digit, index) => (
-          <div
-            key={index}
-            className={`relative rounded-lg border-2 transition-all duration-300 overflow-hidden ${
-              unlockedSlots[index]
-                ? activeSlot === index
-                  ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200'
-                  : 'border-amber-300 bg-gradient-to-b from-amber-100 to-amber-200'
-                : 'border-zinc-300 bg-zinc-100'
-            } ${isError ? 'animate-shake' : ''}`}
-          >
-            {/* 未解锁状态 - 完全覆盖并阻断所有交互 */}
-            {!unlockedSlots[index] ? (
+        {digits.map((digit, index) => {
+          // 👉 核心锁定逻辑 👈
+          const isLocked = !unlockedSlots[index];
+
+          return (
+            <div key={index} className="relative group">
+              {/* 拨盘容器：通过 condition 强制应用样式 */}
               <div
-                className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-zinc-100 cursor-not-allowed"
-                style={{ pointerEvents: 'auto' }}
                 onClick={() => {
-                  showToast('🔒 拨盘已锁定，请先收集对应的回忆碎片', 'error');
+                  // 👉 物理拦截：锁定时不允许点击 👈
+                  if (isLocked) {
+                    console.log("🔒 试图点击被锁定的拨盘：" + index);
+                    showToast('🔒 拨盘已锁定，请先收集对应的回忆碎片', 'error');
+                    return;
+                  }
+                  setActiveSlot(index);
                 }}
+                className={`w-14 h-14 rounded-full border-4 flex items-center justify-center transition-all duration-300 relative
+                  ${isLocked
+                    // 🔒 强制锁定的灰色样式
+                    ? 'bg-zinc-100 border-zinc-200 cursor-not-allowed grayscale shadow-inner'
+                    // 💖 激活时的浪漫样式
+                    : 'bg-white border-pink-100 cursor-pointer shadow-sm hover:shadow-md group-hover:-translate-y-1'
+                  }`}
               >
-                <Lock className="w-7 h-7 text-zinc-400 mb-1" />
-                <span className="text-[10px] text-zinc-500 font-bold">锁定</span>
+                {isLocked ? (
+                  // 🔒 锁定时只显示锁图标
+                  <span className="text-3xl grayscale opacity-50">🔒</span>
+                ) : (
+                  // 💖 激活时显示数字
+                  <span className="text-3xl font-bold text-[#7C444F]">{isSuccess ? '✓' : digit}</span>
+                )}
               </div>
-            ) : null}
 
-            {/* 按钮区域 - 只有解锁后才可交互 */}
-            <motion.button
-              onClick={() => handleDigitChange(index, 'up')}
-              whileTap={{ scale: 0.9 }}
-              className="w-12 h-8 flex items-center justify-center text-amber-600 hover:text-[#E35D6A] transition-colors"
-            >
-              ▲
-            </motion.button>
-            <motion.div
-              className={`w-12 h-14 flex items-center justify-center text-3xl font-bold ${
-                isSuccess ? 'text-green-500' : 'text-[#7C444F]'
-              } cursor-pointer`}
-              onClick={() => setActiveSlot(index)}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isSuccess ? '✓' : digit}
-            </motion.div>
-            <motion.button
-              onClick={() => handleDigitChange(index, 'down')}
-              whileTap={{ scale: 0.9 }}
-              className="w-12 h-8 flex items-center justify-center text-amber-600 hover:text-[#E35D6A] transition-colors"
-            >
-              ▼
-            </motion.button>
-
-            {/* 侧边装饰 - 仅解锁后显示 */}
-            {unlockedSlots[index] && (
-              <>
-                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full pointer-events-none" />
-                <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full pointer-events-none" />
-              </>
-            )}
-          </div>
-        ))}
+              {/* 上下按钮 - 仅解锁时显示 */}
+              {!isLocked && (
+                <>
+                  <motion.button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDigitChange(index, 'up');
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm"
+                  >
+                    ▲
+                  </motion.button>
+                  <motion.button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDigitChange(index, 'down');
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm"
+                  >
+                    ▼
+                  </motion.button>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <motion.button
