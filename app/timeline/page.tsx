@@ -1759,37 +1759,60 @@ const SlotPassword = ({
             className={`relative rounded-lg border-2 transition-all duration-300 ${
               unlockedSlots[index]
                 ? activeSlot === index
-                  ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200'
-                  : 'border-amber-300 bg-gradient-to-b from-amber-100 to-amber-200'
-                : 'border-gray-300 bg-gray-100 opacity-60'
+                  ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200 cursor-pointer'
+                  : 'border-amber-300 bg-gradient-to-b from-amber-100 to-amber-200 cursor-pointer'
+                : 'border-zinc-300 bg-zinc-100 cursor-not-allowed'
             } ${isError ? 'animate-shake' : ''}`}
-            onClick={() => unlockedSlots[index] && setActiveSlot(index)}
+            onClick={() => {
+              // 强制阻断：未解锁时完全禁止交互
+              if (!unlockedSlots[index]) {
+                showToast('🔒 该拨盘已锁定，请先收集对应的回忆碎片', 'error');
+                return;
+              }
+              setActiveSlot(index);
+            }}
             whileTap={unlockedSlots[index] ? { scale: 0.95 } : {}}
           >
+            {/* 未解锁遮罩层 - 完全覆盖 */}
             {!unlockedSlots[index] && (
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Lock className="w-5 h-5 text-gray-400" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-zinc-100/90 rounded-lg">
+                <Lock className="w-8 h-8 text-zinc-400 mb-1" />
+                <span className="text-xs text-zinc-500 font-medium">锁定</span>
               </div>
             )}
             <button
-              onClick={() => handleDigitChange(index, 'up')}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!unlockedSlots[index]) {
+                  showToast('🔒 该拨盘已锁定', 'error');
+                  return;
+                }
+                handleDigitChange(index, 'up');
+              }}
               disabled={!unlockedSlots[index]}
               className={`w-12 h-8 flex items-center justify-center transition-colors ${
-                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-gray-300 cursor-not-allowed'
+                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-zinc-300 cursor-not-allowed'
               }`}
             >
               ▲
             </button>
             <div className={`w-12 h-14 flex items-center justify-center text-3xl font-bold ${
-              isSuccess ? 'text-green-500' : unlockedSlots[index] ? 'text-[#7C444F]' : 'text-gray-400'
-            }`}>
+              isSuccess ? 'text-green-500' : unlockedSlots[index] ? 'text-[#7C444F]' : 'text-zinc-400'
+            } ${!unlockedSlots[index] ? 'grayscale opacity-40' : ''}`}>
               {isSuccess ? '✓' : digit}
             </div>
             <button
-              onClick={() => handleDigitChange(index, 'down')}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!unlockedSlots[index]) {
+                  showToast('🔒 该拨盘已锁定', 'error');
+                  return;
+                }
+                handleDigitChange(index, 'down');
+              }}
               disabled={!unlockedSlots[index]}
               className={`w-12 h-8 flex items-center justify-center transition-colors ${
-                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-gray-300 cursor-not-allowed'
+                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-zinc-300 cursor-not-allowed'
               }`}
             >
               ▼
