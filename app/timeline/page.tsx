@@ -947,6 +947,9 @@ const DecryptionModal = ({
     puzzle: <PuzzleGame onSuccess={handleGameSuccess} />
   };
   
+  // 调试探针：打印当前解锁状态
+  console.log("当前解锁状态检查:", unlockedSlots);
+  
   return (
     <AnimatePresence>
       {isOpen && (
