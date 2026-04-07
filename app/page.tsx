@@ -491,18 +491,18 @@ function ScatteredPolaroids() {
   );
 }
 
-// ===== 我们的相册 入口卡片（全宽横幅版） =====
+// ===== 我们在昆明有个家 🏠 入口卡片（全宽横幅版） =====
 function DarkroomCard() {
   return (
     <a href="/album" className="block group">
-      <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 rounded-2xl p-6 md:p-8 flex flex-row items-center justify-between cursor-pointer">
+      <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer">
         {/* 左侧文案 */}
         <div className="flex flex-col items-start">
-          <h3 className="text-rose-800 tracking-widest text-xl md:text-2xl font-bold">
-            我们的相册
-          </h3>
-          <p className="text-rose-500 text-sm md:text-base mt-2">
+          <h3 className="text-xl md:text-2xl font-bold text-rose-800 tracking-wide">
             我们在昆明有个家 🏠
+          </h3>
+          <p className="text-sm text-rose-500 mt-2">
+            专属于我们的记忆
           </p>
         </div>
 
@@ -1004,15 +1004,6 @@ export default function HomePage() {
             />
           </div>
 
-          {/* 4.5 我们的相册 - 全宽横幅 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="col-span-full"
-          >
-            <DarkroomCard />
-          </motion.div>
 
           {/* 第三列 */}
           <div className="col-span-12 md:col-span-3 space-y-6 md:space-y-8">
@@ -1104,6 +1095,16 @@ export default function HomePage() {
               <ScratchCard />
             </div>
           </div>
+
+          {/* 4.5 我们在昆明有个家 🏠 - 全宽横幅 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="col-span-full"
+          >
+            <DarkroomCard />
+          </motion.div>
         </div>
 
         {/* 底部彩蛋 */}
