@@ -1754,81 +1754,63 @@ const SlotPassword = ({
 
       <div className="flex justify-center space-x-3">
         {digits.map((digit, index) => (
-          <motion.div
+          <div
             key={index}
             className={`relative rounded-lg border-2 transition-all duration-300 overflow-hidden ${
               unlockedSlots[index]
                 ? activeSlot === index
-                  ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200 cursor-pointer'
-                  : 'border-amber-300 bg-gradient-to-b from-amber-100 to-amber-200 cursor-pointer'
-                : 'border-zinc-300 bg-zinc-100 cursor-not-allowed'
+                  ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200'
+                  : 'border-amber-300 bg-gradient-to-b from-amber-100 to-amber-200'
+                : 'border-zinc-300 bg-zinc-100'
             } ${isError ? 'animate-shake' : ''}`}
-            onClick={() => {
-              if (!unlockedSlots[index]) {
-                showToast('🔒 该拨盘已锁定，请先收集对应的回忆碎片', 'error');
-                return;
-              }
-              setActiveSlot(index);
-            }}
-            whileTap={unlockedSlots[index] ? { scale: 0.95 } : {}}
           >
-            {/* 未解锁遮罩层 - 完全覆盖并阻断交互 */}
-            {!unlockedSlots[index] && (
+            {/* 未解锁状态 - 完全覆盖并阻断所有交互 */}
+            {!unlockedSlots[index] ? (
               <div
-                className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-zinc-100/95"
-                onClick={(e) => {
-                  e.stopPropagation();
+                className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-zinc-100 cursor-not-allowed"
+                style={{ pointerEvents: 'auto' }}
+                onClick={() => {
                   showToast('🔒 该拨盘已锁定，请先收集对应的回忆碎片', 'error');
                 }}
               >
                 <Lock className="w-7 h-7 text-zinc-400 mb-1" />
                 <span className="text-[10px] text-zinc-500 font-bold">锁定</span>
               </div>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!unlockedSlots[index]) {
-                  showToast('🔒 该拨盘已锁定', 'error');
-                  return;
-                }
-                handleDigitChange(index, 'up');
-              }}
-              disabled={!unlockedSlots[index]}
-              className={`w-12 h-8 flex items-center justify-center transition-colors ${
-                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-zinc-300 cursor-not-allowed'
-              }`}
+            ) : null}
+
+            {/* 按钮区域 - 只有解锁后才可交互 */}
+            <motion.button
+              onClick={() => handleDigitChange(index, 'up')}
+              whileTap={{ scale: 0.9 }}
+              className="w-12 h-8 flex items-center justify-center text-amber-600 hover:text-[#E35D6A] transition-colors"
             >
               ▲
-            </button>
-            <div className={`w-12 h-14 flex items-center justify-center text-3xl font-bold transition-all ${
-              isSuccess ? 'text-green-500' : unlockedSlots[index] ? 'text-[#7C444F]' : 'text-zinc-400 grayscale'
-            } ${!unlockedSlots[index] ? 'opacity-30' : ''}`}>
+            </motion.button>
+            <motion.div
+              className={`w-12 h-14 flex items-center justify-center text-3xl font-bold ${
+                isSuccess ? 'text-green-500' : 'text-[#7C444F]'
+              } cursor-pointer`}
+              onClick={() => setActiveSlot(index)}
+              whileTap={{ scale: 0.95 }}
+            >
               {isSuccess ? '✓' : digit}
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!unlockedSlots[index]) {
-                  showToast('🔒 该拨盘已锁定', 'error');
-                  return;
-                }
-                handleDigitChange(index, 'down');
-              }}
-              disabled={!unlockedSlots[index]}
-              className={`w-12 h-8 flex items-center justify-center transition-colors ${
-                unlockedSlots[index] ? 'text-amber-600 hover:text-[#E35D6A]' : 'text-zinc-300 cursor-not-allowed'
-              }`}
+            </motion.div>
+            <motion.button
+              onClick={() => handleDigitChange(index, 'down')}
+              whileTap={{ scale: 0.9 }}
+              className="w-12 h-8 flex items-center justify-center text-amber-600 hover:text-[#E35D6A] transition-colors"
             >
               ▼
-            </button>
+            </motion.button>
+
+            {/* 侧边装饰 - 仅解锁后显示 */}
             {unlockedSlots[index] && (
               <>
-                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full" />
-                <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full" />
+                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full pointer-events-none" />
+                <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-8 bg-amber-300 rounded-full pointer-events-none" />
               </>
             )}
-          </motion.div>
+          </div>
         ))}
       </div>
 
