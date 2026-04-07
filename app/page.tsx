@@ -491,25 +491,25 @@ function ScatteredPolaroids() {
   );
 }
 
-// ===== 我们的相册 入口卡片 =====
+// ===== 我们的相册 入口卡片（全宽横幅版） =====
 function DarkroomCard() {
   return (
-    <a href="/album" className="block h-full group">
-      <div className="h-full bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 rounded-2xl p-6 flex items-center justify-between cursor-pointer">
+    <a href="/album" className="block group">
+      <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 rounded-2xl p-6 md:p-8 flex flex-row items-center justify-between cursor-pointer">
         {/* 左侧文案 */}
         <div className="flex flex-col items-start">
-          <h3 className="text-rose-800 tracking-widest text-xl font-bold">
+          <h3 className="text-rose-800 tracking-widest text-xl md:text-2xl font-bold">
             我们的相册
           </h3>
-          <p className="text-rose-500 text-sm mt-1">
-            属于我们的记忆
+          <p className="text-rose-500 text-sm md:text-base mt-2">
+            我们在昆明有个家 🏠
           </p>
         </div>
 
         {/* 右侧图标 */}
-        <div className="flex items-center space-x-2">
-          <span className="text-3xl group-hover:scale-110 transition-transform duration-300">📷</span>
-          <span className="text-rose-400 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">➔</span>
+        <div className="flex items-center space-x-3">
+          <span className="text-3xl md:text-4xl group-hover:scale-110 transition-transform duration-300">📷</span>
+          <span className="text-rose-400 text-xl md:text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">➔</span>
         </div>
       </div>
     </a>
@@ -984,16 +984,6 @@ export default function HomePage() {
               <ScatteredPolaroids />
             </motion.div>
 
-            {/* 4.5 我们的相册 - 支线彩蛋 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="h-48"
-            >
-              <DarkroomCard />
-            </motion.div>
-
             {/* 5. 想你按钮 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1013,6 +1003,16 @@ export default function HomePage() {
               subtitle="写给李丹"
             />
           </div>
+
+          {/* 4.5 我们的相册 - 全宽横幅 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="col-span-full"
+          >
+            <DarkroomCard />
+          </motion.div>
 
           {/* 第三列 */}
           <div className="col-span-12 md:col-span-3 space-y-6 md:space-y-8">
