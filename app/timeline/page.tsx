@@ -1770,7 +1770,7 @@ const SlotPassword = ({
                 className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-zinc-100 cursor-not-allowed"
                 style={{ pointerEvents: 'auto' }}
                 onClick={() => {
-                  showToast('🔒 该拨盘已锁定，请先收集对应的回忆碎片', 'error');
+                  showToast('🔒 拨盘已锁定，请先收集对应的回忆碎片', 'error');
                 }}
               >
                 <Lock className="w-7 h-7 text-zinc-400 mb-1" />
