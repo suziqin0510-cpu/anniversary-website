@@ -513,3 +513,89 @@ html {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(227, 93, 106, 0.3);
 }
+
+/* ============================================
+   星空模式 (Starry Mode) 主题样式
+   ============================================ */
+
+/* 星空模式 - 根元素样式 */
+html.starry-mode {
+  --background: #0B1026;
+  --foreground: #E8EAF6;
+  --card: rgba(20, 25, 50, 0.7);
+  --card-foreground: #E8EAF6;
+  --primary: #7C3AED;
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(100, 80, 180, 0.3);
+  --secondary-foreground: #E8EAF6;
+  --muted: rgba(60, 50, 100, 0.4);
+  --muted-foreground: #A5A8C9;
+  --accent: #A78BFA;
+  --accent-foreground: #0B1026;
+  --border: rgba(100, 100, 200, 0.3);
+}
+
+/* 星空模式 - 主体背景 */
+html.starry-mode body {
+  background: linear-gradient(135deg, #0B1026 0%, #1a1f3d 50%, #0f1530 100%);
+  transition: background 0.5s ease;
+}
+
+/* 星空模式 - 玻璃卡片霓虹发光 */
+html.starry-mode .glass-card {
+  background: rgba(20, 25, 50, 0.6);
+  border: 1px solid rgba(100, 100, 200, 0.3);
+  box-shadow:
+    0 4px 24px rgba(124, 58, 237, 0.15),
+    0 0 40px rgba(124, 58, 237, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.5s ease;
+}
+
+html.starry-mode .glass-card:hover {
+  box-shadow:
+    0 8px 32px rgba(124, 58, 237, 0.25),
+    0 0 60px rgba(167, 139, 250, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 星空模式 - 水印样式 */
+html.starry-mode .text-rose-deep {
+  color: #C7D2FE;
+}
+
+/* 星空模式 - S&L 水印颜色 */
+html.starry-mode .fixed.inset-0 .font-bold {
+  color: #E0E7FF !important;
+  opacity: 0.08;
+}
+
+/* 星空模式 - 导航栏 */
+html.starry-mode header {
+  background: rgba(11, 16, 38, 0.95) !important;
+  border-bottom: 1px solid rgba(100, 100, 200, 0.2);
+}
+
+/* 星空模式 - 文本颜色 */
+html.starry-mode .text-\[\#7C444F\] {
+  color: #E8EAF6;
+}
+
+html.starry-mode .text-\[\#9B6A6C\] {
+  color: #A5A8C9;
+}
+
+/* 星空模式 - 滚动条 */
+html.starry-mode ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.6), rgba(167, 139, 250, 0.6));
+}
+
+html.starry-mode ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.8), rgba(167, 139, 250, 0.8));
+}
+
+/* 星空模式 - 选择文本颜色 */
+html.starry-mode ::selection {
+  background: rgba(124, 58, 237, 0.3);
+  color: #E8EAF6;
+}

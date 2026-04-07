@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
+import SoulQuiz from '@/components/SoulQuiz';
 
 const HandDrawnStar = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
@@ -158,6 +159,9 @@ export default function FuturePage() {
             </div>
           </Tilt>
         </motion.div>
+
+        {/* 关卡5：灵魂拷问 - 解锁私密日记 */}
+        <SoulQuiz />
       </div>
     </div>
   );

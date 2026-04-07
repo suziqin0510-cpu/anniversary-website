@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
+import TimeMailbox from '@/components/TimeMailbox';
 
 const HandDrawnTrophy = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
@@ -125,6 +126,9 @@ export default function AchievementsPage() {
             </div>
           </Tilt>
         </motion.div>
+
+        {/* 时空信箱 - 关卡4入口 */}
+        <TimeMailbox />
       </div>
     </div>
   );

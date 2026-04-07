@@ -4,10 +4,249 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Tilt from 'react-parallax-tilt';
+import ScratchCard from '@/components/ScratchCard';
+import CinemaModal from '@/components/CinemaModal';
+import PolaroidFlip from '@/components/PolaroidFlip';
+import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
+import { useRouter } from 'next/navigation';
+import { Lock } from 'lucide-react';
 
-// ===== 图标组件 =====
+// ===== 全局样式：禁用 Hover 阴影 =====
+const noShadowStyle = { outline: 'none', boxShadow: 'none' } as const;
+
+// ===== 获取路由需要的关卡 =====
+function getRouteLevel(href: string): number | null {
+  for (const [level, routes] of Object.entries(LEVEL_ROUTES)) {
+    if (routes.some((r) => href.startsWith(r))) {
+      return parseInt(level);
+    }
+  }
+  return null;
+}
+
+// ===== 带锁定的 Link 组件 =====
+function LockedLink({
+  href,
+  children,
+  className,
+  onClick,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: (e: React.MouseEvent) => void;
+}) {
+  const { isLevelUnlocked, showToast } = useGame();
+  const router = useRouter();
+  const [isShaking, setIsShaking] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    const requiredLevel = getRouteLevel(href);
+
+    // 如果需要关卡且未解锁
+    if (requiredLevel && !isLevelUnlocked(requiredLevel)) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // 触发摇晃动画
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+
+      // 显示 Toast
+      showToast('🔒 关卡未解锁：请先找齐 8 个光阴碎片，拼出幸福的密码！', 'error');
+      return false;
+    }
+
+    // 调用原始的 onClick
+    onClick?.(e);
+  };
+
+  return (
+    <motion.div
+      animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
+      transition={{ duration: 0.4 }}
+      className="h-full"
+    >
+      <Link href={href} onClick={handleClick} className={className}>
+        {children}
+      </Link>
+    </motion.div>
+  );
+}
+
+// ===== 带锁定的卡片组件 =====
+function LockedCard({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const { isLevelUnlocked, showToast } = useGame();
+  const [isShaking, setIsShaking] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    const requiredLevel = getRouteLevel(href);
+
+    if (requiredLevel && !isLevelUnlocked(requiredLevel)) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+
+      showToast('🔒 关卡未解锁：请先找齐 8 个光阴碎片，拼出幸福的密码！', 'error');
+      return false;
+    }
+  };
+
+  return (
+    <motion.div
+      animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
+      transition={{ duration: 0.4 }}
+      className={className}
+      onClick={handleClick}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ===== 带锁定的卡片链接组件（用于小型卡片） =====
+function LockedCardLink({
+  href,
+  icon,
+  title,
+  subtitle,
+  delay = 0,
+  small = false,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  delay?: number;
+  small?: boolean;
+}) {
+  const { isLevelUnlocked, showToast } = useGame();
+  const [isShaking, setIsShaking] = useState(false);
+  const requiredLevel = getRouteLevel(href);
+  const isLocked = requiredLevel ? !isLevelUnlocked(requiredLevel) : false;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+
+      showToast('🔒 关卡未解锁：请先找齐 8 个光阴碎片，拼出幸福的密码！', 'error');
+      return false;
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
+      transition={{ delay, duration: 0.5 }}
+      className={`bg-white/80 backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-white/60 transition-shadow ${
+        isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'
+      }`}
+    >
+      <Link href={isLocked ? '#' : href} onClick={handleClick} className="flex items-center space-x-3 group">
+        <div
+          className={`rounded-xl bg-[#E35D6A]/20 flex items-center justify-center transition-transform ${
+            small ? 'w-10 h-10' : 'w-12 h-12'
+          } ${isLocked ? '' : 'group-hover:scale-105'}`}
+        >
+          {isLocked ? (
+            <Lock className={`${small ? 'w-4 h-4' : 'w-5 h-5'} text-[#9B6A6C]/50`} />
+          ) : (
+            icon
+          )}
+        </div>
+        <div>
+          <h3
+            className={`font-bold text-[#7C444F] transition-colors ${
+              small ? 'text-sm' : ''
+            } ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}
+          >
+            {isLocked ? '🔒 ' + title : title}
+          </h3>
+          <p className={`text-[#9B6A6C] ${small ? 'text-[10px]' : 'text-xs'}`}>
+            {isLocked ? '关卡未解锁' : subtitle}
+          </p>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+// ===== 字母 H 触发器组件 =====
+function LetterHTrigger() {
+  const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
+
+  const handleCollectH = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!hasCollectedLetter('h' as Letter)) {
+      collectLetter('h' as Letter);
+      triggerLetterAnimation('h' as Letter, e.clientX, e.clientY);
+      showToast('发现字母 H！', 'success');
+    }
+  };
+
+  if (hasCollectedLetter('h' as Letter)) return null;
+
+  return (
+    <span
+      onClick={handleCollectH}
+      className="ml-1 text-white/10 hover:text-[#E35D6A] hover:text-white/80 cursor-pointer transition-all text-xs"
+    >
+      h
+    </span>
+  );
+}
+
+// ===== 胶片颗粒纹理背景 =====
+const FilmGrain = () => (
+  <div
+    className="fixed inset-0 pointer-events-none z-[1]"
+    style={{
+      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+      opacity: 0.05,
+    }}
+  />
+);
+
+// ===== 手绘涂鸦装饰 =====
+const HandDrawnDoodles = () => (
+  <>
+    {/* 手绘星星 - 左上角 */}
+    <svg className="absolute top-20 left-8 w-12 h-12 text-[#F4A460]/40 pointer-events-none" viewBox="0 0 48 48" style={{ transform: 'rotate(-15deg)' }}>
+      <path d="M24 2l6 18h18l-14 10 5 18-15-10-15 10 5-18L2 20h18z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    {/* 手绘箭头 - 指向时间线 */}
+    <svg className="absolute top-[35%] right-12 w-16 h-16 text-[#E35D6A]/30 pointer-events-none" viewBox="0 0 64 64">
+      <path d="M8 32c10-15 30-20 40-10M44 18l8 6-6 8" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    {/* 波浪线 - 底部装饰 */}
+    <svg className="absolute bottom-40 left-[15%] w-24 h-8 text-[#E35D6A]/25 pointer-events-none" viewBox="0 0 96 32">
+      <path d="M2 16c8-8 16 8 24 0s16-8 24 0 16 8 24 0 16-8 20 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+    {/* 小圆点装饰 */}
+    <div className="absolute top-[45%] left-[8%] w-3 h-3 rounded-full bg-[#F4A460]/40 pointer-events-none" />
+    <div className="absolute top-[60%] right-[10%] w-2 h-2 rounded-full bg-[#E35D6A]/30 pointer-events-none" />
+    <div className="absolute bottom-[30%] right-[20%] w-4 h-4 rounded-full border-2 border-[#F4A460]/35 pointer-events-none" />
+  </>
+);
+
+// ===== 图标组件（无阴影版本） =====
 const RedHeart = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <path
       d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
       fill="#DC2626"
@@ -20,7 +259,7 @@ const RedHeart = () => (
 );
 
 const SmallHeart = ({ className = 'w-4 h-4' }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" className={className}>
+  <svg viewBox="0 0 24 24" fill="none" className={className} style={noShadowStyle}>
     <path
       d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
       fill="#E35D6A"
@@ -31,21 +270,21 @@ const SmallHeart = ({ className = 'w-4 h-4' }: { className?: string }) => (
 );
 
 const HandDrawnClock = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <circle cx="12" cy="12" r="9" stroke="#7C444F" strokeWidth="1.5" fill="none" strokeLinecap="round" />
     <path d="M12 7v5l3 3" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const HandDrawnMap = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7z" fill="#E35D6A" fillOpacity="0.3" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     <circle cx="12" cy="9" r="2" fill="#E35D6A" />
   </svg>
 );
 
 const HandDrawnTrophy = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M7 4H5a2 2 0 00-2 2v1a3 3 0 003 3M17 4h2a2 2 0 012 2v1a3 3 0 01-3 3" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -53,20 +292,20 @@ const HandDrawnTrophy = () => (
 );
 
 const HandDrawnStar = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#E35D6A" fillOpacity="0.4" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const HandDrawnBook = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="#7C444F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="#E35D6A" fillOpacity="0.2" />
   </svg>
 );
 
 const HandDrawnPaw = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <ellipse cx="12" cy="15" rx="4" ry="3.5" fill="#E35D6A" fillOpacity="0.3" stroke="#7C444F" strokeWidth="1.5" />
     <ellipse cx="6.5" cy="9" rx="2" ry="2.5" fill="#E35D6A" fillOpacity="0.4" stroke="#7C444F" strokeWidth="1.5" />
     <ellipse cx="12" cy="6" rx="2" ry="2.5" fill="#E35D6A" fillOpacity="0.4" stroke="#7C444F" strokeWidth="1.5" />
@@ -75,7 +314,7 @@ const HandDrawnPaw = () => (
 );
 
 const VideoPlayerIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
     <rect x="2" y="6" width="20" height="12" rx="3" fill="url(#videoGrad)" fillOpacity="0.3" stroke="#E35D6A" strokeWidth="1.5" />
     <path d="M10 9l6 3-6 3V9z" fill="#E35D6A" />
     <defs>
@@ -88,31 +327,25 @@ const VideoPlayerIcon = () => (
 );
 
 const WeatherSun = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
+  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8" style={noShadowStyle}>
     <circle cx="12" cy="12" r="5" fill="#F4A460" fillOpacity="0.6" stroke="#F4A460" strokeWidth="1.5" />
     <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#F4A460" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 const WeatherCloud = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
+  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8" style={noShadowStyle}>
     <path d="M18 10h-1.26A8 8 0 104 16.25" stroke="#9B6A6C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="#E35D6A" fillOpacity="0.2" />
     <path d="M16 10a5 5 0 110 10h-1" stroke="#9B6A6C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const GiftBoxIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-    <rect x="3" y="8" width="18" height="13" rx="2" fill="#E35D6A" fillOpacity="0.2" stroke="#E35D6A" strokeWidth="1.5" />
-    <path d="M12 8v13M3 12h18" stroke="#E35D6A" strokeWidth="1.5" />
-    <path d="M7 8c0-2.21 1.79-4 4-4a4 4 0 014 4M17 8c0-2.21-1.79-4-4-4" stroke="#E35D6A" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 // ===== 实时心跳计时器组件 =====
 function LiveHeartbeatTimer() {
   const [timeData, setTimeData] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [showLetterE, setShowLetterE] = useState(false);
   const START_DATE = new Date('2025-05-20T00:00:00');
+  const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
 
   useEffect(() => {
     const calculateTime = () => {
@@ -130,6 +363,25 @@ function LiveHeartbeatTimer() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleDaysHover = () => {
+    if (!hasCollectedLetter('e' as Letter)) {
+      setShowLetterE(true);
+    }
+  };
+
+  const handleDaysLeave = () => {
+    setShowLetterE(false);
+  };
+
+  const handleCollectE = (e: React.MouseEvent) => {
+    if (!hasCollectedLetter('e' as Letter)) {
+      collectLetter('e' as Letter);
+      triggerLetterAnimation('e' as Letter, e.clientX, e.clientY);
+      showToast('发现字母 E！', 'success');
+    }
+    setShowLetterE(false);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <div className="flex items-center space-x-1 mb-2">
@@ -137,88 +389,130 @@ function LiveHeartbeatTimer() {
         <span className="text-sm text-[#9B6A6C]">实时心跳</span>
         <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
       </div>
-      <div className="text-3xl font-bold text-[#E35D6A] font-mono">
-        {String(timeData.days).padStart(3, '0')}:{String(timeData.hours).padStart(2, '0')}:
-        {String(timeData.minutes).padStart(2, '0')}:{String(timeData.seconds).padStart(2, '0')}
+      <div
+        className="text-3xl font-bold text-[#E35D6A] font-mono relative cursor-pointer"
+        onMouseEnter={handleDaysHover}
+        onMouseLeave={handleDaysLeave}
+      >
+        <span>{String(timeData.days).padStart(3, '0')}</span>
+        <span className="text-[#9B6A6C]">:</span>
+        <span>{String(timeData.hours).padStart(2, '0')}</span>
+        <span className="text-[#9B6A6C]">:</span>
+        <span>{String(timeData.minutes).padStart(2, '0')}</span>
+        <span className="text-[#9B6A6C]">:</span>
+        <span>{String(timeData.seconds).padStart(2, '0')}</span>
+
+        {/* 字母 e 触发器 */}
+        <AnimatePresence>
+          {showLetterE && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              onClick={handleCollectE}
+              className="absolute -right-6 top-0 text-2xl font-bold text-[#E35D6A] cursor-pointer hover:scale-125 transition-transform"
+              style={{ textShadow: '0 0 10px rgba(227, 93, 106, 0.8)' }}
+            >
+              e
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
       <div className="text-xs text-[#9B6A6C] mt-1">自 2025.05.20 起</div>
     </div>
   );
 }
 
-// ===== 回忆盲盒宝丽来组件 =====
-const polaroids = [
-  { id: 1, caption: '初遇 · 昆明', color: 'bg-[#FFE4E1]' },
-  { id: 2, caption: '大理的风', color: 'bg-[#E6F3FF]' },
-  { id: 3, caption: '丽江的酒', color: 'bg-[#FFF8DC]' },
-  { id: 4, caption: '亚庇落日', color: 'bg-[#FFE4B5]' },
+// ===== 2x2 错落拍立得画廊 =====
+const polaroidsData = [
+  {
+    id: 1,
+    title: '我们的第一个 100 天',
+    caption: '一场美美的约会。',
+    rotate: '-4deg',
+    image: 'https://i.ibb.co/kYwptsL/58d4863d5a51e750dc6e8152b64ab74c.jpg',
+    backText: '那天阳光很好，你笑得很甜。我想，这就是爱情的样子吧。',
+  },
+  {
+    id: 2,
+    title: '鲜花后备箱',
+    caption: '专属于你的后备箱（鲜花限定版）。',
+    rotate: '3deg',
+    image: 'https://i.ibb.co/Cpz5MvGc/94d4f8cada1991a77bf8ce953d7f9734.jpg',
+    backText: '准备这个惊喜的时候，我比你还紧张。看到你惊喜的表情，一切都值得。',
+  },
+  {
+    id: 3,
+    title: '超爽泡私汤',
+    caption: '你肯定记得这是在哪了吧。',
+    rotate: '-2deg',
+    image: 'https://i.ibb.co/mrfHcVp7/135431bee4c12631c685caa0838abcae.jpg',
+    backText: '香格里拉的私汤很暖，你很甜。雪山下的浪漫，是我见过最美的风景。',
+  },
+  {
+    id: 4,
+    title: '专属四宫格',
+    caption: '这可是我们自己的四宫格哦。',
+    rotate: '5deg',
+    image: 'https://i.ibb.co/4w7S1Y9m/2cb378e808092ab8ba55cd0cd2b02152.jpg',
+    backText: '每一张都是我们的独家记忆，每一个笑容都是我最珍贵的宝藏。',
+  },
 ];
 
-function MemoryBlindBox() {
-  const [flipped, setFlipped] = useState<number | null>(null);
-  const [opened, setOpened] = useState<Set<number>>(new Set());
-
-  const handleFlip = (id: number) => {
-    if (flipped === id) {
-      setFlipped(null);
-    } else {
-      setFlipped(id);
-      setOpened(prev => new Set([...prev, id]));
-    }
-  };
-
+function ScatteredPolaroids() {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <GiftBoxIcon />
-          <span className="text-lg font-bold text-[#7C444F]">回忆盲盒</span>
-        </div>
-        <span className="text-xs text-[#9B6A6C]">已开启 {opened.size}/4</span>
+      {/* 标题 */}
+      <div className="mb-4">
+        <h3 className="text-xl font-bold text-[#7C444F] font-handwriting">散落的回忆</h3>
+        <p className="text-xs text-[#9B6A6C] mt-1">点击照片，翻转查看背面文字</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 flex-1">
-        {polaroids.map((p, i) => (
-          <motion.div
+      {/* 2x2 3D翻转拍立得网格 */}
+      <div className="grid grid-cols-2 gap-4 flex-1">
+        {polaroidsData.map((p, index) => (
+          <PolaroidFlip
             key={p.id}
-            className="relative cursor-pointer"
-            style={{ perspective: 1000 }}
-            onClick={() => handleFlip(p.id)}
-            initial={{ opacity: 0, rotateY: 180 }}
-            animate={{ opacity: 1, rotateY: 0 }}
-            transition={{ delay: i * 0.2, duration: 0.6 }}
-          >
-            <motion.div
-              className="w-full h-full"
-              animate={{ rotateY: flipped === p.id ? 180 : 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              {/* 正面 - 问号 */}
-              <div
-                className="absolute inset-0 bg-gradient-to-br from-[#E35D6A]/20 to-[#F4A460]/20 rounded-xl flex items-center justify-center border-2 border-dashed border-[#E35D6A]/30"
-                style={{ backfaceVisibility: 'hidden' }}
-              >
-                <span className="text-4xl text-[#E35D6A]/50">?</span>
-              </div>
-
-              {/* 背面 - 宝丽来照片 */}
-              <div
-                className={`absolute inset-0 ${p.color} rounded-lg p-2 shadow-md`}
-                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-              >
-                <div className="w-full h-[70%] bg-white rounded shadow-inner flex items-center justify-center">
-                  <SmallHeart className="w-8 h-8 opacity-50" />
-                </div>
-                <div className="text-[10px] text-[#7C444F] mt-1 text-center font-handwriting">{p.caption}</div>
-              </div>
-            </motion.div>
-          </motion.div>
+            frontImage={p.image}
+            frontCaption={p.title}
+            backText={p.backText}
+            rotate={p.rotate}
+            delay={index * 0.1}
+            letterTrigger={index === 0 ? ('p' as Letter) : undefined} // 第一张拍立得包含字母 p
+          />
         ))}
       </div>
 
-      <p className="text-xs text-[#9B6A6C] mt-3 text-center">点击卡片开启回忆 ✨</p>
+      {/* 手绘涂鸦装饰 */}
+      <svg className="absolute bottom-3 right-3 w-6 h-6 text-[#E35D6A]/25 pointer-events-none" viewBox="0 0 24 24">
+        <path d="M4 12c3-6 9-6 12 0s6 6 8 0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
     </div>
+  );
+}
+
+// ===== 时光暗房 2.0 入口卡片 =====
+function DarkroomCard() {
+  return (
+    <a href="/album" className="block h-full group">
+      <div className="h-full bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 rounded-2xl p-6 flex items-center justify-between cursor-pointer">
+        {/* 左侧文案 */}
+        <div className="flex flex-col items-start">
+          <h3 className="text-rose-800 tracking-widest text-xl font-bold">
+            时光暗房
+          </h3>
+          <p className="text-rose-500 text-sm mt-1">
+            亲手擦亮我们褪色的回忆
+          </p>
+        </div>
+
+        {/* 右侧图标 */}
+        <div className="flex items-center space-x-2">
+          <span className="text-3xl group-hover:scale-110 transition-transform duration-300">📷</span>
+          <span className="text-rose-400 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">➔</span>
+        </div>
+      </div>
+    </a>
   );
 }
 
@@ -226,6 +520,18 @@ function MemoryBlindBox() {
 function DualCityWeather() {
   const [kunmingTemp] = useState(22);
   const [malaysiaTemp] = useState(31);
+  const [showLetterU, setShowLetterU] = useState(false);
+  const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
+
+  const handleWeatherClick = (e: React.MouseEvent) => {
+    if (!hasCollectedLetter('u' as Letter)) {
+      collectLetter('u' as Letter);
+      triggerLetterAnimation('u' as Letter, e.clientX, e.clientY);
+      showToast('发现字母 U！', 'success');
+    }
+    setShowLetterU(true);
+    setTimeout(() => setShowLetterU(false), 1000);
+  };
 
   return (
     <div className="h-full flex flex-col justify-center">
@@ -243,7 +549,7 @@ function DualCityWeather() {
         </div>
 
         {/* 虚线连接 */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center relative">
           <div className="w-16 h-px border-t-2 border-dashed border-[#E35D6A]/40 relative">
             <motion.div
               className="absolute top-1/2 -translate-y-1/2"
@@ -254,6 +560,48 @@ function DualCityWeather() {
             </motion.div>
           </div>
           <span className="text-[10px] text-[#9B6A6C]/60 mt-1">2412km</span>
+
+          {/* 字母 u 触发器 - 点击天气图标 */}
+          <motion.button
+            onClick={handleWeatherClick}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="absolute -top-8 left-1/2 -translate-x-1/2 w-12 h-12 flex items-center justify-center cursor-pointer"
+          >
+            <AnimatePresence>
+              {!hasCollectedLetter('u' as Letter) ? (
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  <WeatherCloud />
+                </motion.div>
+              ) : (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="text-lg font-bold text-[#E35D6A]"
+                >
+                  ✓
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+          {/* 掉落的字母 u */}
+          <AnimatePresence>
+            {showLetterU && (
+              <motion.span
+                initial={{ y: 0, opacity: 1, scale: 1 }}
+                animate={{ y: 30, opacity: 0, scale: 0.5 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl font-bold text-[#E35D6A] pointer-events-none"
+              >
+                u
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* 马来西亚 */}
@@ -271,19 +619,42 @@ function DualCityWeather() {
   );
 }
 
-// ===== 想你按钮组件 =====
+// ===== 想你按钮组件（带字母 a 触发器） =====
 function MissYouButton() {
   const [count, setCount] = useState(0);
   const [hearts, setHearts] = useState<{ id: number; x: number }[]>([]);
+  const [showLetterA, setShowLetterA] = useState(false);
+  const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
 
   const handleClick = useCallback(() => {
-    setCount(c => c + 1);
+    setCount(c => {
+      const newCount = c + 1;
+      // 点击5次后显示字母A
+      if (newCount === 5 && !hasCollectedLetter('a' as Letter)) {
+        setShowLetterA(true);
+        showToast('✨ 神秘的字母出现了！', 'success');
+      }
+      return newCount;
+    });
     const newHeart = { id: Date.now(), x: Math.random() * 60 - 30 };
     setHearts(prev => [...prev, newHeart]);
     setTimeout(() => {
       setHearts(prev => prev.filter(h => h.id !== newHeart.id));
     }, 2000);
-  }, []);
+  }, [hasCollectedLetter, showToast]);
+
+  const handleCollectA = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!hasCollectedLetter('a' as Letter)) {
+      collectLetter('a' as Letter);
+      triggerLetterAnimation('a' as Letter, e.clientX, e.clientY);
+      showToast('发现字母 A！', 'success');
+      setShowLetterA(false);
+    }
+  };
+
+  // 检查是否满足显示条件（已点击5次且未收集）
+  const shouldShowLetterA = showLetterA || (count >= 5 && !hasCollectedLetter('a' as Letter));
 
   return (
     <div className="h-full flex flex-col items-center justify-center relative overflow-hidden">
@@ -299,9 +670,30 @@ function MissYouButton() {
         </span>
       </motion.button>
 
-      <div className="mt-3 text-center">
+      <div className="mt-3 text-center relative">
         <div className="text-2xl font-bold text-[#E35D6A]">{count}</div>
         <div className="text-xs text-[#9B6A6C]">次思念已发送</div>
+        {/* 字母 a 触发器 - 点击52次后显示 */}
+        {shouldShowLetterA && !hasCollectedLetter('a' as Letter) && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+            onClick={handleCollectA}
+            className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-2xl font-bold text-[#E35D6A] cursor-pointer hover:scale-125 transition-all z-10 px-3 py-2"
+            style={{ textShadow: '0 0 15px rgba(227, 93, 106, 0.8)' }}
+          >
+            A
+          </motion.span>
+        )}
+        {/* 进度提示 - 5次前显示 */}
+        {count < 5 && !hasCollectedLetter('a' as Letter) && (
+          <motion.span
+            className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-[#9B6A6C]/50"
+          >
+            {52 - count}次后...
+          </motion.span>
+        )}
       </div>
 
       {/* 漂浮的心 */}
@@ -324,255 +716,413 @@ function MissYouButton() {
   );
 }
 
-// ===== Bento 卡片组件 =====
-interface BentoCardProps {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  tiltProps?: {
-    tiltMaxAngleX?: number;
-    tiltMaxAngleY?: number;
-    scale?: number;
-  };
-}
+// ===== 宠物专区组件（带字母 i 触发器） =====
+function PetSectionCard() {
+  const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast, isLevelUnlocked } = useGame();
+  const [isShaking, setIsShaking] = useState(false);
 
-function BentoCard({ children, className = '', delay = 0, tiltProps = {} }: BentoCardProps) {
-  const { tiltMaxAngleX = 10, tiltMaxAngleY = 10, scale = 1.02 } = tiltProps;
+  const isLocked = !isLevelUnlocked(6);
+
+  const handleCollectI = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!hasCollectedLetter('i' as Letter)) {
+      collectLetter('i' as Letter);
+      triggerLetterAnimation('i' as Letter, e.clientX, e.clientY);
+      showToast('发现字母 I！', 'success');
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+
+      showToast('🔒 关卡未解锁：请先找齐 8 个光阴碎片，拼出幸福的密码！', 'error');
+      return false;
+    }
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      className={`h-full ${className}`}
+      animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className={`bg-white/80 backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-white/60 transition-shadow relative ${
+        isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl'
+      }`}
     >
-      <Tilt
-        tiltMaxAngleX={tiltMaxAngleX}
-        tiltMaxAngleY={tiltMaxAngleY}
-        perspective={1000}
-        scale={scale}
-        glareEnable={true}
-        glareMaxOpacity={0.1}
-        glareColor="#E35D6A"
-        glarePosition="all"
-        glareBorderRadius="1.5rem"
-        style={{ borderRadius: '1.5rem', height: '100%' }}
-      >
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-white/60 hover:shadow-xl transition-shadow h-full">
-          {children}
+      <Link href={isLocked ? '#' : '/pets'} onClick={handleClick} className="flex items-center space-x-3 group">
+        <motion.div
+          whileHover={isLocked ? {} : { scale: 1.1, rotate: 5 }}
+          whileTap={isLocked ? {} : { scale: 0.9 }}
+          onClick={handleCollectI}
+          className="w-10 h-10 rounded-xl bg-[#E35D6A]/20 flex items-center justify-center cursor-pointer relative"
+        >
+          {isLocked ? (
+            <Lock className="w-4 h-4 text-[#9B6A6C]/50" />
+          ) : (
+            <>
+              <HandDrawnPaw />
+              {/* 字母 i - 未收集时显示 */}
+              {!hasCollectedLetter('i' as Letter) && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  className="absolute -right-1 -top-1 text-xs font-bold text-[#E35D6A]"
+                  style={{ textShadow: '0 0 5px rgba(227, 93, 106, 0.8)' }}
+                >
+                  i
+                </motion.span>
+              )}
+            </>
+          )}
+        </motion.div>
+        <div>
+          <h3 className={`font-bold text-[#7C444F] transition-colors text-sm ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}>
+            {isLocked ? '🔒 宠物专区' : '宠物专区'}
+          </h3>
+          <p className="text-[10px] text-[#9B6A6C]">{isLocked ? '关卡未解锁' : '盼盼 & 石榴'}</p>
         </div>
-      </Tilt>
+      </Link>
+    </motion.div>
+  );
+}
+function ImageCard({
+  href,
+  title,
+  subtitle,
+  delay = 0,
+  bgImage = 'linear-gradient(135deg, #E35D6A 0%, #F4A460 100%)',
+  size = 'large'
+}: {
+  href: string;
+  title: string;
+  subtitle: string;
+  delay?: number;
+  bgImage?: string;
+  size?: 'large' | 'small';
+}) {
+  const { isLevelUnlocked, showToast } = useGame();
+  const [isShaking, setIsShaking] = useState(false);
+  const requiredLevel = getRouteLevel(href);
+  const isLocked = requiredLevel ? !isLevelUnlocked(requiredLevel) : false;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // 触发摇晃动画
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+
+      // 显示 Toast
+      showToast('🔒 关卡未解锁：请先找齐 8 个光阴碎片，拼出幸福的密码！', 'error');
+      return false;
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
+      transition={{ delay, duration: 0.5 }}
+      className="h-full"
+    >
+      <Link href={isLocked ? '#' : href} onClick={handleClick} className="block h-full">
+        <Tilt
+          tiltMaxAngleX={8}
+          tiltMaxAngleY={8}
+          perspective={1000}
+          scale={isLocked ? 1 : 1.02}
+          glareEnable={!isLocked}
+          glareMaxOpacity={0.15}
+          glareColor="#E35D6A"
+          glarePosition="all"
+          glareBorderRadius="1.5rem"
+          style={{ borderRadius: '1.5rem', height: '100%' }}
+        >
+          <div
+            className="h-full rounded-3xl overflow-hidden relative group cursor-pointer bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: bgImage,
+              filter: isLocked ? 'grayscale(0.3) brightness(0.7)' : 'none',
+            }}
+          >
+            {/* 深色渐变遮罩 */}
+            <div className={`absolute inset-0 bg-gradient-to-t ${isLocked ? 'from-black/90 via-black/50 to-black/40' : 'from-black/80 via-black/30 to-black/20'}`} />
+
+            {/* 锁定图标 */}
+            {isLocked && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border-2 border-white/20">
+                  <Lock className="w-8 h-8 text-white/80" />
+                </div>
+              </div>
+            )}
+
+            {/* 内容 - 靠左下角对齐 */}
+            <div className="absolute inset-0 p-6 flex flex-col justify-end">
+              <h3 className={`font-bold text-white mb-2 transition-transform origin-left ${size === 'large' ? 'text-3xl' : 'text-xl'} ${isLocked ? '' : 'group-hover:scale-105'}`}>
+                {title}
+              </h3>
+              <p className="text-white/80 text-sm">
+                {subtitle}
+              </p>
+              <div className={`mt-4 flex items-center text-white/70 text-sm transition-colors ${isLocked ? '' : 'group-hover:text-white'}`}>
+                <span>{isLocked ? '锁定中' : '进入'}</span>
+                <span className={`ml-2 transition-transform ${isLocked ? '' : 'group-hover:translate-x-1'}`}>{isLocked ? '🔒' : '→'}</span>
+              </div>
+            </div>
+
+            {/* 装饰光斑 */}
+            <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
+          </div>
+        </Tilt>
+      </Link>
     </motion.div>
   );
 }
 
-// ===== 模块链接卡片 =====
-function ModuleCard({
-  href,
-  icon: Icon,
-  title,
-  desc,
-  delay = 0,
-  size = 'small'
-}: {
-  href: string;
-  icon: React.ComponentType;
-  title: string;
-  desc: string;
-  delay?: number;
-  size?: 'small' | 'wide' | 'large';
-}) {
-  const content = (
-    <BentoCard delay={delay} className="cursor-pointer group">
-      <div className={`h-full flex ${size === 'wide' ? 'items-center space-x-4' : size === 'large' ? 'flex-col' : 'flex-col items-center text-center'}`}>
-        <div className={`rounded-2xl bg-[#E35D6A]/20 flex items-center justify-center group-hover:bg-[#E35D6A]/30 transition-colors ${size === 'large' ? 'w-16 h-16 mb-4' : size === 'wide' ? 'w-14 h-14 flex-shrink-0' : 'w-12 h-12 mb-3'}`}>
-          <Icon />
-        </div>
-        <div className={size === 'large' ? 'flex-1' : ''}>
-          <h3 className={`font-bold text-[#7C444F] group-hover:text-[#E35D6A] transition-colors ${size === 'large' ? 'text-2xl mb-2' : size === 'wide' ? 'text-xl mb-1' : 'text-base mb-1'}`}>
-            {title}
-          </h3>
-          <p className={`text-[#9B6A6C] ${size === 'large' ? 'text-base' : size === 'wide' ? 'text-sm' : 'text-xs'}`}>
-            {desc}
-          </p>
-        </div>
-        {size === 'large' && (
-          <div className="mt-4 flex items-center text-[#E35D6A] text-sm">
-            <span>探索我们的故事</span>
-            <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-          </div>
-        )}
-      </div>
-    </BentoCard>
-  );
-
-  return <Link href={href} className="block h-full">{content}</Link>;
-}
-
 // ===== 主页面 =====
 export default function HomePage() {
+  const [isCinemaOpen, setIsCinemaOpen] = useState(false);
+
   return (
     <div className="min-h-screen relative z-10">
-      <div className="max-w-7xl mx-auto px-4 pt-20 pb-12">
-        {/* 头部标题区 */}
+      {/* 胶片颗粒纹理 */}
+      <FilmGrain />
+
+      {/* 手绘涂鸦装饰 */}
+      <HandDrawnDoodles />
+
+      <div className="max-w-7xl mx-auto px-4 pt-20 pb-12 relative z-10">
+        {/* 头部标题区 - 直接悬浮在背景上 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-16"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center justify-center mb-4"
+            className="inline-flex items-center justify-center mb-6"
           >
             <span className="animate-heartbeat"><RedHeart /></span>
           </motion.div>
 
-          <h1 className="text-4xl md:text-6xl font-bold mb-2 font-handwriting bg-gradient-to-r from-orange-400 via-rose-400 to-orange-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 font-handwriting bg-gradient-to-r from-orange-400 via-rose-400 to-orange-400 bg-clip-text text-transparent">
             苏子钦 & 李丹
           </h1>
 
-          <p className="text-base text-[#9B6A6C] font-light tracking-wider">
+          <p className="text-lg text-[#9B6A6C] font-light tracking-wider">
             CYBERSPACE v1.0 · 我们的 365 天
           </p>
+
+          {/* 寄语直接悬浮在背景上 */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-6 text-[#7C444F]/70 italic max-w-md mx-auto"
+          >
+            "在这个充满变数的世界里，我为你撑起一个永远恒温的小窝"
+          </motion.p>
         </motion.div>
 
-        {/* ===== Bento Box 全屏网格 ===== */}
-        <div className="grid grid-cols-4 md:grid-cols-4 gap-4 auto-rows-[140px]">
-          {/* 1. 时间线 - 大卡片 (2x2) */}
-          <div className="col-span-2 row-span-2">
-            <ModuleCard
-              href="/timeline"
-              icon={HandDrawnClock}
-              title="时间线"
-              desc="我们的故事 · 从初见开始"
-              delay={0.1}
-              size="large"
-            />
-          </div>
+        {/* ===== V9.0 艺术手账本布局 ===== */}
+        <div className="grid grid-cols-12 gap-6 md:gap-8">
+          {/* 第一列 */}
+          <div className="col-span-12 md:col-span-5 space-y-6 md:space-y-8">
+            {/* 1. 时间线 - 图片背景大卡片 */}
+            <div className="h-64 md:h-80">
+              <ImageCard
+                href="/timeline"
+                title="时间线"
+                subtitle="我们的故事 · 从初见开始"
+                delay={0.1}
+                bgImage="url('https://i.ibb.co/pvYQdqjC/Gemini-Generated-Image-bq75hcbq75hcbq75.png')"
+                size="large"
+              />
+            </div>
 
-          {/* 2. 实时心跳计时器 (2x1) */}
-          <div className="col-span-2">
-            <BentoCard delay={0.2}>
+            {/* 2. 实时心跳计时器 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/60"
+            >
               <LiveHeartbeatTimer />
-            </BentoCard>
-          </div>
+            </motion.div>
 
-          {/* 3. 回忆盲盒 (2x2) */}
-          <div className="col-span-2 row-span-2">
-            <BentoCard delay={0.3}>
-              <MemoryBlindBox />
-            </BentoCard>
-          </div>
-
-          {/* 4. 足迹地图 (2x1) */}
-          <div className="col-span-2">
-            <ModuleCard
-              href="/map"
-              icon={HandDrawnMap}
-              title="足迹地图"
-              desc="一起去过的每一个地方"
-              delay={0.4}
-              size="wide"
-            />
-          </div>
-
-          {/* 5. 双城天气 (2x1) */}
-          <div className="col-span-2">
-            <BentoCard delay={0.5}>
+            {/* 3. 双城天气 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/60"
+            >
               <DualCityWeather />
-            </BentoCard>
+            </motion.div>
           </div>
 
-          {/* 6. 想你按钮 (1x1) */}
-          <div className="col-span-1">
-            <BentoCard delay={0.6} tiltProps={{ scale: 1.05 }}>
+          {/* 第二列 - 整体向下偏移 mt-12 实现不对称错落 */}
+          <div className="col-span-12 md:col-span-4 md:mt-16 space-y-6 md:space-y-8">
+            {/* 4. 散落的拍立得 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white/80 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/60 min-h-[420px] relative"
+            >
+              <ScatteredPolaroids />
+            </motion.div>
+
+            {/* 4.5 时光暗房 - 支线彩蛋 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="h-48"
+            >
+              <DarkroomCard />
+            </motion.div>
+
+            {/* 5. 想你按钮 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/60"
+            >
               <MissYouButton />
-            </BentoCard>
-          </div>
+            </motion.div>
 
-          {/* 7. AI 视频播放器 - 降级为小卡片 (1x1) */}
-          <div className="col-span-1">
-            <BentoCard delay={0.7}>
-              <Link href="/video" className="h-full flex flex-col items-center justify-center group">
-                <div className="w-12 h-12 rounded-2xl bg-[#E35D6A]/20 flex items-center justify-center mb-2 group-hover:bg-[#E35D6A]/30 transition-colors">
-                  <VideoPlayerIcon />
-                </div>
-                <h3 className="text-base font-bold text-[#7C444F] group-hover:text-[#E35D6A] transition-colors">AI 影院</h3>
-                <p className="text-xs text-[#9B6A6C]">我们的电影</p>
-              </Link>
-            </BentoCard>
-          </div>
-
-          {/* 8. 私密日记 (1x1) */}
-          <div className="col-span-1">
-            <ModuleCard
+            {/* 6. 私密日记 */}
+            <LockedCardLink
               href="/diary"
-              icon={HandDrawnBook}
+              delay={0.5}
+              icon={<HandDrawnBook />}
               title="私密日记"
-              desc="写给李丹"
-              delay={0.8}
+              subtitle="写给李丹"
             />
           </div>
 
-          {/* 9. 宠物专区 (1x1) */}
-          <div className="col-span-1">
-            <ModuleCard
-              href="/pets"
-              icon={HandDrawnPaw}
-              title="宠物专区"
-              desc="盼盼 & 石榴"
-              delay={0.9}
+          {/* 第三列 */}
+          <div className="col-span-12 md:col-span-3 space-y-6 md:space-y-8">
+            {/* 7. 足迹地图 */}
+            <LockedCardLink
+              href="/map"
+              delay={0.4}
+              icon={<HandDrawnMap />}
+              title="足迹地图"
+              subtitle="一起去过的地方"
+              small
             />
-          </div>
 
-          {/* 10. 成就勋章 (1x1) */}
-          <div className="col-span-1">
-            <ModuleCard
+            {/* 8. AI 影院 - 图片背景，点击打开模态框 */}
+            <div className="h-40">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="h-full"
+              >
+                <Tilt
+                  tiltMaxAngleX={8}
+                  tiltMaxAngleY={8}
+                  perspective={1000}
+                  scale={1.02}
+                  glareEnable={true}
+                  glareMaxOpacity={0.15}
+                  glareColor="#E35D6A"
+                  glarePosition="all"
+                  glareBorderRadius="1.5rem"
+                  style={{ borderRadius: '1.5rem', height: '100%' }}
+                >
+                  <div
+                    onClick={() => setIsCinemaOpen(true)}
+                    className="h-full rounded-3xl overflow-hidden relative group cursor-pointer bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: "url('https://i.ibb.co/ymG0cCwC/85612113dddcb5076bf0815e263b4a2c.jpg')" }}
+                  >
+                    {/* 深色渐变遮罩 */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+
+                    {/* 播放图标 */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
+                          <path d="M8 5v14l11-7z" fill="currentColor" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* 内容 - 靠左下角对齐 */}
+                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                      <h3 className="font-bold text-white mb-2 text-xl group-hover:scale-105 transition-transform origin-left">
+                        恋爱回忆录
+                      </h3>
+                      <p className="text-white/80 text-sm">
+                        我们的专属电影，有些记忆永远不会褪色
+                        {/* 字母 h 触发器 - 极其暗淡的字母 */}
+                        <LetterHTrigger />
+                      </p>
+                      <div className="mt-4 flex items-center text-white/70 text-sm group-hover:text-white transition-colors">
+                        <span>点击播放</span>
+                        <span className="ml-2 group-hover:translate-x-1 transition-transform">▶</span>
+                      </div>
+                    </div>
+
+                    {/* 装饰光斑 */}
+                    <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
+                  </div>
+                </Tilt>
+              </motion.div>
+            </div>
+
+            {/* 9. 宠物专区（带字母 i 触发器） */}
+            <PetSectionCard />
+
+            {/* 10. 成就勋章 */}
+            <LockedCardLink
               href="/achievements"
-              icon={HandDrawnTrophy}
+              delay={0.7}
+              icon={<HandDrawnTrophy />}
               title="成就勋章"
-              desc="专属纪念"
-              delay={1.0}
+              subtitle="专属纪念"
+              small
             />
-          </div>
 
-          {/* 11. 愿望清单 (1x1) */}
-          <div className="col-span-1">
-            <ModuleCard
-              href="/future"
-              icon={HandDrawnStar}
-              title="愿望清单"
-              desc="未来计划"
-              delay={1.1}
-            />
-          </div>
-
-          {/* 12. 底部彩蛋卡片 (2x1) */}
-          <div className="col-span-2">
-            <BentoCard delay={1.2}>
-              <div className="h-full flex items-center justify-center space-x-3">
-                <span className="text-[#9B6A6C]">啾米啾米</span>
-                <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
-                <span className="text-[#9B6A6C]">米啾米啾</span>
-              </div>
-            </BentoCard>
+            {/* 11. 刮刮乐 - 专属兑换券 */}
+            <div className="h-48 sm:h-56">
+              <ScratchCard />
+            </div>
           </div>
         </div>
 
-        {/* 底部信息 */}
+        {/* 底部彩蛋 */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.3 }}
-          className="mt-8 text-center"
+          transition={{ delay: 1 }}
+          className="mt-16 text-center"
         >
-          <p className="text-[#9B6A6C]/60 text-sm">
-            在这个充满变数的世界里，我为你撑起一个永远恒温的小窝
-          </p>
+          <div className="inline-flex items-center space-x-4 text-[#9B6A6C]/60">
+            <span>啾米啾米</span>
+            <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
+            <span>米啾米啾</span>
+          </div>
         </motion.div>
       </div>
+
+      {/* AI影院模态框 */}
+      <CinemaModal isOpen={isCinemaOpen} onClose={() => setIsCinemaOpen(false)} />
     </div>
   );
 }

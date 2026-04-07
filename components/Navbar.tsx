@@ -1,19 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Lock } from 'lucide-react';
 import { NAMES } from '@/lib/utils';
+import HeartBurst from './HeartBurst';
+import ThemeSwitcher from './ThemeSwitcher';
+import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
+import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { name: '首页', href: '/' },
-  { name: '时间线', href: '/timeline' },
-  { name: '足迹', href: '/map' },
-  { name: '勋章', href: '/achievements' },
-  { name: '愿望', href: '/future' },
-  { name: '日记', href: '/diary' },
-  { name: '宠物', href: '/pets' },
+  { name: '首页', href: '/', level: 0 },
+  { name: '时间线', href: '/timeline', level: 1 },
+  { name: '足迹', href: '/map', level: 2 },
+  { name: '勋章', href: '/achievements', level: 3 },
+  { name: '愿望', href: '/future', level: 4 },
+  { name: '日记', href: '/diary', level: 5 },
+  { name: '宠物', href: '/pets', level: 6 },
 ];
 
 // 正红色小爱心
@@ -41,6 +45,13 @@ const HandDrawnRose = () => (
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [burstOrigin, setBurstOrigin] = useState({ x: 0, y: 0 });
+  const [showLetterO, setShowLetterO] = useState(false);
+  const [logoClickCount, setLogoClickCount] = useState(0);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const { isLevelUnlocked, showToast, collectLetter, hasCollectedLetter, triggerLetterAnimation, unlockedLevels } = useGame();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,8 +61,65 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    // 计算点击位置作为粒子爆发原点
+    if (logoRef.current) {
+      const rect = logoRef.current.getBoundingClientRect();
+      setBurstOrigin({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+    } else {
+      setBurstOrigin({ x: e.clientX, y: e.clientY });
+    }
+    setShowHeartBurst(true);
+
+    // 点击3次后显示字母O
+    setLogoClickCount(prev => {
+      const newCount = prev + 1;
+      if (newCount === 3 && !hasCollectedLetter('o' as Letter)) {
+        setShowLetterO(true);
+        showToast('✨ Logo 里似乎藏着什么...', 'success');
+      }
+      return newCount;
+    });
+  };
+
+  // 处理导航项点击 - 强制阻止未解锁的跳转
+  const handleNavClick = (e: React.MouseEvent, item: typeof navItems[0]) => {
+    // 首页总是允许
+    if (item.level === 0) return;
+
+    // 检查是否解锁
+    if (!isLevelUnlocked(item.level)) {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast('需要先在首页找到 8 个光阴碎片才能开启回忆的大门哦 🔒');
+      return false;
+    }
+  };
+
+  const handleCollectO = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!hasCollectedLetter('o' as Letter)) {
+      collectLetter('o' as Letter);
+      triggerLetterAnimation('o' as Letter, e.clientX, e.clientY);
+      showToast('发现字母 O！', 'success');
+    }
+    setShowLetterO(false);
+  };
+
   return (
     <>
+      {/* 爱心粒子爆发彩蛋 */}
+      <HeartBurst
+        trigger={showHeartBurst}
+        originX={burstOrigin.x}
+        originY={burstOrigin.y}
+        onComplete={() => setShowHeartBurst(false)}
+      />
+
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -63,38 +131,77 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
+            {/* Logo - 点击触发爱心粒子彩蛋，点击3次出现字母O */}
+            <div
+              ref={logoRef}
+              onClick={handleLogoClick}
+              className="flex items-center space-x-2 group cursor-pointer select-none relative"
+            >
               <div className="w-9 h-9 rounded-2xl bg-[#E35D6A]/20 flex items-center justify-center group-hover:bg-[#E35D6A]/30 transition-colors">
                 <HandDrawnRose />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col relative">
                 <span className="text-sm font-medium text-[#7C444F] group-hover:text-[#E35D6A] transition-colors">
                   {NAMES.boy} & {NAMES.girl}
                 </span>
-                <span className="text-[10px] text-[#9B6A6C]">微醺告白</span>
+                <span className="text-[10px] text-[#9B6A6C]">微醺告白 · 点我有惊喜</span>
+
+                {/* 字母 o 触发器 */}
+                <AnimatePresence>
+                  {showLetterO && !hasCollectedLetter('o' as Letter) && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0 }}
+                      onClick={handleCollectO}
+                      className="absolute -right-6 top-1/2 -translate-y-1/2 text-xl font-bold text-[#E35D6A] cursor-pointer hover:scale-125 transition-transform z-50 pointer-events-auto px-2 py-1"
+                      style={{ textShadow: '0 0 15px rgba(227, 93, 106, 1)' }}
+                    >
+                      O
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </div>
-            </Link>
+            </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="px-4 py-2 text-sm text-[#9B6A6C] hover:text-[#7C444F] transition-colors duration-300 relative group"
-                >
-                  {item.name}
-                  <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full" />
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isLocked = item.level > 0 && !isLevelUnlocked(item.level);
+                return (
+                  <Link
+                    key={item.name}
+                    href={isLocked ? '#' : item.href}
+                    onClick={(e) => handleNavClick(e, item)}
+                    className={`px-4 py-2 text-sm relative group flex items-center space-x-1 transition-all duration-300 ${
+                      isLocked
+                        ? 'text-[#9B6A6C]/50 cursor-not-allowed'
+                        : pathname === item.href
+                        ? 'text-[#E35D6A] font-medium'
+                        : 'text-[#9B6A6C] hover:text-[#7C444F]'
+                    }`}
+                  >
+                    {isLocked && <Lock className="w-3 h-3" />}
+                    <span>{item.name}</span>
+                    {!isLocked && pathname !== item.href && (
+                      <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full" />
+                    )}
+                    {!isLocked && pathname === item.href && (
+                      <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-100 transition-transform origin-left rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
 
-            {/* Status Indicator */}
-            <div className="hidden md:flex items-center space-x-2">
+            {/* Status Indicator & Theme Switcher */}
+            <div className="hidden md:flex items-center space-x-3">
+              <ThemeSwitcher />
               <div className="flex items-center space-x-1.5 px-4 py-1.5 glass-card rounded-full">
                 <RedHeartSmall />
-                <span className="text-xs text-[#9B6A6C]">温暖相伴</span>
+                <span className="text-xs text-[#9B6A6C]">
+                  {unlockedLevels.length > 0 ? `已解锁 ${unlockedLevels.length} 关` : '温暖相伴'}
+                </span>
               </div>
             </div>
 
@@ -119,22 +226,38 @@ export default function Navbar() {
             className="fixed inset-0 z-40 bg-[#FFF5F5]/98 backdrop-blur-xl md:hidden"
           >
             <div className="flex flex-col items-center justify-center h-full space-y-6">
-              {navItems.map((item, index) => (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Link
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-2 text-2xl font-medium text-[#7C444F] hover:text-[#E35D6A] transition-colors"
+              {navItems.map((item, index) => {
+                const isLocked = item.level > 0 && !isLevelUnlocked(item.level);
+                return (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
                   >
-                    <span>{item.name}</span>
-                  </Link>
-                </motion.div>
-              ))}
+                    {isLocked ? (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          showToast('需要先在首页找到 8 个光阴碎片才能开启回忆的大门哦 🔒');
+                        }}
+                        className="flex items-center space-x-2 text-2xl font-medium text-[#9B6A6C]/40 cursor-not-allowed"
+                      >
+                        <Lock className="w-5 h-5" />
+                        <span>{item.name}</span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center space-x-2 text-2xl font-medium text-[#7C444F] hover:text-[#E35D6A] transition-colors"
+                      >
+                        <span>{item.name}</span>
+                      </Link>
+                    )}
+                  </motion.div>
+                );
+              })}
 
               <motion.div
                 initial={{ opacity: 0 }}

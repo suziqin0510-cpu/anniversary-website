@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Image as ImageIcon, Video, Music, Settings, Database, ExternalLink } from 'lucide-react';
+import { Upload, Image as ImageIcon, Video, Music, Settings, Database, ExternalLink, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGame } from '@/lib/game-context';
 
 const adminModules = [
   {
@@ -33,7 +34,7 @@ const adminModules = [
     id: 'data',
     name: '数据管理',
     icon: <Database className="w-6 h-6" />,
-    description: '导入/导出网站数据',
+    description: '导入/导出网站数据，重置游戏进度',
     color: 'from-amber-400 to-yellow-400',
   },
   {
@@ -271,13 +272,22 @@ function MusicManager() {
 
 // 数据管理组件
 function DataManager() {
+  const { resetGame, unlockedLevels, collectedLetters } = useGame();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleReset = () => {
+    resetGame();
+    setShowConfirm(false);
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>数据管理</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* 导入导出 */}
           <div className="grid grid-cols-2 gap-4">
             <Button variant="outline" className="h-24 flex flex-col items-center justify-center">
               <Upload className="w-6 h-6 mb-2" />
@@ -289,6 +299,57 @@ function DataManager() {
               <span>导出数据</span>
               <span className="text-xs text-[#6B6B6B]">备份到 JSON</span>
             </Button>
+          </div>
+
+          {/* 游戏状态概览 */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <h4 className="font-medium text-amber-900 mb-2">当前游戏状态</h4>
+            <div className="space-y-1 text-sm text-amber-800">
+              <p>已解锁关卡: {unlockedLevels.length > 0 ? unlockedLevels.join(', ') : '无'}</p>
+              <p>已收集字母: {collectedLetters.length > 0 ? collectedLetters.join(', ').toUpperCase() : '无'}</p>
+            </div>
+          </div>
+
+          {/* 重置游戏进度 */}
+          <div className="border-t pt-6">
+            <h4 className="font-medium text-red-600 mb-3 flex items-center">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              危险区域
+            </h4>
+
+            {!showConfirm ? (
+              <Button
+                variant="outline"
+                className="w-full h-16 flex flex-col items-center justify-center border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={() => setShowConfirm(true)}
+              >
+                <Trash2 className="w-5 h-5 mb-1" />
+                <span>重置游戏进度</span>
+                <span className="text-xs text-red-400">清除所有解锁状态和收集的字母</span>
+              </Button>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-4">
+                <p className="text-sm text-red-700">
+                  确定要重置游戏进度吗？这将清除所有已解锁的关卡和收集的字母，此操作不可恢复！
+                </p>
+                <div className="flex space-x-3">
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={handleReset}
+                  >
+                    确认重置
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowConfirm(false)}
+                  >
+                    取消
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

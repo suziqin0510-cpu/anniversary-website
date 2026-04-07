@@ -4,6 +4,16 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AmbientBlobs from "@/components/AmbientBlobs";
 import JiumiRain from "@/components/JiumiRain";
+import GlobalEffects from "@/components/GlobalEffects";
+import SecretCode from "@/components/SecretCode";
+import HeartCursorTrail from "@/components/HeartCursorTrail";
+import VinylPlayer from "@/components/VinylPlayer";
+import ScrollJourney from "@/components/ScrollJourney";
+import InventoryBar from "@/components/InventoryBar";
+import FinalPuzzleModal from "@/components/FinalPuzzleModal";
+import RouteGuard from "@/components/RouteGuard";
+import { GameProvider } from "@/lib/game-context";
+import { MusicProvider } from "@/lib/music-context";
 
 export const metadata: Metadata = {
   title: "苏子钦 & 李丹 | 我们的第一年",
@@ -32,11 +42,24 @@ export default function RootLayout({
       className="h-full antialiased scroll-smooth"
     >
       <body className="min-h-full flex flex-col bg-gradient-to-br from-[#FFF5F5] to-[#FFE4E1] relative">
-        <AmbientBlobs />
-        <Navbar />
-        <main className="flex-1 relative z-10">{children}</main>
-        <Footer />
-        <JiumiRain />
+        <GameProvider>
+          <MusicProvider>
+            <GlobalEffects />
+            <AmbientBlobs />
+            <HeartCursorTrail />
+            <SecretCode />
+            <ScrollJourney />
+            <VinylPlayer />
+            <Navbar />
+            <RouteGuard>
+              <main className="flex-1 relative z-10">{children}</main>
+            </RouteGuard>
+            <Footer />
+            <JiumiRain />
+            <InventoryBar />
+            <FinalPuzzleModal />
+          </MusicProvider>
+        </GameProvider>
       </body>
     </html>
   );

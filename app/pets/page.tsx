@@ -29,35 +29,86 @@ const petsData = [
     id: 'panpan',
     name: '盼盼',
     englishName: 'Panpan',
-    species: '猫',
+    species: '阿拉斯加大型犬',
     role: '家庭长子',
-    description: '从腾冲带回来的小天使，见证了我们的旅程。',
-    traits: ['粘人', '会踩奶', '爱吃罐头'],
-    isShiliu: false
+    description: '从腾冲带回来的小天使，憨厚可爱的阿拉斯加大型犬。',
+    traits: ['贪吃', '金刚胃', '啥都爱吃'],
+    isShiliu: false,
+    avatar: 'https://i.ibb.co/1fLpKq6F/9a0bc540efc35b7a73ed6d9b0ffc0e4e.jpg'
   },
   {
     id: 'shiliu',
     name: '石榴',
     englishName: 'Shiliu',
-    species: '猫',
+    species: '橘白色小母猫',
     role: '家庭次子',
-    description: '在北海加入我们的新成员，盼盼的小跟班。',
-    traits: ['活泼', '爱跑酷', '喜欢追尾巴'],
-    isShiliu: true
+    description: '去完北海回到昆明后加入我们的新成员，盼盼的小跟班。',
+    traits: ['黏人', '爱跑酷', '爱吃罐头'],
+    isShiliu: true,
+    avatar: 'https://i.ibb.co/ZRF97VgQ/326776b42fce29c596123fef423cc1aa.jpg'
   },
 ];
 
 const petMoments = [
   { title: '腾冲相遇', desc: '盼盼加入我们的那一天' },
   { title: '北海新成员', desc: '石榴来到这个家' },
-  { title: '日常追逐战', desc: '石榴追，盼盼跑' },
+  { title: '日常追逐战', desc: '盼盼追，石榴跑' },
   { title: '和平共处', desc: '偶尔也能一起睡觉' },
 ];
+
+// 彩蛋气泡组件 - 定位在卡片右上角
+const EasterEggBubble = ({
+  isVisible,
+  isShiliu,
+  showResponse,
+}: {
+  isVisible: boolean;
+  isShiliu: boolean;
+  showResponse: boolean;
+}) => {
+  const messages = isShiliu
+    ? { default: '点我点我...喵~ 💕', response: '喵！救命！ (╬▔皿▔)凸' }
+    : { default: '汪~ 点我有惊喜！', response: '妈妈，爸爸说他这辈子最幸运的事就是遇见你。' };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: -5 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: -5 }}
+          className={`absolute top-2 right-2 z-[200] px-3 py-2 rounded-xl border-2 shadow-[0_4px_15px_rgba(0,0,0,0.12)] max-w-[200px] ${
+            isShiliu
+              ? 'bg-gradient-to-br from-rose-400 to-rose-500 border-white'
+              : 'bg-gradient-to-br from-amber-100 to-amber-200 border-amber-300'
+          }`}
+          style={{ wordBreak: 'break-word' }}
+        >
+          <p className={`text-[10px] leading-snug font-medium ${isShiliu ? 'text-white drop-shadow-sm' : 'text-amber-800'}`}>
+            {showResponse ? messages.response : messages.default}
+          </p>
+          {/* 小尾巴 - 指向右下方头像 */}
+          <div
+            className={`absolute -bottom-1.5 right-6 w-2.5 h-2.5 transform rotate-45 ${
+              isShiliu ? 'bg-rose-500 border-b-2 border-r-2 border-white' : 'bg-amber-200 border-b-2 border-r-2 border-amber-300'
+            }`}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 export default function PetsPage() {
   const [shiliuClicks, setShiliuClicks] = useState(0);
   const [isShiliuShaking, setIsShiliuShaking] = useState(false);
   const [showShiliuResponse, setShowShiliuResponse] = useState(false);
+  const [shiliuHovered, setShiliuHovered] = useState(false);
+
+  const [panpanClicks, setPanpanClicks] = useState(0);
+  const [isPanpanBarking, setIsPanpanBarking] = useState(false);
+  const [showPanpanResponse, setShowPanpanResponse] = useState(false);
+  const [panpanHovered, setPanpanHovered] = useState(false);
 
   const handleShiliuClick = () => {
     const newCount = shiliuClicks + 1;
@@ -78,6 +129,25 @@ export default function PetsPage() {
     }
   };
 
+  const handlePanpanClick = () => {
+    const newCount = panpanClicks + 1;
+    setPanpanClicks(newCount);
+
+    if (newCount >= 2) {
+      setIsPanpanBarking(true);
+      setShowPanpanResponse(true);
+
+      setTimeout(() => {
+        setIsPanpanBarking(false);
+      }, 500);
+
+      setTimeout(() => {
+        setShowPanpanResponse(false);
+        setPanpanClicks(0);
+      }, 4000);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,61 +158,73 @@ export default function PetsPage() {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          {petsData.map((pet, index) => (
-            <motion.div key={pet.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-              <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} perspective={1000} scale={1.02} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
-                <div className="glass-card rounded-3xl p-6 h-full relative overflow-hidden group glass-card-hover">
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#E35D6A]/10 rounded-full blur-2xl group-hover:bg-[#E35D6A]/20 transition-colors" />
-                  <div className="relative z-10">
-                    <div className="flex items-center space-x-4 mb-6">
-                      {/* 头像区域 - 石榴有点击彩蛋 */}
-                      <div
-                        onClick={pet.isShiliu ? handleShiliuClick : undefined}
-                        className={`relative w-20 h-20 rounded-2xl glass-card-highlight flex items-center justify-center text-3xl cursor-pointer select-none ${
-                          pet.isShiliu && isShiliuShaking ? 'animate-shake' : ''
-                        }`}
-                      >
-                        🐱
+          {petsData.map((pet, index) => {
+            const isShiliu = pet.isShiliu;
+            const isHovered = isShiliu ? shiliuHovered : panpanHovered;
+            const showResponse = isShiliu ? showShiliuResponse : showPanpanResponse;
+            const isShaking = isShiliu ? isShiliuShaking : isPanpanBarking;
 
-                        {/* 石榴的对话气泡彩蛋 */}
-                        {pet.isShiliu && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            className="absolute -top-2 -right-16 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-rose-200 shadow-lg whitespace-nowrap"
+            return (
+              <motion.div key={pet.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+                <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} perspective={1000} scale={1.02} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
+                  {/* 卡片容器 - relative 用于定位彩蛋气泡，overflow-visible 确保气泡不被裁剪 */}
+                  <div className="glass-card rounded-3xl p-6 h-full relative overflow-visible group glass-card-hover">
+                    {/* 彩蛋气泡 - 固定在卡片右上角 */}
+                    <EasterEggBubble
+                      isVisible={isHovered || showResponse}
+                      isShiliu={isShiliu}
+                      showResponse={showResponse}
+                    />
+
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#E35D6A]/10 rounded-full blur-2xl group-hover:bg-[#E35D6A]/20 transition-colors" />
+                    <div className="relative z-10">
+                      <div className="flex items-center space-x-4 mb-6">
+                        {/* 头像区域 */}
+                        <div
+                          className="relative"
+                          onMouseEnter={() => isShiliu ? setShiliuHovered(true) : setPanpanHovered(true)}
+                          onMouseLeave={() => isShiliu ? setShiliuHovered(false) : setPanpanHovered(false)}
+                        >
+                          <div
+                            onClick={isShiliu ? handleShiliuClick : handlePanpanClick}
+                            className={`relative w-20 h-20 rounded-2xl overflow-hidden cursor-pointer select-none transition-transform active:scale-95 ${
+                              isShaking ? 'animate-shake' : ''
+                            }`}
                           >
-                            <p className="text-xs text-rose-600 font-medium">
-                              {showShiliuResponse ? "喵！救命！(╬▔皿▔)凸" : "点我点我...喵"}
-                            </p>
-                            <div className="absolute bottom-0 left-2 w-2 h-2 bg-white/80 border-r border-b border-rose-200 transform rotate-45 translate-y-1" />
-                          </motion.div>
-                        )}
-                      </div>
+                            <img
+                              src={pet.avatar}
+                              alt={pet.name}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          </div>
+                        </div>
 
-                      <div>
-                        <h2 className="text-2xl font-bold text-[#7C444F]">
-                          {pet.name}
-                          <span className="text-sm text-[#9B6A6C] font-normal ml-2">{pet.englishName}</span>
-                        </h2>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="px-3 py-1 glass-card-highlight rounded-full text-xs text-[#E35D6A]">{pet.species}</span>
-                          <span className="text-xs text-[#9B6A6C]">{pet.role}</span>
+                        <div>
+                          <h2 className="text-2xl font-bold text-[#7C444F]">
+                            {pet.name}
+                            <span className="text-sm text-[#9B6A6C] font-normal ml-2">{pet.englishName}</span>
+                          </h2>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <span className="px-3 py-1 glass-card-highlight rounded-full text-xs text-[#E35D6A]">{pet.species}</span>
+                            <span className="text-xs text-[#9B6A6C]">{pet.role}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <p className="text-[#7C444F]/80 mb-4">{pet.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {pet.traits.map((trait) => (
-                        <span key={trait} className="px-3 py-1 rounded-full bg-white/40 backdrop-blur-sm text-xs text-[#7C444F] border border-white/50">
-                          ✦ {trait}
-                        </span>
-                      ))}
+                      <p className="text-[#7C444F]/80 mb-4">{pet.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {pet.traits.map((trait) => (
+                          <span key={trait} className="px-3 py-1 rounded-full bg-white/40 backdrop-blur-sm text-xs text-[#7C444F] border border-white/50">
+                            ✦ {trait}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Tilt>
-            </motion.div>
-          ))}
+                </Tilt>
+              </motion.div>
+            );
+          })}
         </div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-12">

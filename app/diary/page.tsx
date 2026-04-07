@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Mail, Heart, Lock, Unlock } from 'lucide-react';
 import Tilt from 'react-parallax-tilt';
+import DetectivePuzzle from '@/components/DetectivePuzzle';
 
 const HandDrawnHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 animate-heartbeat">
@@ -229,6 +230,9 @@ export default function DiaryPage() {
         >
           💡 加密信件需要输入专属密码才能解锁
         </motion.p>
+
+        {/* 关卡6：神探解密 - 解锁宠物专区 */}
+        <DetectivePuzzle />
       </div>
 
       <AnimatePresence>
