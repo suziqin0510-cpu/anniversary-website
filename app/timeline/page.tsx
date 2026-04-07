@@ -1756,7 +1756,7 @@ const SlotPassword = ({
         {digits.map((digit, index) => (
           <motion.div
             key={index}
-            className={`relative rounded-lg border-2 transition-all duration-300 ${
+            className={`relative rounded-lg border-2 transition-all duration-300 overflow-hidden ${
               unlockedSlots[index]
                 ? activeSlot === index
                   ? 'border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)] bg-gradient-to-b from-amber-100 to-amber-200 cursor-pointer'
@@ -1764,7 +1764,6 @@ const SlotPassword = ({
                 : 'border-zinc-300 bg-zinc-100 cursor-not-allowed'
             } ${isError ? 'animate-shake' : ''}`}
             onClick={() => {
-              // 强制阻断：未解锁时完全禁止交互
               if (!unlockedSlots[index]) {
                 showToast('🔒 该拨盘已锁定，请先收集对应的回忆碎片', 'error');
                 return;
@@ -1773,11 +1772,17 @@ const SlotPassword = ({
             }}
             whileTap={unlockedSlots[index] ? { scale: 0.95 } : {}}
           >
-            {/* 未解锁遮罩层 - 完全覆盖 */}
+            {/* 未解锁遮罩层 - 完全覆盖并阻断交互 */}
             {!unlockedSlots[index] && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-zinc-100/90 rounded-lg">
-                <Lock className="w-8 h-8 text-zinc-400 mb-1" />
-                <span className="text-xs text-zinc-500 font-medium">锁定</span>
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-zinc-100/95"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showToast('🔒 该拨盘已锁定，请先收集对应的回忆碎片', 'error');
+                }}
+              >
+                <Lock className="w-7 h-7 text-zinc-400 mb-1" />
+                <span className="text-[10px] text-zinc-500 font-bold">锁定</span>
               </div>
             )}
             <button
@@ -1796,9 +1801,9 @@ const SlotPassword = ({
             >
               ▲
             </button>
-            <div className={`w-12 h-14 flex items-center justify-center text-3xl font-bold ${
-              isSuccess ? 'text-green-500' : unlockedSlots[index] ? 'text-[#7C444F]' : 'text-zinc-400'
-            } ${!unlockedSlots[index] ? 'grayscale opacity-40' : ''}`}>
+            <div className={`w-12 h-14 flex items-center justify-center text-3xl font-bold transition-all ${
+              isSuccess ? 'text-green-500' : unlockedSlots[index] ? 'text-[#7C444F]' : 'text-zinc-400 grayscale'
+            } ${!unlockedSlots[index] ? 'opacity-30' : ''}`}>
               {isSuccess ? '✓' : digit}
             </div>
             <button
