@@ -502,7 +502,7 @@ function DarkroomCard() {
             我们的相册
           </h3>
           <p className="text-rose-500 text-sm mt-1">
-            亲手擦亮我们褪色的回忆
+            属于我们的记忆
           </p>
         </div>
 
