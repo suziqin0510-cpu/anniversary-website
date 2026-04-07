@@ -1757,49 +1757,35 @@ const SlotPassword = ({
 
       <div className="flex justify-center space-x-3">
         {digits.map((digit, index) => {
-          // 👉 核心锁定逻辑 👈
           const isLocked = !unlockedSlots[index];
 
           return (
-            <div key={index} className="relative group">
-              {/* 拨盘容器：通过 condition 强制应用样式 */}
-              <div
-                onClick={() => {
-                  // 👉 物理拦截：锁定时不允许点击 👈
-                  if (isLocked) {
-                    console.log("🔒 试图点击被锁定的拨盘：" + index);
-                    showToast('🔒 拨盘已锁定，请先收集对应的回忆碎片', 'error');
-                    return;
-                  }
-                  setActiveSlot(index);
-                }}
-                className={`w-14 h-14 rounded-full border-4 flex items-center justify-center transition-all duration-300 relative
-                  ${isLocked
-                    // 🔒 强制锁定的灰色样式
-                    ? 'bg-zinc-100 border-zinc-200 cursor-not-allowed grayscale shadow-inner'
-                    // 💖 激活时的浪漫样式
-                    : 'bg-white border-pink-100 cursor-pointer shadow-sm hover:shadow-md group-hover:-translate-y-1'
-                  }`}
-              >
-                {isLocked ? (
-                  // 🔒 锁定时只显示锁图标
+            <div key={index} className="relative">
+              {isLocked ? (
+                <div className="w-14 h-14 rounded-full border-4 bg-zinc-100 border-zinc-200 flex items-center justify-center select-none">
                   <span className="text-3xl grayscale opacity-50">🔒</span>
-                ) : (
-                  // 💖 激活时显示数字
-                  <span className="text-3xl font-bold text-[#7C444F]">{isSuccess ? '✓' : digit}</span>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <motion.div
+                    onClick={() => setActiveSlot(index)}
+                    whileTap={{ scale: 0.95 }}
+                    className={`w-14 h-14 rounded-full border-4 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md relative
+                      ${activeSlot === index
+                        ? 'bg-white border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)]'
+                        : 'bg-white border-amber-300'
+                      }`}
+                  >
+                    <span className="text-3xl font-bold text-[#7C444F]">{isSuccess ? '✓' : digit}</span>
+                  </motion.div>
 
-              {/* 上下按钮 - 仅解锁时显示 */}
-              {!isLocked && (
-                <>
                   <motion.button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDigitChange(index, 'up');
                     }}
                     whileTap={{ scale: 0.9 }}
-                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm"
+                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm z-10"
                   >
                     ▲
                   </motion.button>
@@ -1809,11 +1795,11 @@ const SlotPassword = ({
                       handleDigitChange(index, 'down');
                     }}
                     whileTap={{ scale: 0.9 }}
-                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm"
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm z-10"
                   >
                     ▼
                   </motion.button>
-                </>
+                </div>
               )}
             </div>
           );
