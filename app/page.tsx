@@ -862,12 +862,11 @@ export default function HomePage() {
   return (
     <>
       {/* 👉 强制绕过 Next.js 优化的高清背景层 👈 */}
-      <div className="fixed inset-0 -z-20">
+      <div className="fixed inset-0 -z-20" style={{ transform: 'translateZ(0)' }}>
         <img
-          src="/homepage_bg_final.png"
+          src="/homepage_bg_final.png?v=2"
           alt="background"
           className="w-full h-full object-cover"
-          style={{ imageRendering: '-webkit-optimize-contrast' }}
           loading="eager"
           decoding="async"
         />
