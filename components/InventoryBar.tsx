@@ -25,7 +25,7 @@ export default function InventoryBar() {
       className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
     >
       <div className="max-w-2xl mx-auto px-4 pb-4">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/60 p-4 pointer-events-auto">
+        <div className="bg-white/40 backdrop-blur-md border-t border-white/60 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] rounded-2xl p-4 pointer-events-auto">
           {/* 标题和进度 */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">

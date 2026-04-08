@@ -153,8 +153,8 @@ function LockedCardLink({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
       transition={{ delay, duration: 0.5 }}
-      className={`bg-white/40 backdrop-blur-md rounded-3xl p-5 shadow-xl border border-white/60 transition-shadow ${
-        isLocked ? 'cursor-not-allowed' : 'hover:shadow-2xl cursor-pointer'
+      className={`bg-white/30 backdrop-blur-md rounded-3xl p-5 shadow-lg border border-white/50 transition-all hover:bg-white/40 ${
+        isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'
       }`}
     >
       <Link href={isLocked ? '#' : href} onClick={handleClick} className="flex items-center space-x-3 group">
@@ -718,8 +718,8 @@ function PetSectionCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
       transition={{ delay: 0.6, duration: 0.5 }}
-      className={`bg-white/80 backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-white/60 transition-shadow relative ${
-        isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl'
+      className={`bg-white/30 backdrop-blur-md rounded-3xl p-5 shadow-lg border border-white/50 transition-all hover:bg-white/40 relative ${
+        isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'
       }`}
     >
       <Link href={isLocked ? '#' : '/pets'} onClick={handleClick} className="flex items-center space-x-3 group">

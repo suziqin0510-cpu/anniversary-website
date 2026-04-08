@@ -54,7 +54,7 @@ export default function PolaroidFlip({
       >
         {/* 第 3 层 - 正面 (必须 absolute 且隐藏背面) */}
         <div
-          className="absolute inset-0 w-full h-full bg-white p-2 pb-6 rounded-lg"
+          className="absolute inset-0 w-full h-full bg-white/60 backdrop-blur-md border border-white/80 shadow-md rounded-xl p-2 pb-6"
           style={{
             transform: `rotate(${rotate})`,
             backfaceVisibility: 'hidden',
