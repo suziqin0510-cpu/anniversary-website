@@ -67,7 +67,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="bg-gradient-to-br from-rose-50 via-purple-50 to-indigo-50 rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-2 border-[#E35D6A]/30"
+            className="bg-gradient-to-br from-slate-900 via-slate-800 to-black rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border border-white/20"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 撒花动画 */}
@@ -80,11 +80,11 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               <Sparkles className="w-10 h-10 text-white" />
             </motion.div>
 
-            <h3 className="text-2xl font-bold text-[#7C444F] mb-3">
+            <h3 className="text-2xl font-bold text-white drop-shadow-md mb-3">
               恭喜你聪明无双！
             </h3>
 
-            <p className="text-[#9B6A6C] mb-6">
+            <p className="text-white/90 drop-shadow-md mb-6">
               答对了全部问题！成功开启通向【私密日记】的通道 ✨
             </p>
 
@@ -179,7 +179,7 @@ export default function SoulQuiz({ onUnlock }: SoulQuizProps) {
               ],
             }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="relative bg-gradient-to-br from-purple-50 to-rose-50 rounded-2xl p-8 border-2 border-purple-300/50 shadow-xl overflow-hidden"
+            className="relative bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-xl overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/10 to-transparent rounded-full blur-2xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#E35D6A]/10 to-transparent rounded-full blur-xl" />
@@ -194,10 +194,10 @@ export default function SoulQuiz({ onUnlock }: SoulQuizProps) {
                   <Unlock className="w-8 h-8 text-white" />
                 </motion.div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#7C444F]">
+                  <h3 className="text-xl font-bold text-white drop-shadow-md">
                     📓 私密日记已开启
                   </h3>
-                  <p className="text-[#9B6A6C] text-sm mt-1">
+                  <p className="text-white/90 drop-shadow-md text-sm mt-1">
                     点击进入我们的私密空间
                   </p>
                 </div>
@@ -205,7 +205,7 @@ export default function SoulQuiz({ onUnlock }: SoulQuizProps) {
               <motion.span
                 animate={{ x: [0, 5, 0] }}
                 transition={{ duration: 1, repeat: Infinity }}
-                className="text-2xl text-[#E35D6A]"
+                className="text-2xl text-white drop-shadow-md"
               >
                 →
               </motion.span>

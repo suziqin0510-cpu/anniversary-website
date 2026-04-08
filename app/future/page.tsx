@@ -99,18 +99,24 @@ export default function FuturePage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 relative z-10">
+    <>
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/future_bg.png?v=1')" }}
+      />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <div className="flex justify-center mb-4"><HandDrawnStar /></div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#7C444F] mb-2 font-handwriting">我们的未来清单</h1>
-          <p className="text-[#9B6A6C]">富裕且稳固的规划</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 font-handwriting drop-shadow-lg">我们的未来清单</h1>
+          <p className="text-white/90 drop-shadow-md">富裕且稳固的规划</p>
           <div className="mt-8 max-w-md mx-auto">
             <div className="flex items-center justify-between mb-2 text-sm">
-              <span className="text-[#9B6A6C]">完成进度</span>
-              <span className="text-[#E35D6A] font-medium">{completedCount}/{wishList.length}</span>
+              <span className="text-white/90 drop-shadow-md">完成进度</span>
+              <span className="text-white drop-shadow-md font-medium">{completedCount}/{wishList.length}</span>
             </div>
-            <div className="h-3 bg-white/40 backdrop-blur-sm rounded-full overflow-hidden border border-white/50">
+            <div className="h-3 bg-white/30 backdrop-blur-sm rounded-full overflow-hidden border border-white/50">
               <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 1, delay: 0.3 }} className="h-full bg-gradient-to-r from-[#E35D6A] to-[#F4A460] rounded-full" />
             </div>
           </div>
@@ -124,17 +130,17 @@ export default function FuturePage() {
               >
                 <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} perspective={1000} scale={1.01} glareEnable={false} style={{ borderRadius: '1.5rem' }}
                 >
-                  <div className={`glass-card rounded-3xl p-6 transition-all ${wish.completed ? 'opacity-60' : 'glass-card-hover'}`}
+                  <div className={`glass-card rounded-3xl p-6 transition-all bg-white/20 ${wish.completed ? 'opacity-60' : 'glass-card-hover'}`}
                   >
                     <div className="flex items-start space-x-4">
                       <div className="flex-shrink-0 mt-1"><HandDrawnCheck checked={wish.completed} /></div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className={`text-lg font-medium ${wish.completed ? 'text-[#9B6A6C] line-through' : 'text-[#7C444F]'}`}>{wish.title}</h3>
+                          <h3 className={`text-lg font-medium drop-shadow-md ${wish.completed ? 'text-white/60 line-through' : 'text-white'}`}>{wish.title}</h3>
                         </div>
-                        <p className={`text-sm leading-relaxed ${wish.completed ? 'text-[#9B6A6C]/60' : 'text-[#9B6A6C]'}`}>{wish.description}</p>
+                        <p className={`text-sm leading-relaxed drop-shadow-md ${wish.completed ? 'text-white/50' : 'text-white/90'}`}>{wish.description}</p>
                       </div>
-                      <div className="w-12 h-12 rounded-2xl glass-card-highlight flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-2xl glass-card-highlight bg-white/20 flex items-center justify-center flex-shrink-0">
                         <Icon />
                       </div>
                     </div>
@@ -148,14 +154,14 @@ export default function FuturePage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-12">
           <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}
           >
-            <div className="glass-card rounded-3xl p-8 text-center">
+            <div className="glass-card rounded-3xl p-8 text-center bg-white/20">
               <div className="flex justify-center mb-4">
                 <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 animate-heartbeat">
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E35D6A" stroke="#E35D6A" strokeWidth="1.5"/>
                 </svg>
               </div>
-              <p className="text-[#7C444F] italic text-lg">"在这个充满变数的世界里，我为你撑起一个永远恒温的小窝"</p>
-              <p className="text-[#E35D6A] text-sm mt-3 font-handwriting">—— 苏子钦</p>
+              <p className="text-white italic text-lg drop-shadow-md font-medium">"在这个充满变数的世界里，我为你撑起一个永远恒温的小窝"</p>
+              <p className="text-white/90 text-sm mt-3 font-handwriting drop-shadow-md">—— 苏子钦</p>
             </div>
           </Tilt>
         </motion.div>
@@ -164,5 +170,6 @@ export default function FuturePage() {
         <SoulQuiz />
       </div>
     </div>
+  </>
   );
 }
