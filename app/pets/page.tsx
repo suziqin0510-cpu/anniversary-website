@@ -149,12 +149,18 @@ export default function PetsPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 relative z-10">
+    <>
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/pets_bg.png?v=1')" }}
+      />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <div className="flex justify-center mb-4"><HandDrawnPaw /></div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient-sunset mb-2 font-handwriting">宠物专区</h1>
-          <p className="text-[#9B6A6C]">盼盼和石榴，我们小窝里的两位毛孩子</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 font-handwriting drop-shadow-lg">宠物专区</h1>
+          <p className="text-white/90 drop-shadow-md">盼盼和石榴，我们小窝里的两位毛孩子</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -168,7 +174,7 @@ export default function PetsPage() {
               <motion.div key={pet.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} perspective={1000} scale={1.02} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
                   {/* 卡片容器 - relative 用于定位彩蛋气泡，overflow-visible 确保气泡不被裁剪 */}
-                  <div className="glass-card rounded-3xl p-6 h-full relative overflow-visible group glass-card-hover">
+                  <div className="glass-card rounded-3xl p-6 h-full relative overflow-visible group glass-card-hover bg-white/30">
                     {/* 彩蛋气泡 - 固定在卡片右上角 */}
                     <EasterEggBubble
                       isVisible={isHovered || showResponse}
@@ -201,20 +207,20 @@ export default function PetsPage() {
                         </div>
 
                         <div>
-                          <h2 className="text-2xl font-bold text-[#7C444F]">
+                          <h2 className="text-2xl font-bold text-white drop-shadow-md">
                             {pet.name}
-                            <span className="text-sm text-[#9B6A6C] font-normal ml-2">{pet.englishName}</span>
+                            <span className="text-sm text-white/90 font-normal ml-2 drop-shadow-sm">{pet.englishName}</span>
                           </h2>
                           <div className="flex items-center space-x-2 mt-1">
-                            <span className="px-3 py-1 glass-card-highlight rounded-full text-xs text-[#E35D6A]">{pet.species}</span>
-                            <span className="text-xs text-[#9B6A6C]">{pet.role}</span>
+                            <span className="px-3 py-1 glass-card-highlight bg-white/20 rounded-full text-xs text-white drop-shadow-sm">{pet.species}</span>
+                            <span className="text-xs text-white/90 drop-shadow-sm">{pet.role}</span>
                           </div>
                         </div>
                       </div>
-                      <p className="text-[#7C444F]/80 mb-4">{pet.description}</p>
+                      <p className="text-white/90 drop-shadow-md mb-4">{pet.description}</p>
                       <div className="flex flex-wrap gap-2">
                         {pet.traits.map((trait) => (
-                          <span key={trait} className="px-3 py-1 rounded-full bg-white/40 backdrop-blur-sm text-xs text-[#7C444F] border border-white/50">
+                          <span key={trait} className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-sm text-xs text-white border border-white/50 drop-shadow-sm">
                             ✦ {trait}
                           </span>
                         ))}
@@ -228,7 +234,7 @@ export default function PetsPage() {
         </div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-12">
-          <h3 className="text-xl font-medium text-[#7C444F] mb-6 flex items-center">
+          <h3 className="text-xl font-medium text-white mb-6 flex items-center drop-shadow-md">
             <HandDrawnPaw />
             <span className="ml-2">毛孩子的日常</span>
           </h3>
@@ -236,12 +242,12 @@ export default function PetsPage() {
             {petMoments.map((moment, index) => (
               <motion.div key={moment.title} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + index * 0.1 }}>
                 <Tilt tiltMaxAngleX={15} tiltMaxAngleY={15} perspective={1000} scale={1.05} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1rem" style={{ borderRadius: '1rem' }}>
-                  <div className="glass-card rounded-2xl p-4 text-center glass-card-hover">
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-xl glass-card-highlight flex items-center justify-center">
+                  <div className="glass-card rounded-2xl p-4 text-center glass-card-hover bg-white/30">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-xl glass-card-highlight bg-white/20 flex items-center justify-center">
                       <HandDrawnPaw />
                     </div>
-                    <h4 className="text-sm font-medium text-[#7C444F] mb-1">{moment.title}</h4>
-                    <p className="text-xs text-[#9B6A6C]">{moment.desc}</p>
+                    <h4 className="text-sm font-medium text-white mb-1 drop-shadow-md">{moment.title}</h4>
+                    <p className="text-xs text-white/90 drop-shadow-sm">{moment.desc}</p>
                   </div>
                 </Tilt>
               </motion.div>
@@ -251,14 +257,14 @@ export default function PetsPage() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
           <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
-            <div className="glass-card rounded-3xl p-8 text-center">
+            <div className="glass-card rounded-3xl p-8 text-center bg-white/30">
               <div className="flex items-center justify-center space-x-2 mb-4">
                 <RedHeart />
-                <span className="text-[#E35D6A] text-sm font-medium">给盼盼和石榴的愿望</span>
+                <span className="text-white text-sm font-medium drop-shadow-md">给盼盼和石榴的愿望</span>
                 <RedHeart />
               </div>
-              <p className="text-[#7C444F] text-lg mb-4">给毛孩子们的承诺</p>
-              <div className="space-y-2 text-[#9B6A6C]">
+              <p className="text-white text-lg mb-4 drop-shadow-md">给毛孩子们的承诺</p>
+              <div className="space-y-2 text-white/90 drop-shadow-sm">
                 <p>✦ 给盼盼找个伴，或者让它和石榴学会和平共处</p>
                 <p>✦ 换一套带超大落地窗的房子，让阳光铺满你们睡觉的地方</p>
                 <p>✦ 每天都有吃不完的罐头和零食</p>
@@ -268,5 +274,6 @@ export default function PetsPage() {
         </motion.div>
       </div>
     </div>
+  </>
   );
 }
