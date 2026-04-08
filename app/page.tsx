@@ -893,8 +893,27 @@ export default function HomePage() {
   const [isCinemaOpen, setIsCinemaOpen] = useState(false);
 
   return (
-    <div className="min-h-screen relative z-10">
-      {/* 胶片颗粒纹理 */}
+    <>
+      {/* 👉 唯美 3D 动画视频背景 👈 */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
+          poster="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1920&q=80"
+        >
+          <source src="https://assets.codepen.io/3364143/7b.mp4" type="video/mp4" />
+        </video>
+        {/* 粉色遮罩层，降低视频亮度 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-100/60 via-rose-50/50 to-pink-100/60" />
+        {/* 备用背景色 */}
+        <div className="absolute inset-0 bg-pink-50 -z-20" />
+      </div>
+
+      <div className="min-h-screen relative z-10">
+        {/* 胶片颗粒纹理 */}
       <FilmGrain />
 
       {/* 手绘涂鸦装饰 */}
@@ -1125,5 +1144,6 @@ export default function HomePage() {
       {/* AI影院模态框 */}
       <CinemaModal isOpen={isCinemaOpen} onClose={() => setIsCinemaOpen(false)} />
     </div>
+    </>
   );
 }
