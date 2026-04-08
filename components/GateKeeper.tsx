@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Lock, Sparkles } from 'lucide-react';
 
-const CORRECT_CODE = '啾咪啾咪';
+const CORRECT_CODE = '咪啾咪啾';
 const STORAGE_KEY = 'isPassed';
 const RESET_SIGNAL_KEY = 'gatekeeper_reset_signal';
 
