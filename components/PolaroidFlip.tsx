@@ -71,7 +71,7 @@ export default function PolaroidFlip({
           </div>
           {/* 文字区域 */}
           <div className="flex-1 flex flex-col justify-center px-1">
-            <h4 className="text-[11px] font-bold text-[#7C444F] leading-tight mb-1 truncate">
+            <h4 className="text-[11px] font-bold text-gray-900 leading-tight mb-1 truncate drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
               {frontCaption}
             </h4>
           </div>

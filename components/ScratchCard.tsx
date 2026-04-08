@@ -384,10 +384,10 @@ export default function ScratchCard() {
             onError={handleRevealedImageError}
           />
         </div>
-        <p className="text-base sm:text-lg font-handwriting text-[#7C444F] text-center">
+        <p className="text-base sm:text-lg font-handwriting text-gray-900 text-center drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
           苏子钦的专属兑换券
         </p>
-        <p className="text-xs text-[#9B6A6C] mt-1 text-center">
+        <p className="text-xs text-gray-800 mt-1 text-center drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
           凭此券可兑换任意愿望一个
         </p>
       </div>

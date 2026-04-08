@@ -171,13 +171,13 @@ function LockedCardLink({
         </div>
         <div>
           <h3
-            className={`font-bold text-[#7C444F] transition-colors ${
+            className={`font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] transition-colors ${
               small ? 'text-sm' : ''
             } ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}
           >
             {isLocked ? '🔒 ' + title : title}
           </h3>
-          <p className={`text-[#9B6A6C] ${small ? 'text-[10px]' : 'text-xs'}`}>
+          <p className={`text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] ${small ? 'text-[10px]' : 'text-xs'}`}>
             {isLocked ? '关卡未解锁' : subtitle}
           </p>
         </div>
@@ -353,20 +353,20 @@ function LiveHeartbeatTimer() {
     <div className="flex flex-col items-center justify-center h-full">
       <div className="flex items-center space-x-1 mb-2">
         <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
-        <span className="text-sm text-[#9B6A6C]">实时心跳</span>
+        <span className="text-sm text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">实时心跳</span>
         <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
       </div>
       <div
-        className="text-3xl font-bold text-[#E35D6A] font-mono relative cursor-pointer"
+        className="text-3xl font-bold text-[#E35D6A] font-mono relative cursor-pointer drop-shadow-[0_2px_4px_rgba(255,255,255,1)]"
         onMouseEnter={handleDaysHover}
         onMouseLeave={handleDaysLeave}
       >
         <span>{String(timeData.days).padStart(3, '0')}</span>
-        <span className="text-[#9B6A6C]">:</span>
+        <span className="text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">:</span>
         <span>{String(timeData.hours).padStart(2, '0')}</span>
-        <span className="text-[#9B6A6C]">:</span>
+        <span className="text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">:</span>
         <span>{String(timeData.minutes).padStart(2, '0')}</span>
-        <span className="text-[#9B6A6C]">:</span>
+        <span className="text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">:</span>
         <span>{String(timeData.seconds).padStart(2, '0')}</span>
 
         {/* 字母 e 触发器 */}
@@ -385,7 +385,7 @@ function LiveHeartbeatTimer() {
           )}
         </AnimatePresence>
       </div>
-      <div className="text-xs text-[#9B6A6C] mt-1">自 2025.05.20 起</div>
+      <div className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-1">自 2025.05.20 起</div>
     </div>
   );
 }
@@ -431,8 +431,8 @@ function ScatteredPolaroids() {
     <div className="h-full flex flex-col">
       {/* 标题 */}
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-[#7C444F] font-handwriting">散落的回忆</h3>
-        <p className="text-xs text-[#9B6A6C] mt-1">点击照片，翻转查看背面文字</p>
+        <h3 className="text-xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] font-handwriting">散落的回忆</h3>
+        <p className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-1">点击照片，翻转查看背面文字</p>
       </div>
 
       {/* 2x2 3D翻转拍立得网格 */}
@@ -465,10 +465,10 @@ function DarkroomCard() {
       <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer">
         {/* 左侧文案 */}
         <div className="flex flex-col items-start">
-          <h3 className="text-xl md:text-2xl font-bold text-rose-800 tracking-wide">
+          <h3 className="text-xl md:text-2xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] tracking-wide">
             我们在昆明有个家 🏠
           </h3>
-          <p className="text-sm text-rose-500 mt-2">
+          <p className="text-sm text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-2">
             专属于我们的记忆
           </p>
         </div>
@@ -504,15 +504,15 @@ function DualCityWeather() {
     <div className="h-full flex flex-col justify-center">
       <div className="flex items-center justify-center space-x-2 mb-4">
         <WeatherSun />
-        <span className="text-sm font-bold text-[#7C444F]">双城天气</span>
+        <span className="text-sm font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">双城天气</span>
       </div>
 
       <div className="flex items-center justify-center space-x-4">
         {/* 昆明 */}
         <div className="text-center">
-          <div className="text-2xl font-bold text-[#E35D6A]">{kunmingTemp}°</div>
-          <div className="text-xs text-[#9B6A6C]">昆明</div>
-          <div className="text-[10px] text-[#9B6A6C]/70">晴朗</div>
+          <div className="text-2xl font-bold text-[#E35D6A] drop-shadow-[0_2px_4px_rgba(255,255,255,1)]">{kunmingTemp}°</div>
+          <div className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">昆明</div>
+          <div className="text-[10px] text-gray-800/80 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">晴朗</div>
         </div>
 
         {/* 虚线连接 */}
@@ -526,7 +526,7 @@ function DualCityWeather() {
               <SmallHeart className="w-3 h-3" />
             </motion.div>
           </div>
-          <span className="text-[10px] text-[#9B6A6C]/60 mt-1">2412km</span>
+          <span className="text-[10px] text-gray-800/80 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-1">2412km</span>
 
           {/* 字母 u 触发器 - 点击天气图标 */}
           <motion.button
@@ -573,13 +573,13 @@ function DualCityWeather() {
 
         {/* 马来西亚 */}
         <div className="text-center">
-          <div className="text-2xl font-bold text-[#F4A460]">{malaysiaTemp}°</div>
-          <div className="text-xs text-[#9B6A6C]">槟城</div>
-          <div className="text-[10px] text-[#9B6A6C]/70">多云</div>
+          <div className="text-2xl font-bold text-[#F4A460] drop-shadow-[0_2px_4px_rgba(255,255,255,1)]">{malaysiaTemp}°</div>
+          <div className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">槟城</div>
+          <div className="text-[10px] text-gray-800/80 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">多云</div>
         </div>
       </div>
 
-      <div className="text-center mt-3 text-xs text-[#9B6A6C]/70">
+      <div className="text-center mt-3 text-xs text-gray-800/80 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
         同一时刻，同一心跳 💓
       </div>
     </div>
@@ -638,8 +638,8 @@ function MissYouButton() {
       </motion.button>
 
       <div className="mt-3 text-center relative">
-        <div className="text-2xl font-bold text-[#E35D6A]">{count}</div>
-        <div className="text-xs text-[#9B6A6C]">次思念已发送</div>
+        <div className="text-2xl font-bold text-[#E35D6A] drop-shadow-[0_2px_4px_rgba(255,255,255,1)]">{count}</div>
+        <div className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">次思念已发送</div>
         {/* 字母 a 触发器 - 点击52次后显示 */}
         {shouldShowLetterA && !hasCollectedLetter('a' as Letter) && (
           <motion.span
@@ -656,7 +656,7 @@ function MissYouButton() {
         {/* 进度提示 - 5次前显示 */}
         {count < 5 && !hasCollectedLetter('a' as Letter) && (
           <motion.span
-            className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-[#9B6A6C]/50"
+            className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-800/70 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]"
           >
             {52 - count}次后...
           </motion.span>
@@ -749,10 +749,10 @@ function PetSectionCard() {
           )}
         </motion.div>
         <div>
-          <h3 className={`font-bold text-[#7C444F] transition-colors text-sm ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}>
+          <h3 className={`font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] transition-colors text-sm ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}>
             {isLocked ? '🔒 宠物专区' : '宠物专区'}
           </h3>
-          <p className="text-[10px] text-[#9B6A6C]">{isLocked ? '关卡未解锁' : '盼盼 & 石榴'}</p>
+          <p className="text-[10px] text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">{isLocked ? '关卡未解锁' : '盼盼 & 石榴'}</p>
         </div>
       </Link>
     </motion.div>
@@ -1091,7 +1091,7 @@ export default function HomePage() {
           transition={{ delay: 1 }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center space-x-4 text-[#9B6A6C]/60">
+          <div className="inline-flex items-center space-x-4 text-gray-800/80 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
             <span>啾咪啾咪</span>
             <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
             <span>咪啾咪啾</span>

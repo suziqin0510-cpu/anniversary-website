@@ -30,11 +30,11 @@ export default function InventoryBar() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
               <Backpack className="w-4 h-4 text-[#E35D6A]" />
-              <span className="text-sm font-medium text-[#7C444F]">
+              <span className="text-sm font-medium text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
                 {unlockedLevels.length > 0 ? '时光碎片背包' : '收集光阴碎片'}
               </span>
             </div>
-            <span className="text-xs text-[#9B6A6C]">
+            <span className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
               {collectedLetters.length} / {TARGET_LETTERS.length}
             </span>
           </div>
@@ -90,7 +90,7 @@ export default function InventoryBar() {
 
           {/* 提示文字 */}
           {unlockedLevels.length === 0 && (
-            <p className="text-center text-xs text-[#9B6A6C]/70 mt-2">
+            <p className="text-center text-xs text-gray-800/80 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-2">
               在首页各处寻找隐藏的字母，按收集顺序放入背包
             </p>
           )}
@@ -100,7 +100,7 @@ export default function InventoryBar() {
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center text-xs text-[#E35D6A] mt-2 font-medium"
+              className="text-center text-xs text-[#E35D6A] mt-2 font-medium drop-shadow-[0_2px_4px_rgba(255,255,255,1)]"
             >
               背包已满！请重新排列这些字母拼出单词~
             </motion.p>
