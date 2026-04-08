@@ -607,10 +607,10 @@ export default function MapPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-6"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-[#7C444F] mb-2 font-handwriting">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 font-handwriting drop-shadow-lg">
             我们的航线图
           </h1>
-          <p className="text-[#9B6A6C]">3D地球展示我们的足迹</p>
+          <p className="text-white/90 drop-shadow-md">3D地球展示我们的足迹</p>
         </motion.div>
 
         {/* 3D 地球展示 */}
@@ -698,7 +698,7 @@ export default function MapPage() {
             <Ticket className="w-5 h-5" />
             <span className="font-medium">领取未来机票</span>
           </motion.button>
-          <p className="text-xs text-[#9B6A6C] mt-2">一段旅程的终点，是另一段旅程的起点 ✈️</p>
+          <p className="text-xs text-white mt-2 drop-shadow-md">一段旅程的终点，是另一段旅程的起点 ✈️</p>
         </motion.div>
       </div>
 
