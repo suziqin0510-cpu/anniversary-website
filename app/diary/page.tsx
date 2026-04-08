@@ -129,7 +129,13 @@ export default function DiaryPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 relative z-10">
+    <>
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/diary_bg.png?v=1')" }}
+      />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -140,15 +146,15 @@ export default function DiaryPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 200 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-full glass-card mb-6"
+            className="inline-flex items-center justify-center w-20 h-20 rounded-full glass-card bg-white/30 mb-6"
           >
-            <Mail className="w-10 h-10 text-[#E35D6A]" />
+            <Mail className="w-10 h-10 text-white drop-shadow-md" />
           </motion.div>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-[#7C444F] mb-2 font-handwriting">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 font-handwriting drop-shadow-lg">
             私密日记
           </h1>
-          <p className="text-[#9B6A6C]">专属我们的秘密空间</p>
+          <p className="text-white/90 drop-shadow-md">专属我们的秘密空间</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -176,37 +182,31 @@ export default function DiaryPage() {
                   onClick={() => handleViewClick(letter)}
                   className="glass-card rounded-3xl p-6 cursor-pointer group h-full flex flex-col glass-card-hover"
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
-                    letter.type === 'open'
-                      ? 'bg-[#E35D6A]/20'
-                      : letter.isLocked && !unlockedLetters.has(letter.id)
-                        ? 'bg-[#9B6A6C]/20'
-                        : 'bg-[#E35D6A]/20'
-                  }`}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-white/20">
                     {letter.type === 'open' ? (
-                      <BookOpen className="w-7 h-7 text-[#E35D6A]" />
+                      <BookOpen className="w-7 h-7 text-white drop-shadow-md" />
                     ) : letter.isLocked && !unlockedLetters.has(letter.id) ? (
-                      <Lock className="w-7 h-7 text-[#9B6A6C]" />
+                      <Lock className="w-7 h-7 text-white/80 drop-shadow-md" />
                     ) : (
-                      <Unlock className="w-7 h-7 text-[#E35D6A]" />
+                      <Unlock className="w-7 h-7 text-white drop-shadow-md" />
                     )}
                   </div>
 
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-[#7C444F] mb-1 group-hover:text-[#E35D6A] transition-colors">
+                    <h3 className="text-xl font-bold text-white mb-1 drop-shadow-md group-hover:text-white transition-colors">
                       {letter.title}
                     </h3>
-                    <p className="text-sm text-[#9B6A6C] mb-2">{letter.subtitle}</p>
-                    <p className="text-xs text-[#9B6A6C]/60">{letter.date}</p>
+                    <p className="text-sm text-white/90 drop-shadow-md mb-2">{letter.subtitle}</p>
+                    <p className="text-xs text-white/70 drop-shadow-sm">{letter.date}</p>
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-white/30">
                     <button className={`w-full py-2 rounded-xl text-sm font-medium transition-colors ${
                       letter.type === 'open'
-                        ? 'bg-[#E35D6A]/20 text-[#E35D6A] hover:bg-[#E35D6A]/30'
+                        ? 'bg-white/20 text-white hover:bg-white/30'
                         : letter.isLocked && !unlockedLetters.has(letter.id)
-                          ? 'bg-[#9B6A6C]/20 text-[#9B6A6C]'
-                          : 'bg-[#E35D6A]/20 text-[#E35D6A] hover:bg-[#E35D6A]/30'
+                          ? 'bg-white/20 text-white/80'
+                          : 'bg-white/20 text-white hover:bg-white/30'
                     }`}>
                       {letter.type === 'open'
                         ? '阅读信件'
@@ -226,7 +226,7 @@ export default function DiaryPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-center text-sm text-[#9B6A6C]/60 mt-8"
+          className="text-center text-sm text-white/70 drop-shadow-sm mt-8"
         >
           💡 加密信件需要输入专属密码才能解锁
         </motion.p>
@@ -249,11 +249,11 @@ export default function DiaryPage() {
               exit={{ scale: 0.9, opacity: 0 }}
               className="glass-card rounded-3xl p-8 max-w-sm w-full text-center"
             >
-              <div className="w-16 h-16 rounded-full glass-card-highlight flex items-center justify-center mx-auto mb-4">
-                <Lock className="w-8 h-8 text-[#E35D6A]" />
+              <div className="w-16 h-16 rounded-full glass-card-highlight bg-white/20 flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-white drop-shadow-md" />
               </div>
-              <h3 className="text-xl font-bold text-[#7C444F] mb-2">这是一封加密信件</h3>
-              <p className="text-sm text-[#9B6A6C] mb-6">请输入密码解锁</p>
+              <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md">这是一封加密信件</h3>
+              <p className="text-sm text-white/90 mb-6 drop-shadow-md">请输入密码解锁</p>
               <input
                 type="password"
                 value={password}
@@ -263,21 +263,21 @@ export default function DiaryPage() {
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
                 placeholder="输入密码"
-                className="w-full px-4 py-3 rounded-2xl bg-white/30 backdrop-blur-sm border border-white/50 text-[#7C444F] placeholder-[#9B6A6C]/50 focus:border-[#E35D6A] focus:outline-none mb-2 text-center"
+                className="w-full px-4 py-3 rounded-2xl bg-white/30 backdrop-blur-sm border border-white/50 text-white placeholder-white/60 focus:border-white focus:outline-none mb-2 text-center"
               />
               {passwordError && (
-                <p className="text-red-400 text-sm mb-4">密码错误，请重试</p>
+                <p className="text-red-300 text-sm mb-4 drop-shadow-sm">密码错误，请重试</p>
               )}
               <div className="flex space-x-3 mt-4">
                 <button
                   onClick={() => { setShowPasswordModal(false); setPassword(''); setPasswordError(false); }}
-                  className="flex-1 px-4 py-3 rounded-2xl border border-white/50 text-[#9B6A6C] hover:bg-white/30 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-2xl border border-white/50 text-white hover:bg-white/30 transition-colors drop-shadow-md"
                 >
                   取消
                 </button>
                 <button
                   onClick={handleUnlock}
-                  className="flex-1 px-4 py-3 rounded-2xl bg-[#E35D6A] text-white font-medium hover:bg-[#F4A460] transition-colors"
+                  className="flex-1 px-4 py-3 rounded-2xl bg-[#E35D6A] text-white font-medium hover:bg-[#F4A460] transition-colors drop-shadow-md"
                 >
                   解锁
                 </button>
@@ -312,19 +312,19 @@ export default function DiaryPage() {
 
               <div className="p-6 border-b border-white/30 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-xl glass-card-highlight flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-[#E35D6A]" />
+                  <div className="w-12 h-12 rounded-xl glass-card-highlight bg-white/20 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-white drop-shadow-md" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-[#7C444F]">{selectedLetter.title}</h2>
-                    <p className="text-sm text-[#9B6A6C]">{selectedLetter.date}</p>
+                    <h2 className="text-xl font-bold text-white drop-shadow-md">{selectedLetter.title}</h2>
+                    <p className="text-sm text-white/90 drop-shadow-md">{selectedLetter.date}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => { setSelectedLetter(null); setShowContent(false); }}
                   className="p-2 hover:bg-white/30 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-[#9B6A6C]" />
+                  <X className="w-5 h-5 text-white drop-shadow-md" />
                 </button>
               </div>
 
@@ -333,7 +333,7 @@ export default function DiaryPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-[#7C444F] whitespace-pre-wrap text-base leading-loose font-sans"
+                  className="text-white whitespace-pre-wrap text-base leading-loose font-sans drop-shadow-sm"
                 >
                   {selectedLetter.content}
                 </motion.pre>
@@ -344,15 +344,15 @@ export default function DiaryPage() {
                   transition={{ delay: 0.4 }}
                   className="mt-8 text-right"
                 >
-                  <p className="text-[#E35D6A] font-handwriting text-xl">—— 苏子钦</p>
+                  <p className="text-white font-handwriting text-xl drop-shadow-md">—— 苏子钦</p>
                 </motion.div>
               </div>
 
               <div className="p-6 border-t border-white/30 bg-white/20">
-                <div className="flex items-center justify-center space-x-2 text-[#E35D6A]">
+                <div className="flex items-center justify-center space-x-2 text-white drop-shadow-md">
                   <HandDrawnHeart />
                   <span className="text-sm">啾咪啾咪</span>
-                  <Heart className="w-4 h-4 fill-[#F8AD9D] text-[#E35D6A]" />
+                  <Heart className="w-4 h-4 fill-white/80 text-white" />
                   <span className="text-sm">咪啾咪啾</span>
                   <HandDrawnHeart />
                 </div>
@@ -362,5 +362,6 @@ export default function DiaryPage() {
         )}
       </AnimatePresence>
     </div>
+  </>
   );
 }

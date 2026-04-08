@@ -104,7 +104,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-2 border-amber-400/50"
+            className="bg-gradient-to-br from-slate-900 via-slate-800 to-black rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border border-white/20"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 戴手铐的盼盼插画 */}
@@ -132,13 +132,13 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h3 className="text-2xl font-bold text-[#7C444F] mb-2">
+              <h3 className="text-2xl font-bold text-white drop-shadow-md mb-2">
                 案件告破！
               </h3>
-              <p className="text-[#9B6A6C] mb-4">
+              <p className="text-white/90 drop-shadow-md mb-4">
                 真凶盼盼已被缉拿归案！
               </p>
-              <p className="text-sm text-[#9B6A6C]/70 italic">
+              <p className="text-sm text-white/70 italic drop-shadow-sm">
                 "汪汪...（我认罪，火腿肠太好吃了）"
               </p>
             </motion.div>
@@ -396,7 +396,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
               ],
             }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="relative bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border-2 border-amber-300/50 shadow-xl overflow-hidden"
+            className="relative bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-xl overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400/10 to-transparent rounded-full blur-2xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#E35D6A]/10 to-transparent rounded-full blur-xl" />
@@ -411,10 +411,10 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
                   <Unlock className="w-8 h-8 text-white" />
                 </motion.div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#7C444F]">
+                  <h3 className="text-xl font-bold text-white drop-shadow-md">
                     🐾 宠物专区已开启
                   </h3>
-                  <p className="text-[#9B6A6C] text-sm mt-1">
+                  <p className="text-white/90 drop-shadow-md text-sm mt-1">
                     点击进入盼盼和石榴的小窝
                   </p>
                 </div>
@@ -422,7 +422,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
               <motion.span
                 animate={{ x: [0, 5, 0] }}
                 transition={{ duration: 1, repeat: Infinity }}
-                className="text-2xl text-[#E35D6A]"
+                className="text-2xl text-white drop-shadow-md"
               >
                 →
               </motion.span>
