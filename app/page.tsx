@@ -861,16 +861,17 @@ export default function HomePage() {
 
   return (
     <>
-      {/* 👉 终极高清油画背景层 👈 */}
-      <div className="fixed inset-0 -z-20">
-        <img
-          src="/homepage_bg_final.png"
-          alt="background"
-          className="w-full h-full object-cover"
-          style={{ imageRendering: 'auto' }}
-        />
-      </div>
-      {/* 极淡的艺术遮罩，提升文字识别度 */}
+      {/* 👉 强制绕过 Next.js 优化的 100% 原始高清背景 👈 */}
+      <div
+        className="fixed inset-0 -z-20 w-full h-full bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/homepage_bg_final.png')",
+          /* 强制浏览器使用最高画质渲染，特别是针对 Mac 屏幕 */
+          imageRendering: "-webkit-optimize-contrast",
+          transform: "translateZ(0)" /* 开启硬件加速 */
+        }}
+      />
+      {/* 之前的极淡遮罩保留，不影响背景的情况下凸显文字 */}
       <div className="fixed inset-0 -z-10 bg-white/5 backdrop-blur-[1px]" />
 
       <div className="min-h-screen relative z-10">
