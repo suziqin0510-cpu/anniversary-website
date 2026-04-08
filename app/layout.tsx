@@ -12,6 +12,7 @@ import ScrollJourney from "@/components/ScrollJourney";
 import InventoryBar from "@/components/InventoryBar";
 import FinalPuzzleModal from "@/components/FinalPuzzleModal";
 import RouteGuard from "@/components/RouteGuard";
+import GateKeeper from "@/components/GateKeeper";
 import { GameProvider } from "@/lib/game-context";
 import { MusicProvider } from "@/lib/music-context";
 
@@ -51,9 +52,13 @@ export default function RootLayout({
             <ScrollJourney />
             <VinylPlayer />
             <Navbar />
-            <RouteGuard>
+            
+            <GateKeeper>
+              <RouteGuard>
               <main className="flex-1 relative z-10">{children}</main>
             </RouteGuard>
+            </GateKeeper>
+
             <Footer />
             <JiumiRain />
             <InventoryBar />
