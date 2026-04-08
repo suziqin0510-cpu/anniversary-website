@@ -595,7 +595,7 @@ export default function MapPage() {
     <>
       <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/map_bg.png')" }}
+        style={{ backgroundImage: "url('/map_bg.png?v=2')" }}
       />
       {/* 增加全局暗调遮罩，降低背景干扰 */}
       <div className="fixed inset-0 -z-10 bg-black/30 backdrop-blur-[2px] pointer-events-none" />
