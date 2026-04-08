@@ -153,8 +153,8 @@ function LockedCardLink({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
       transition={{ delay, duration: 0.5 }}
-      className={`bg-white/80 backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-white/60 transition-shadow ${
-        isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'
+      className={`bg-white/40 backdrop-blur-md rounded-3xl p-5 shadow-xl border border-white/60 transition-shadow ${
+        isLocked ? 'cursor-not-allowed' : 'hover:shadow-2xl cursor-pointer'
       }`}
     >
       <Link href={isLocked ? '#' : href} onClick={handleClick} className="flex items-center space-x-3 group">
@@ -462,7 +462,7 @@ function ScatteredPolaroids() {
 function DarkroomCard() {
   return (
     <a href="/album" className="block group">
-      <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer">
+      <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer">
         {/* 左侧文案 */}
         <div className="flex flex-col items-start">
           <h3 className="text-xl md:text-2xl font-bold text-rose-800 tracking-wide">
@@ -933,7 +933,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/60"
+              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60"
             >
               <LiveHeartbeatTimer />
             </motion.div>
@@ -943,7 +943,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/60"
+              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60"
             >
               <DualCityWeather />
             </motion.div>
@@ -956,7 +956,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white/80 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/60 min-h-[420px] relative"
+              className="bg-white/40 backdrop-blur-md rounded-3xl p-4 shadow-xl border border-white/60 min-h-[420px] relative"
             >
               <ScatteredPolaroids />
             </motion.div>
@@ -966,7 +966,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/60"
+              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60"
             >
               <MissYouButton />
             </motion.div>

@@ -368,7 +368,7 @@ export default function ScratchCard() {
   return (
     <motion.div
       ref={containerRef}
-      className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer select-none bg-gradient-to-br from-rose-50 to-amber-50"
+      className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer select-none bg-white/40 backdrop-blur-md border border-white/60 shadow-xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.8 }}
@@ -419,8 +419,8 @@ export default function ScratchCard() {
 
       {/* 加载中提示 */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <div className="flex items-center space-x-2 text-[#9B6A6C]">
+        <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-md">
+          <div className="flex items-center space-x-2 text-[#7C444F]">
             <Sparkles className="w-4 h-4 animate-pulse" />
             <span className="text-sm">加载中...</span>
           </div>
