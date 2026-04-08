@@ -597,7 +597,8 @@ export default function MapPage() {
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/map_bg.png')" }}
       />
-      <div className="absolute inset-0 bg-rose-50/10 pointer-events-none" />
+      {/* 增加全局暗调遮罩，降低背景干扰 */}
+      <div className="fixed inset-0 -z-10 bg-black/30 backdrop-blur-[2px] pointer-events-none" />
       <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 标题 */}
@@ -620,7 +621,7 @@ export default function MapPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="relative bg-gradient-to-b from-rose-50/20 to-white/30 rounded-3xl border border-rose-100 shadow-xl overflow-hidden mt-8"
+          className="relative bg-black/40 backdrop-blur-lg rounded-3xl border border-white/30 shadow-2xl overflow-hidden mt-8"
           style={{ height: '400px' }}
         >
           <HandDrawnMapBackground />
@@ -642,8 +643,8 @@ export default function MapPage() {
           ))}
 
           {/* 图例 */}
-          <div className="absolute bottom-6 right-6 bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-rose-100">
-            <div className="flex items-center space-x-2 text-xs text-[#7C444F]">
+          <div className="absolute bottom-6 right-6 bg-white/40 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/50">
+            <div className="flex items-center space-x-2 text-xs text-white font-bold drop-shadow-md">
               <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E35D6A" stroke="#E35D6A" strokeWidth="1" />
               </svg>
@@ -667,7 +668,7 @@ export default function MapPage() {
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm transition-all border ${
                   selectedPlace?.id === place.id
                     ? 'bg-[#E35D6A] text-white border-[#E35D6A]'
-                    : 'bg-white/50 text-[#7C444F] border-rose-200 hover:border-[#E35D6A] hover:bg-white'
+                    : 'bg-white/40 backdrop-blur-sm text-white font-bold border-white/50 hover:border-white hover:bg-white/60 drop-shadow-md'
                 }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
