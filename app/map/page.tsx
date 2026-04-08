@@ -592,7 +592,13 @@ export default function MapPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 relative z-10">
+    <>
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/map_bg.png')" }}
+      />
+      <div className="absolute inset-0 bg-rose-50/10 pointer-events-none" />
+      <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 标题 */}
         <motion.div
@@ -711,5 +717,6 @@ export default function MapPage() {
       {/* 星图锁 - 关卡3 */}
       <GlobeLock />
     </div>
+  </>
   );
 }
