@@ -872,8 +872,8 @@ export default function HomePage() {
           transform: 'translateZ(0)',
         }}
       />
-      {/* 之前的极淡遮罩保留，不影响背景的情况下凸显文字 */}
-      <div className="fixed inset-0 -z-10 bg-white/5 backdrop-blur-[1px]" />
+      {/* 纯半透明遮罩，提升文字可读性且不模糊背景 */}
+      <div className="fixed inset-0 -z-10 bg-white/10" />
 
       <div className="min-h-screen relative z-10">
 
