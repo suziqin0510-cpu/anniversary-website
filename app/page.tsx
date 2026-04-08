@@ -872,8 +872,8 @@ export default function HomePage() {
           transform: 'translateZ(0)',
         }}
       />
-      {/* 加深全局柔光遮罩，压暗背景凸显文字 */}
-      <div className="fixed inset-0 -z-10 bg-black/20 backdrop-blur-[2px]" />
+      {/* 纯暗色遮罩压亮背景，保证文字清晰同时不模糊背景 */}
+      <div className="fixed inset-0 -z-10 bg-black/30" />
 
       <div className="min-h-screen relative z-10">
 
