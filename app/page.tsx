@@ -1086,9 +1086,9 @@ export default function HomePage() {
           className="mt-16 text-center"
         >
           <div className="inline-flex items-center space-x-4 text-[#9B6A6C]/60">
-            <span>啾米啾米</span>
+            <span>啾咪啾咪</span>
             <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
-            <span>米啾米啾</span>
+            <span>咪啾咪啾</span>
           </div>
         </motion.div>
       </div>

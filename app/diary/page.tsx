@@ -48,7 +48,7 @@ const letters: Letter[] = [
 
 你可以永远不用长大，我会一直在这里，陪你作，陪你笑。
 
-啾米啾米。`,
+啾咪啾咪。`,
     isLocked: false,
     type: 'open',
   },
@@ -89,7 +89,7 @@ const letters: Letter[] = [
 
 我爱你，不仅在 520，在每一天。
 
-啾米啾米。`,
+啾咪啾咪。`,
     isLocked: true,
     password: '20250520',
     type: 'encrypted',
@@ -351,9 +351,9 @@ export default function DiaryPage() {
               <div className="p-6 border-t border-white/30 bg-white/20">
                 <div className="flex items-center justify-center space-x-2 text-[#E35D6A]">
                   <HandDrawnHeart />
-                  <span className="text-sm">啾米啾米</span>
+                  <span className="text-sm">啾咪啾咪</span>
                   <Heart className="w-4 h-4 fill-[#F8AD9D] text-[#E35D6A]" />
-                  <span className="text-sm">米啾米啾</span>
+                  <span className="text-sm">咪啾咪啾</span>
                   <HandDrawnHeart />
                 </div>
               </div>

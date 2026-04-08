@@ -14,7 +14,7 @@ export default function IntroPage() {
   const [typedText, setTypedText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const password = '啾米啾米';
+  const password = '啾咪啾咪';
   const fullText = '欢迎来到我们的小窝...';
 
   useEffect(() => {
@@ -183,7 +183,7 @@ export default function IntroPage() {
                 transition={{ type: 'spring', stiffness: 200 }}
                 className="text-[#E35D6A] font-handwriting text-3xl"
               >
-                米啾米啾
+                咪啾咪啾
               </motion.div>
               <p className="text-[#9B6A6C]">
                 欢迎回家，李丹
@@ -200,7 +200,7 @@ export default function IntroPage() {
 
       <div className="absolute bottom-8 left-0 right-0 text-center">
         <p className="text-[#9B6A6C]/40 text-sm">
-          啾米啾米 ♥ 米啾米啾
+          啾咪啾咪 ♥ 咪啾咪啾
         </p>
       </div>
     </div>
