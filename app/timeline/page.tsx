@@ -65,8 +65,13 @@ const HiddenEmojiStyles = () => (
 // 斜纹背景
 const GridBackground = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* 基础渐变 */}
-    <div className="absolute inset-0 bg-gradient-to-br from-rose-50/30 via-white/50 to-rose-100/20" />
+    {/* 新背景图片 */}
+    <div
+      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/timeline_bg.png')" }}
+    />
+    {/* 极淡柔光覆盖，统一色调 */}
+    <div className="absolute inset-0 bg-rose-50/10" />
     
     {/* 斜纹网格 */}
     <div 
