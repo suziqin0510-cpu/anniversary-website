@@ -141,10 +141,10 @@ export default function Navbar() {
                 <HandDrawnRose />
               </div>
               <div className="flex flex-col relative">
-                <span className="text-sm font-medium text-[#7C444F] group-hover:text-[#E35D6A] transition-colors">
+                <span className="text-sm font-medium text-white drop-shadow-md group-hover:text-white transition-colors">
                   {NAMES.boy} & {NAMES.girl}
                 </span>
-                <span className="text-[10px] text-[#9B6A6C]">微醺告白 · 点我有惊喜</span>
+                <span className="text-[10px] text-white/80 drop-shadow-md">微醺告白 · 点我有惊喜</span>
 
                 {/* 字母 o 触发器 */}
                 <AnimatePresence>
@@ -173,12 +173,12 @@ export default function Navbar() {
                     key={item.name}
                     href={isLocked ? '#' : item.href}
                     onClick={(e) => handleNavClick(e, item)}
-                    className={`px-4 py-2 text-sm relative group flex items-center space-x-1 transition-all duration-300 ${
+                    className={`px-4 py-2 text-sm relative group flex items-center space-x-1 transition-all duration-300 drop-shadow-md ${
                       isLocked
-                        ? 'text-[#9B6A6C]/50 cursor-not-allowed'
+                        ? 'text-white/50 cursor-not-allowed'
                         : pathname === item.href
-                        ? 'text-[#E35D6A] font-medium'
-                        : 'text-[#9B6A6C] hover:text-[#7C444F]'
+                        ? 'text-white font-medium'
+                        : 'text-white/90 hover:text-white'
                     }`}
                   >
                     {isLocked && <Lock className="w-3 h-3" />}
@@ -199,7 +199,7 @@ export default function Navbar() {
               <ThemeSwitcher />
               <div className="flex items-center space-x-1.5 px-4 py-1.5 glass-card rounded-full">
                 <RedHeartSmall />
-                <span className="text-xs text-[#9B6A6C]">
+                <span className="text-xs text-white/90 drop-shadow-md">
                   {unlockedLevels.length > 0 ? `已解锁 ${unlockedLevels.length} 关` : '温暖相伴'}
                 </span>
               </div>
@@ -210,7 +210,7 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 text-[#7C444F]"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-6 h-6 text-white drop-shadow-md" /> : <Menu className="w-6 h-6 text-white drop-shadow-md" />}
             </button>
           </div>
         </div>

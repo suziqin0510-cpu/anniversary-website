@@ -872,8 +872,8 @@ export default function HomePage() {
           transform: 'translateZ(0)',
         }}
       />
-      {/* 纯半透明遮罩，提升文字可读性且不模糊背景 */}
-      <div className="fixed inset-0 -z-10 bg-white/10" />
+      {/* 加深全局柔光遮罩，压暗背景凸显文字 */}
+      <div className="fixed inset-0 -z-10 bg-black/20 backdrop-blur-[2px]" />
 
       <div className="min-h-screen relative z-10">
 
@@ -893,11 +893,11 @@ export default function HomePage() {
             <span className="animate-heartbeat"><RedHeart /></span>
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 font-handwriting bg-gradient-to-r from-orange-400 via-rose-400 to-orange-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 font-handwriting text-white drop-shadow-lg">
             苏子钦 & 李丹
           </h1>
 
-          <p className="text-lg text-[#9B6A6C] font-light tracking-wider">
+          <p className="text-lg text-white font-light tracking-wider drop-shadow-md">
             CYBERSPACE v1.0 · 我们的 365 天
           </p>
 
@@ -906,7 +906,7 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="mt-6 text-[#7C444F]/70 italic max-w-md mx-auto"
+            className="mt-6 text-white italic max-w-md mx-auto drop-shadow-md"
           >
             "在这个充满变数的世界里，我为你撑起一个永远恒温的小窝"
           </motion.p>
