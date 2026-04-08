@@ -682,23 +682,26 @@ export default function MapPage() {
           </div>
         </motion.div>
 
-        {/* 未来登机牌入口 */}
+        {/* 高对比度玻璃态容器：未来登机牌 + 星图锁 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mt-8 text-center"
+          className="mt-8 flex flex-col items-center justify-center bg-black/50 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl"
         >
           <motion.button
             onClick={() => setIsBoardingPassOpen(true)}
-            className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#E35D6A] to-[#F4A460] text-white rounded-full shadow-lg hover:shadow-xl transition-all"
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-full shadow-lg hover:shadow-xl transition-all drop-shadow-md"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <Ticket className="w-5 h-5" />
             <span className="font-medium">领取未来机票</span>
           </motion.button>
-          <p className="text-xs text-white mt-2 drop-shadow-md">一段旅程的终点，是另一段旅程的起点 ✈️</p>
+          <p className="text-xs text-white mt-2 drop-shadow-lg font-medium">一段旅程的终点，是另一段旅程的起点 ✈️</p>
+
+          {/* 星图锁 - 关卡3 */}
+          <GlobeLock />
         </motion.div>
       </div>
 
@@ -714,9 +717,6 @@ export default function MapPage() {
         isOpen={isBoardingPassOpen}
         onClose={() => setIsBoardingPassOpen(false)}
       />
-
-      {/* 星图锁 - 关卡3 */}
-      <GlobeLock />
     </div>
   </>
   );

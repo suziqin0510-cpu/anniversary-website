@@ -376,13 +376,13 @@ export default function GlobeLock() {
         {/* 标题 */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Lock className="w-5 h-5 text-white drop-shadow-md" />
-            <h3 className="text-lg font-bold text-white drop-shadow-md">北海轨迹星图锁</h3>
+            <Lock className="w-5 h-5 text-white drop-shadow-lg" />
+            <h3 className="text-lg font-bold text-white drop-shadow-lg">北海轨迹星图锁</h3>
           </div>
-          <p className="text-white/90 drop-shadow-md text-sm">
+          <p className="text-white drop-shadow-lg text-sm font-medium">
             在3D地球上找到我们去北海的正确路线
           </p>
-          <p className="text-white/80 drop-shadow-md text-xs mt-1">
+          <p className="text-white drop-shadow-lg text-xs mt-1 font-medium">
             提示：从昆明出发，一路向东南...
           </p>
         </div>
@@ -432,7 +432,7 @@ export default function GlobeLock() {
         </motion.div>
 
         {/* 简洁提示 */}
-        <p className="text-center text-white/80 drop-shadow-md text-xs mt-4">
+        <p className="text-center text-white drop-shadow-lg text-xs mt-4 font-medium">
           点击地球上的城市节点来连接路线
         </p>
       </motion.div>
