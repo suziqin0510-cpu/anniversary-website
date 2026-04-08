@@ -211,39 +211,6 @@ function LetterHTrigger() {
   );
 }
 
-// ===== 胶片颗粒纹理背景 =====
-const FilmGrain = () => (
-  <div
-    className="fixed inset-0 pointer-events-none z-[1]"
-    style={{
-      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-      opacity: 0.05,
-    }}
-  />
-);
-
-// ===== 手绘涂鸦装饰 =====
-const HandDrawnDoodles = () => (
-  <>
-    {/* 手绘星星 - 左上角 */}
-    <svg className="absolute top-20 left-8 w-12 h-12 text-[#F4A460]/40 pointer-events-none" viewBox="0 0 48 48" style={{ transform: 'rotate(-15deg)' }}>
-      <path d="M24 2l6 18h18l-14 10 5 18-15-10-15 10 5-18L2 20h18z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-    {/* 手绘箭头 - 指向时间线 */}
-    <svg className="absolute top-[35%] right-12 w-16 h-16 text-[#E35D6A]/30 pointer-events-none" viewBox="0 0 64 64">
-      <path d="M8 32c10-15 30-20 40-10M44 18l8 6-6 8" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-    {/* 波浪线 - 底部装饰 */}
-    <svg className="absolute bottom-40 left-[15%] w-24 h-8 text-[#E35D6A]/25 pointer-events-none" viewBox="0 0 96 32">
-      <path d="M2 16c8-8 16 8 24 0s16-8 24 0 16 8 24 0 16-8 20 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-    {/* 小圆点装饰 */}
-    <div className="absolute top-[45%] left-[8%] w-3 h-3 rounded-full bg-[#F4A460]/40 pointer-events-none" />
-    <div className="absolute top-[60%] right-[10%] w-2 h-2 rounded-full bg-[#E35D6A]/30 pointer-events-none" />
-    <div className="absolute bottom-[30%] right-[20%] w-4 h-4 rounded-full border-2 border-[#F4A460]/35 pointer-events-none" />
-  </>
-);
-
 // ===== 图标组件（无阴影版本） =====
 const RedHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" style={noShadowStyle}>
@@ -894,30 +861,15 @@ export default function HomePage() {
 
   return (
     <>
-      {/* 👉 唯美 3D 动画视频背景 👈 */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1920&q=80"
-        >
-          <source src="https://assets.codepen.io/3364143/7b.mp4" type="video/mp4" />
-        </video>
-        {/* 粉色遮罩层，降低视频亮度 */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-100/60 via-rose-50/50 to-pink-100/60" />
-        {/* 备用背景色 */}
-        <div className="absolute inset-0 bg-pink-50 -z-20" />
-      </div>
+      {/* 👉 全新唯美油画图片背景 👈 */}
+      <div 
+        className="fixed top-0 left-0 w-full h-full -z-20 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/homepage_oil_painting.jpg')" }} 
+      />
+      {/* 增加一个极淡的柔光遮罩，确保前景文字清晰，增加温馨感且不抢戏 */}
+      <div className="fixed top-0 left-0 w-full h-full -z-10 bg-white/10 backdrop-blur-[2px]" />
 
       <div className="min-h-screen relative z-10">
-        {/* 胶片颗粒纹理 */}
-      <FilmGrain />
-
-      {/* 手绘涂鸦装饰 */}
-      <HandDrawnDoodles />
 
       <div className="max-w-7xl mx-auto px-4 pt-20 pb-12 relative z-10">
         {/* 头部标题区 - 直接悬浮在背景上 */}
