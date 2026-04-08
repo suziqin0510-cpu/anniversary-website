@@ -281,7 +281,7 @@ export default function TimeMailbox({ onUnlock }: TimeMailboxProps) {
               ]
             }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="relative bg-gradient-to-br from-rose-50 to-orange-50 rounded-2xl p-8 border-2 border-[#E35D6A]/30 shadow-xl overflow-hidden"
+            className="relative bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-xl overflow-hidden"
           >
             {/* 背景装饰 */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#E35D6A]/10 to-transparent rounded-full blur-2xl" />
@@ -297,10 +297,10 @@ export default function TimeMailbox({ onUnlock }: TimeMailboxProps) {
                   <Unlock className="w-8 h-8 text-white" />
                 </motion.div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#7C444F]">
+                  <h3 className="text-xl font-bold text-white drop-shadow-md">
                     🚪 愿望清单大门已开启
                   </h3>
-                  <p className="text-[#9B6A6C] text-sm mt-1">
+                  <p className="text-white/90 drop-shadow-md text-sm mt-1">
                     点击进入我们的未来
                   </p>
                 </div>
@@ -308,15 +308,15 @@ export default function TimeMailbox({ onUnlock }: TimeMailboxProps) {
               <motion.span
                 animate={{ x: [0, 5, 0] }}
                 transition={{ duration: 1, repeat: Infinity }}
-                className="text-2xl text-[#E35D6A]"
+                className="text-2xl text-white drop-shadow-md"
               >
                 →
               </motion.span>
             </div>
 
             {letterContent && (
-              <div className="mt-4 pt-4 border-t border-[#E35D6A]/10">
-                <p className="text-xs text-[#9B6A6C]/70 italic">
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <p className="text-xs text-white/70 italic">
                   你已写下 {letterContent.length} 字的真心话
                 </p>
               </div>

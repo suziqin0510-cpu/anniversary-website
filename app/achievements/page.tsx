@@ -43,10 +43,10 @@ const achievements = [
 ];
 
 const rarityConfig = {
-  legendary: { label: '传说', stars: 3, color: 'text-[#E35D6A]' },
-  epic: { label: '史诗', stars: 2, color: 'text-[#FFB5A7]' },
-  rare: { label: '稀有', stars: 1, color: 'text-[#E35D6A]/70' },
-  common: { label: '普通', stars: 0, color: 'text-[#9B6A6C]' },
+  legendary: { label: '传说', stars: 3, color: 'text-white drop-shadow-sm' },
+  epic: { label: '史诗', stars: 2, color: 'text-white drop-shadow-sm' },
+  rare: { label: '稀有', stars: 1, color: 'text-white drop-shadow-sm' },
+  common: { label: '普通', stars: 0, color: 'text-white drop-shadow-sm' },
 };
 
 export default function AchievementsPage() {
@@ -54,21 +54,27 @@ export default function AchievementsPage() {
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
   return (
-    <div className="min-h-screen pt-24 pb-12 relative z-10">
+    <>
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/achievements_bg.png?v=1')" }}
+      />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <div className="flex justify-center mb-4"><HandDrawnTrophy /></div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#7C444F] mb-2 font-handwriting">成就勋章</h1>
-          <p className="text-[#9B6A6C]">每一个勋章，都是我们爱情的见证</p>
-          <div className="mt-8 inline-flex items-center space-x-6 px-6 py-3 glass-card rounded-full">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 font-handwriting drop-shadow-lg">成就勋章</h1>
+          <p className="text-white/90 drop-shadow-md">每一个勋章，都是我们爱情的见证</p>
+          <div className="mt-8 inline-flex items-center space-x-6 px-6 py-3 glass-card rounded-full bg-white/30">
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#E35D6A]">{unlockedCount}</div>
-              <div className="text-xs text-[#9B6A6C]">已解锁</div>
+              <div className="text-2xl font-bold text-white drop-shadow-md">{unlockedCount}</div>
+              <div className="text-xs text-white/80 drop-shadow-sm">已解锁</div>
             </div>
             <div className="w-px h-8 bg-white/50" />
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#9B6A6C]">{achievements.length}</div>
-              <div className="text-xs text-[#9B6A6C]">总计</div>
+              <div className="text-2xl font-bold text-white drop-shadow-md">{achievements.length}</div>
+              <div className="text-xs text-white/80 drop-shadow-sm">总计</div>
             </div>
           </div>
         </motion.div>
@@ -79,7 +85,7 @@ export default function AchievementsPage() {
             return (
               <motion.div key={achievement.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} perspective={1000} scale={1.02} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
-                  <div className="glass-card rounded-3xl p-6 glass-card-hover relative overflow-hidden cursor-pointer group"
+                  <div className="glass-card rounded-3xl p-6 glass-card-hover relative overflow-hidden cursor-pointer group bg-white/30"
                     onClick={() => setSelectedMedal(achievement)}
                   >
                     <div className="absolute top-4 right-4 flex space-x-1">
@@ -92,12 +98,12 @@ export default function AchievementsPage() {
                       <HandDrawnMedal emoji={achievement.emoji} />
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-xl font-bold text-[#7C444F]">{achievement.title}</h3>
-                          <span className={`px-3 py-0.5 rounded-full text-xs glass-card-highlight ${rarity.color}`}>{rarity.label}</span>
+                          <h3 className="text-xl font-bold text-white drop-shadow-md">{achievement.title}</h3>
+                          <span className={`px-3 py-0.5 rounded-full text-xs glass-card-highlight bg-white/20 ${rarity.color}`}>{rarity.label}</span>
                         </div>
-                        <p className="text-[#9B6A6C] mb-3">{achievement.description}</p>
+                        <p className="text-white/80 drop-shadow-md mb-3">{achievement.description}</p>
                         {achievement.unlocked && (
-                          <div className="flex items-center space-x-2 text-sm text-[#E35D6A]">
+                          <div className="flex items-center space-x-2 text-sm text-white drop-shadow-md">
                             <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
                               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E35D6A"/>
                             </svg>
@@ -115,14 +121,14 @@ export default function AchievementsPage() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-12">
           <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
-            <div className="glass-card rounded-3xl p-8 text-center">
+            <div className="glass-card rounded-3xl p-8 text-center bg-white/30">
               <div className="flex justify-center mb-4">
                 <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 animate-heartbeat">
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E35D6A"/>
                 </svg>
               </div>
-              <p className="text-[#7C444F] text-lg mb-2">"还有更多成就等着我们一起解锁"</p>
-              <p className="text-[#9B6A6C]">未来的路还很长，我们继续一起收集勋章</p>
+              <p className="text-white text-lg mb-2 drop-shadow-md font-medium">"还有更多成就等着我们一起解锁"</p>
+              <p className="text-white/90 drop-shadow-md">未来的路还很长，我们继续一起收集勋章</p>
             </div>
           </Tilt>
         </motion.div>
@@ -131,5 +137,6 @@ export default function AchievementsPage() {
         <TimeMailbox />
       </div>
     </div>
+  </>
   );
 }
