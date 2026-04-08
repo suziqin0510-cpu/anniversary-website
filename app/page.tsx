@@ -861,13 +861,17 @@ export default function HomePage() {
 
   return (
     <>
-      {/* 👉 全新唯美油画图片背景 👈 */}
-      <div 
-        className="fixed top-0 left-0 w-full h-full -z-20 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/homepage_oil_painting.jpg')" }} 
-      />
-      {/* 增加一个极淡的柔光遮罩，确保前景文字清晰，增加温馨感且不抢戏 */}
-      <div className="fixed top-0 left-0 w-full h-full -z-10 bg-white/10 backdrop-blur-[2px]" />
+      {/* 👉 终极高清油画背景层 👈 */}
+      <div className="fixed inset-0 -z-20">
+        <img
+          src="/homepage_bg_final.png"
+          alt="background"
+          className="w-full h-full object-cover"
+          style={{ imageRendering: 'auto' }}
+        />
+      </div>
+      {/* 极淡的艺术遮罩，提升文字识别度 */}
+      <div className="fixed inset-0 -z-10 bg-white/5 backdrop-blur-[1px]" />
 
       <div className="min-h-screen relative z-10">
 
