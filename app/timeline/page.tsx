@@ -1762,13 +1762,22 @@ const SlotPassword = ({
           return (
             <div key={index} className="relative">
               {isLocked ? (
-                <div className="w-14 h-14 rounded-full border-4 bg-zinc-100 border-zinc-200 flex items-center justify-center select-none">
+                <div 
+                  className="w-14 h-14 rounded-full border-4 bg-zinc-100 border-zinc-200 flex items-center justify-center select-none cursor-not-allowed"
+                  onClick={() => alert('🔒 拨盘已锁定，请先收集对应的回忆碎片！')}
+                >
                   <span className="text-3xl grayscale opacity-50">🔒</span>
                 </div>
               ) : (
                 <div className="relative">
                   <motion.div
-                    onClick={() => setActiveSlot(index)}
+                    onClick={() => {
+                      if (!unlockedSlots[index]) {
+                        alert('🔒 拨盘已锁定，请先收集对应的回忆碎片！');
+                        return;
+                      }
+                      setActiveSlot(index);
+                    }}
                     whileTap={{ scale: 0.95 }}
                     className={`w-14 h-14 rounded-full border-4 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md relative
                       ${activeSlot === index
