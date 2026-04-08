@@ -90,7 +90,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="bg-gradient-to-br from-yellow-50 via-orange-50 to-rose-50 rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-2 border-yellow-400/50"
+            className="bg-gradient-to-br from-slate-900 via-slate-800 to-black rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border border-white/20"
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
@@ -114,18 +114,18 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               <Trophy className="w-10 h-10 text-white" />
             </motion.div>
 
-            <h3 className="text-2xl font-bold text-[#7C444F] mb-3 relative z-10">成就达成！</h3>
+            <h3 className="text-2xl font-bold text-white drop-shadow-md mb-3 relative z-10">成就达成！</h3>
 
-            <p className="text-[#9B6A6C] mb-6 relative z-10">
+            <p className="text-white/90 drop-shadow-md mb-6 relative z-10">
               我们走过的每一公里，都刻在了星图里。🏅
             </p>
 
-            <div className="flex items-center justify-center space-x-2 text-lg text-yellow-600 mb-6 relative z-10">
+            <div className="flex items-center justify-center space-x-2 text-lg text-yellow-300 drop-shadow-md mb-6 relative z-10">
               {CORRECT_PATH.map((city, i) => (
                 <span key={city} className="flex items-center">
                   <span className="font-medium">{city}</span>
                   {i < CORRECT_PATH.length - 1 && (
-                    <span className="mx-1 text-yellow-400">→</span>
+                    <span className="mx-1 text-white/70">→</span>
                   )}
                 </span>
               ))}
@@ -316,7 +316,7 @@ export default function GlobeLock() {
     el.innerHTML = `
       <div class="flex flex-col items-center cursor-pointer group">
         <div class="w-3 h-3 rounded-full bg-white/70 group-hover:bg-white transition-all duration-300"></div>
-        <div class="text-xs font-medium text-white/90 drop-shadow-md whitespace-nowrap mt-1 px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm group-hover:bg-black/50 transition-colors">
+        <div class="text-xs font-medium text-white drop-shadow-md whitespace-nowrap mt-1 px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm group-hover:bg-black/50 transition-colors">
           ${d.name}
         </div>
       </div>
@@ -340,7 +340,7 @@ export default function GlobeLock() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto"
         >
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl shadow-lg border border-yellow-200 p-8 text-center">
+          <div className="bg-black/50 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 p-8 text-center">
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -348,8 +348,8 @@ export default function GlobeLock() {
             >
               <Trophy className="w-8 h-8 text-white" />
             </motion.div>
-            <h3 className="text-xl font-bold text-[#7C444F] mb-2">星图已解锁</h3>
-            <p className="text-[#9B6A6C] mb-4">你们已经走过了这段美好的旅程</p>
+            <h3 className="text-xl font-bold text-white drop-shadow-md mb-2">星图已解锁</h3>
+            <p className="text-white/90 drop-shadow-md mb-4">你们已经走过了这段美好的旅程</p>
             <motion.a
               href="/achievements"
               whileHover={{ scale: 1.02 }}
