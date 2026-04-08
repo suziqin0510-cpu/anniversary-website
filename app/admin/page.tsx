@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGame } from '@/lib/game-context';
+import { resetGateKeeper } from '@/components/GateKeeper';
 
 const adminModules = [
   {
@@ -276,8 +277,22 @@ function DataManager() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleReset = () => {
+    // 1. 重置游戏进度（关卡、字母收集等）
     resetGame();
+
+    // 2. 重置音乐状态
+    localStorage.removeItem('music_current_index');
+    localStorage.removeItem('music_current_time');
+
+    // 3. 重置暗号验证状态（GateKeeper + IntroPage）
+    resetGateKeeper();
+    localStorage.removeItem('authenticated');
+
+    // 4. 通知用户并重载页面
     setShowConfirm(false);
+
+    // 跳转回首页并强制刷新，使所有组件重新加载初始状态
+    window.location.href = '/';
   };
 
   return (
@@ -324,13 +339,13 @@ function DataManager() {
                 onClick={() => setShowConfirm(true)}
               >
                 <Trash2 className="w-5 h-5 mb-1" />
-                <span>重置游戏进度</span>
-                <span className="text-xs text-red-400">清除所有解锁状态和收集的字母</span>
+                <span>重置所有进度</span>
+                <span className="text-xs text-red-400">清除游戏、音乐、暗号等所有状态</span>
               </Button>
             ) : (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-4">
                 <p className="text-sm text-red-700">
-                  确定要重置游戏进度吗？这将清除所有已解锁的关卡和收集的字母，此操作不可恢复！
+                  确定要重置吗？这将清除所有已解锁的关卡、收集的字母、音乐播放状态以及暗号验证记录，网站将回归初始状态，此操作不可恢复！
                 </p>
                 <div className="flex space-x-3">
                   <Button
