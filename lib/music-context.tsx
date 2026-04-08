@@ -33,15 +33,32 @@ interface MusicContextType {
 
 const MusicContext = createContext<MusicContextType | null>(null);
 
+const STORAGE_INDEX_KEY = 'music_current_index';
+const STORAGE_TIME_KEY = 'music_current_time';
+
 export function MusicProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const saved = localStorage.getItem(STORAGE_INDEX_KEY);
+    const parsed = saved ? parseInt(saved, 10) : 0;
+    return !isNaN(parsed) && parsed >= 0 && parsed < PLAYLIST.length ? parsed : 0;
+  });
   const [hasStarted, setHasStarted] = useState(false);
   const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const interactionListenerAdded = useRef(false);
+  const savedTimeRef = useRef<number | null>(null);
 
   const currentSong = PLAYLIST[currentIndex];
+
+  // 挂载时读取保存的播放时间
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTime = localStorage.getItem(STORAGE_TIME_KEY);
+      savedTimeRef.current = savedTime ? parseFloat(savedTime) : null;
+    }
+  }, []);
 
   // 初始化音频元素
   useEffect(() => {
@@ -52,6 +69,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     const handleEnded = () => {
       const nextIndex = (currentIndex + 1) % PLAYLIST.length;
       setCurrentIndex(nextIndex);
+      localStorage.removeItem(STORAGE_TIME_KEY);
     };
 
     // 监听错误
@@ -61,6 +79,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       // 自动切换到下一首
       const nextIndex = (currentIndex + 1) % PLAYLIST.length;
       setCurrentIndex(nextIndex);
+      localStorage.removeItem(STORAGE_TIME_KEY);
     };
 
     audioRef.current.addEventListener('ended', handleEnded);
@@ -73,12 +92,19 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     };
   }, [currentIndex, currentSong.src]);
 
-  // 当歌曲索引变化时更新音频源并强制播放
+  // 当 currentIndex 变化时持久化并更新音频源
   useEffect(() => {
+    localStorage.setItem(STORAGE_INDEX_KEY, currentIndex.toString());
+
     if (audioRef.current) {
       // 更新音频源
       audioRef.current.src = currentSong.src;
       setHasError(false);
+
+      // 恢复之前保存的播放时间（页面切换后接着播）
+      if (savedTimeRef.current && !isNaN(savedTimeRef.current)) {
+        audioRef.current.currentTime = savedTimeRef.current;
+      }
 
       // 强制开始播放（无论之前是播放还是暂停状态）
       audioRef.current.play().then(() => {
@@ -104,6 +130,27 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isPlaying]);
 
+  // 定期保存播放进度，确保切页后能续播
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    const saveProgress = () => {
+      if (audioRef.current) {
+        localStorage.setItem(STORAGE_TIME_KEY, audioRef.current.currentTime.toString());
+      }
+    };
+
+    const interval = setInterval(saveProgress, 1000);
+    const handleTimeUpdate = saveProgress;
+
+    audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
+
+    return () => {
+      clearInterval(interval);
+      audioRef.current?.removeEventListener('timeupdate', handleTimeUpdate);
+    };
+  }, [currentIndex, currentSong.src]);
+
   // 切换播放/暂停
   const togglePlay = useCallback(() => {
     setIsPlaying((prev) => !prev);
@@ -116,6 +163,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const playNext = useCallback(() => {
     const nextIndex = (currentIndex + 1) % PLAYLIST.length;
     setCurrentIndex(nextIndex);
+    localStorage.removeItem(STORAGE_TIME_KEY);
+    savedTimeRef.current = null;
     if (!hasStarted) {
       setHasStarted(true);
     }
@@ -125,12 +174,14 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const playPrevious = useCallback(() => {
     const prevIndex = (currentIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
     setCurrentIndex(prevIndex);
+    localStorage.removeItem(STORAGE_TIME_KEY);
+    savedTimeRef.current = null;
     if (!hasStarted) {
       setHasStarted(true);
     }
   }, [currentIndex, hasStarted]);
 
-  // 处理浏览器自动播放限制：监听第一次用户点击
+  // 处理浏览器自动播放限制：监听第一次用户交互
   useEffect(() => {
     // 如果已经启动过，不再添加监听器
     if (hasStarted || interactionListenerAdded.current) return;
