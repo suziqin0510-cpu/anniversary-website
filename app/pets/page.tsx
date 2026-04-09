@@ -397,39 +397,99 @@ export default function PetsPage() {
         </motion.div>
       </div>
 
-      {/* 终极告白 */}
+      {/* 终极告白 - 电影级暗场 / 赛博浪漫 */}
       <AnimatePresence>
         {showLoveMessage && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 1.2 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
             onClick={() => {
               setIsEndingSequence(true);
               router.push('/');
             }}
           >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            {/* 暗场背景层 */}
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(circle at center, rgba(40,10,10,0.5) 0%, rgba(0,0,0,0.98) 100%)',
+              }}
+            />
+
+            {/* 失重微粒 */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {Array.from({ length: 18 }).map((_, i) => {
+                const startX = Math.random() * 100;
+                const startY = Math.random() * 100;
+                const dur = 4 + Math.random() * 6;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{
+                      opacity: 0,
+                      x: `${startX}vw`,
+                      y: `${startY}vh`,
+                      scale: 0.5,
+                    }}
+                    animate={{
+                      opacity: [0, 0.6, 0.3, 0.8, 0],
+                      x: [`${startX}vw`, `${startX + (Math.random() - 0.5) * 30}vw`],
+                      y: [`${startY}vh`, `${startY - (10 + Math.random() * 40)}vh`],
+                      scale: [0.5, 1, 0.8, 1.2, 0.6],
+                    }}
+                    transition={{
+                      duration: dur,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
+                    className="absolute w-1 h-1 rounded-full bg-white/30"
+                    style={{
+                      boxShadow: '0 0 6px 1px rgba(255,255,255,0.2)',
+                    }}
+                  />
+                );
+              })}
+            </div>
+
             <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="relative text-center"
+              transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+              className="relative text-center flex flex-col items-center"
             >
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
-                className="text-8xl md:text-9xl mb-6"
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 2.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="text-3xl md:text-6xl font-serif-display tracking-[0.12em] text-white"
+                style={{
+                  textShadow:
+                    '0 0 40px rgba(255,255,255,0.25), 0 0 80px rgba(255,215,150,0.15), 0 0 120px rgba(255,255,255,0.08)',
+                }}
               >
-                ❤️
+                苏子钦永远爱李丹
+              </motion.h2>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5, delay: 1.2 }}
+                className="mt-10 flex items-center space-x-2 text-[10px] md:text-xs font-mono-micro tracking-widest text-white/40"
+              >
+                <motion.span
+                  animate={{ opacity: [1, 0, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  className="inline-block"
+                >
+                  _
+                </motion.span>
+                <span>[ SYSTEM OVERRIDE: PRESS ESC TO INITIATE FINAL PROTOCOL ]</span>
               </motion.div>
-              <h2 className="text-2xl md:text-5xl font-bold text-[#E35D6A] drop-shadow-[0_4px_8px_rgba(255,255,255,0.9)]">
-                💖 苏子钦永远爱李丹 💖
-              </h2>
-              <p className="mt-6 text-white/90 text-base md:text-lg drop-shadow-md">
-                按 ESC 键恢复世界常态
-              </p>
             </motion.div>
           </motion.div>
         )}
