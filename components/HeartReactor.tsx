@@ -281,14 +281,14 @@ export default function HeartReactor() {
         )}
       </AnimatePresence>
 
-      {/* 悬浮球体 */}
-      <div className="fixed bottom-8 right-8 z-[60] flex flex-col items-center">
+      {/* 触发按钮（内联版，用于 Navbar） */}
+      <div className="relative flex flex-col items-center">
         {/* 动态提示文案 */}
         <motion.div
           key={stage.text}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-3 text-xs font-medium text-white drop-shadow-md px-3 py-1 rounded-full bg-black/20 backdrop-blur-sm whitespace-nowrap"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 text-xs font-medium text-white drop-shadow-md px-3 py-1 rounded-full bg-black/30 backdrop-blur-sm whitespace-nowrap z-50"
         >
           {isUltimate ? '已满溢 ✨' : stage.text}
         </motion.div>
@@ -299,7 +299,7 @@ export default function HeartReactor() {
           disabled={isUltimate || isAnimating}
           whileTap={isUltimate || isAnimating ? undefined : { scale: 0.82 }}
           transition={{ type: 'spring', stiffness: 500, damping: 17 }}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-colors ${
+          className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
             isUltimate || isAnimating ? 'cursor-default' : 'cursor-pointer'
           }`}
         >
@@ -333,33 +333,33 @@ export default function HeartReactor() {
               isUltimate
                 ? {
                     boxShadow: [
-                      '0 0 20px 4px rgba(227, 93, 106, 0.5)',
-                      '0 0 45px 14px rgba(227, 93, 106, 0.8)',
-                      '0 0 20px 4px rgba(227, 93, 106, 0.5)',
+                      '0 0 10px 2px rgba(227, 93, 106, 0.4)',
+                      '0 0 24px 8px rgba(227, 93, 106, 0.6)',
+                      '0 0 10px 2px rgba(227, 93, 106, 0.4)',
                     ],
                     scale: [1, 1.08, 1],
                   }
                 : {
                     boxShadow: [
-                      '0 0 0 0 rgba(227, 93, 106, 0.3)',
-                      '0 0 20px 4px rgba(227, 93, 106, 0.25)',
-                      '0 0 0 0 rgba(227, 93, 106, 0.3)',
+                      '0 0 0 0 rgba(227, 93, 106, 0.25)',
+                      '0 0 12px 2px rgba(227, 93, 106, 0.2)',
+                      '0 0 0 0 rgba(227, 93, 106, 0.25)',
                     ],
                   }
             }
             transition={{ duration: isUltimate ? 1.2 : 2, repeat: Infinity, ease: 'easeInOut' }}
-            className={`w-16 h-16 rounded-full flex items-center justify-center border backdrop-blur-xl transition-colors ${
+            className={`w-8 h-8 rounded-full flex items-center justify-center border backdrop-blur-md transition-colors ${
               isUltimate
-                ? 'bg-[#E35D6A]/40 border-[#E35D6A]/70'
+                ? 'bg-[#E35D6A]/30 border-[#E35D6A]/50'
                 : isAnimating
-                ? 'bg-white/20 border-white/40'
-                : 'bg-white/30 border-white/60'
+                ? 'bg-white/15 border-white/20'
+                : 'bg-white/15 border-white/20'
             }`}
           >
             <motion.span
               animate={isUltimate ? { scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] } : { scale: [1, 1.15, 1] }}
               transition={{ duration: isUltimate ? 1 : 1.5, repeat: Infinity, ease: 'easeInOut' }}
-              className="text-3xl select-none"
+              className="text-lg select-none"
             >
               {isUltimate ? '💖' : '❤️'}
             </motion.span>

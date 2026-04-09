@@ -9,12 +9,10 @@ import ScrollJourney from '@/components/ScrollJourney';
 import VinylPlayer from '@/components/VinylPlayer';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import HeartReactor from '@/components/HeartReactor';
 import FinalPuzzleModal from '@/components/FinalPuzzleModal';
 import RouteGuard from '@/components/RouteGuard';
 import GateKeeper from '@/components/GateKeeper';
 import EndingStage from '@/components/EndingStage';
-import AnniversaryMedal from '@/components/AnniversaryMedal';
 import { useGame } from '@/lib/game-context';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
@@ -47,9 +45,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         </RouteGuard>
       </GateKeeper>
       <Footer />
-      <HeartReactor />
       <FinalPuzzleModal />
-      {hasSeenEnding && <AnniversaryMedal />}
     </>
   );
 }

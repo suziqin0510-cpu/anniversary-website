@@ -14,25 +14,16 @@ interface PolaroidFlipProps {
   letterTrigger?: Letter;
 }
 
-const organicShapes = [
-  '20% 80% 25% 75% / 55% 45% 65% 35%',
-  '75% 25% 65% 35% / 35% 65% 35% 65%',
-  '35% 65% 70% 30% / 45% 55% 55% 45%',
-  '65% 35% 25% 75% / 35% 65% 30% 70%',
-];
-
 export default function PolaroidFlip({
   frontImage,
   frontCaption,
   backText,
   rotate = '0deg',
   delay = 0,
-  index = 0,
   letterTrigger,
 }: PolaroidFlipProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
-  const shape = organicShapes[index % organicShapes.length];
 
   const handleLetterClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,20 +46,20 @@ export default function PolaroidFlip({
       onClick={() => setIsFlipped(!isFlipped)}
     >
       <motion.div
-        className="relative w-full h-full shadow-sm hover:shadow-md"
-        style={{ transformStyle: 'preserve-3d', borderRadius: shape }}
+        className="relative w-full h-full"
+        style={{ transformStyle: 'preserve-3d' }}
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.7, type: 'spring', stiffness: 260, damping: 20 }}
       >
+        {/* 正面：经典拍立得 */}
         <div
-          className="absolute inset-0 w-full h-full bg-white/60 backdrop-blur-md border border-white/80 shadow-md p-2 pb-6"
+          className="absolute inset-0 w-full h-full bg-white/90 rounded p-2 pb-6 shadow-lg"
           style={{
             transform: `rotate(${rotate})`,
             backfaceVisibility: 'hidden',
-            borderRadius: shape,
           }}
         >
-          <div className="w-full aspect-square bg-rose-50/50 mb-2 overflow-hidden" style={{ borderRadius: shape }}>
+          <div className="w-full aspect-square bg-gray-100 rounded-sm overflow-hidden mb-2">
             <img
               src={frontImage}
               alt={frontCaption}
@@ -76,31 +67,30 @@ export default function PolaroidFlip({
               loading="lazy"
             />
           </div>
-          <div className="flex-1 flex flex-col justify-center px-1">
-            <h4 className="text-[11px] font-bold text-gray-900 leading-tight mb-1 truncate drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
+          <div className="px-1">
+            <h4 className="text-[11px] font-bold text-gray-800 leading-tight truncate text-center">
               {frontCaption}
             </h4>
           </div>
 
-          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
             <span className="text-xs">↻</span>
           </div>
         </div>
 
+        {/* 背面：手写文字 */}
         <div
-          className="absolute inset-0 w-full h-full p-4 flex flex-col items-center justify-center"
+          className="absolute inset-0 w-full h-full p-4 flex flex-col items-center justify-center rounded"
           style={{
             transform: `rotate(${rotate}) rotateY(180deg)`,
             backfaceVisibility: 'hidden',
             background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
             border: '1px solid rgba(180, 160, 100, 0.3)',
-            borderRadius: shape,
           }}
         >
           <div
-            className="absolute inset-0 opacity-20 pointer-events-none"
+            className="absolute inset-0 opacity-20 pointer-events-none rounded"
             style={{
-              borderRadius: shape,
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
             }}
           />

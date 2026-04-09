@@ -8,6 +8,8 @@ import { NAMES } from '@/lib/utils';
 import HeartBurst from './HeartBurst';
 import ThemeSwitcher from './ThemeSwitcher';
 import MagneticButton from './MagneticButton';
+import HeartReactor from './HeartReactor';
+import AnniversaryMedal from './AnniversaryMedal';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { usePathname } from 'next/navigation';
 
@@ -51,7 +53,7 @@ export default function Navbar() {
   const [showLetterO, setShowLetterO] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
   const logoRef = useRef<HTMLDivElement>(null);
-  const { isLevelUnlocked, showToast, collectLetter, hasCollectedLetter, triggerLetterAnimation, unlockedLevels } = useGame();
+  const { isLevelUnlocked, showToast, collectLetter, hasCollectedLetter, triggerLetterAnimation, unlockedLevels, hasSeenEnding } = useGame();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -200,6 +202,8 @@ export default function Navbar() {
 
             {/* Status Indicator & Theme Switcher */}
             <div className="hidden md:flex items-center space-x-3">
+              {hasSeenEnding && <AnniversaryMedal />}
+              <HeartReactor />
               <MagneticButton strength={8} innerStrength={2}>
                 <ThemeSwitcher />
               </MagneticButton>
