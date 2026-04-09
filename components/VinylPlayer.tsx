@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Music } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Music, Maximize2, Minimize2 } from 'lucide-react';
 import { useGame, Letter } from '@/lib/game-context';
 import { useMusic } from '@/lib/music-context';
 
@@ -44,6 +44,7 @@ const MusicNote = ({ delay }: { delay: number }) => {
 
 export default function VinylPlayer() {
   const [showLetterR, setShowLetterR] = useState(false);
+  const [scale, setScale] = useState(1);
   const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
   const {
     isPlaying,
@@ -78,6 +79,15 @@ export default function VinylPlayer() {
     e.stopPropagation();
     toggleShuffle();
   }, [toggleShuffle]);
+
+  const handleScaleToggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setScale((prev) => {
+      if (prev >= 1.15) return 0.85;
+      if (prev <= 0.9) return 1;
+      return 1.2;
+    });
+  }, []);
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     seek(parseFloat(e.target.value));
@@ -148,7 +158,10 @@ export default function VinylPlayer() {
         transition={{ delay: 1 }}
       >
         {/* Glassmorphism Control Console */}
-        <div className="flex items-center gap-4 bg-white/30 backdrop-blur-md border border-white/50 shadow-2xl rounded-2xl px-4 py-3 pr-5">
+        <div
+          className="flex items-center gap-4 bg-white/30 backdrop-blur-md border border-white/50 shadow-2xl rounded-2xl px-4 py-3 pr-5 transition-transform duration-300"
+          style={{ transform: `scale(${scale})`, transformOrigin: 'bottom left' }}
+        >
           {/* Vinyl Disc */}
           <motion.button
             onClick={handleTogglePlay}
@@ -256,7 +269,7 @@ export default function VinylPlayer() {
 
             <button
               onClick={handleShuffleToggle}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+              className={`h-8 rounded-full flex items-center justify-center gap-1 px-2 transition-colors ${
                 isShuffle
                   ? 'bg-rose-100 text-[#E35D6A]'
                   : 'bg-white/40 text-[#7C444F] hover:bg-white/60'
@@ -264,6 +277,21 @@ export default function VinylPlayer() {
               title={isShuffle ? '随机播放' : '顺序播放'}
             >
               <Shuffle className="w-4 h-4" />
+              <span className="text-[10px] font-medium leading-none">
+                {isShuffle ? '随机' : '顺序'}
+              </span>
+            </button>
+
+            <button
+              onClick={handleScaleToggle}
+              className="w-8 h-8 rounded-full bg-white/40 hover:bg-white/60 text-[#7C444F] flex items-center justify-center transition-colors"
+              title="切换大小"
+            >
+              {scale >= 1.15 ? (
+                <Minimize2 className="w-4 h-4" />
+              ) : (
+                <Maximize2 className="w-4 h-4" />
+              )}
             </button>
           </div>
 
