@@ -11,53 +11,7 @@ import MasterGatekeeper from '@/components/MasterGatekeeper';
 // 技巧1: 悬停提示 - 悬停"火锅"文字时显示🍲
 const HiddenEmojiStyles = () => (
   <style jsx global>{`
-    /* 火锅提示 - 悬停时显示 */
-    .hotpot-text {
-      position: relative;
-    }
-    .hotpot-text::after {
-      content: '🍲';
-      position: absolute;
-      top: -24px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 1.2rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      z-index: 20;
-    }
-    .hotpot-text:hover::after {
-      opacity: 1;
-    }
-        /* 3秒悬停显示 - 放在照片区外部右上角 */
-    .hover-reveal-mountain {
-      position: relative;
-    }
-    .hover-reveal-mountain .hidden-mountain {
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      font-size: 2rem;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      pointer-events: none;
-      z-index: 50;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-      background: white;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .hover-reveal-mountain:hover .hidden-mountain {
-      opacity: 1;
-      transition-delay: 3s;
-    }
-  `}</style>
+    /* 线索已全部改为文本内嵌交互，此处保留组件占位 */`}</style>
 );
 
 // ==================== 背景装饰组件 ====================
@@ -474,7 +428,7 @@ const chapters: Chapter[] = [
     subtitle: '异地的考验与期待',
     date: '2026年1月-至今',
     location: '云南 · 江苏',
-    story: '2500公里的距离，是考验也是期待。\\n\\n以前跨越山海是为了初见，以后牵手前行是为了团圆。愿我们在新的 365 天里，能在昆明的小窝给盼盼和石榴筑个更温暖的家，去更多没去过的城市看第 N 场落日。不管世界如何变幻，只要你在副驾，这一路山海我都永远不会觉得累。\\n\\n李丹，我们的故事，才刚刚开始。',
+    story: '2500公里的距离，是考验也是期待。\\n\\n以前<ClueSpan emoji="✈️" index={3}>跨越山海</ClueSpan>是为了初见，以后牵手前行是为了团圆。愿我们在新的 365 天里，能在昆明的小窝给盼盼和石榴筑个更温暖的家，去更多没去过的城市看第 N 场落日。不管世界如何变幻，只要你在副驾，这一路山海我都永远不会觉得累。\\n\\n李丹，我们的故事，才刚刚开始。',
     quote: '2500公里的距离确实不近，但你只管安心做你的小公主。',
     tags: ['异地', '承诺', '未来'],
     highlights: ['2500公里的思念', '视频通话日常', '未来的期待'],
@@ -812,8 +766,6 @@ export default function TimelinePage() {
   const [showVIPCard, setShowVIPCard] = useState(false);
   const [showMVPBadge, setShowMVPBadge] = useState(false);
   const [showAABill, setShowAABill] = useState(false);
-  const [showCatPopup, setShowCatPopup] = useState(false);
-  const [catClickCount, setCatClickCount] = useState(0);
 
   // 四重奏解锁状态: [火锅, 山, 猫, 飞机]
   const [unlockedSlots, setUnlockedSlots] = useState(() => {
@@ -862,13 +814,64 @@ export default function TimelinePage() {
   const chapter = chapters[currentChapter];
   const isUnlocked = unlockedChapters.has(chapter.id);
 
+  const ClueSpan = ({
+    children,
+    emoji,
+    index,
+  }: {
+    children: React.ReactNode;
+    emoji: string;
+    index: number;
+  }) => {
+    const [showTip, setShowTip] = useState(false);
+    const isActivated = unlockedSlots[index];
+
+    const handleInteract = () => {
+      if (!isActivated) {
+        const success = unlockSlot(index);
+        if (success) {
+          setShowTip(true);
+          setTimeout(() => setShowTip(false), 2500);
+        }
+      }
+      setShowTip(true);
+      setTimeout(() => setShowTip(false), 1500);
+    };
+
+    return (
+      <span className="relative inline-block">
+        <span
+          onClick={handleInteract}
+          onMouseEnter={handleInteract}
+          onMouseLeave={() => setShowTip(false)}
+          className={`cursor-pointer border-b border-dashed transition-colors ${
+            isActivated
+              ? 'border-green-400 text-green-600'
+              : 'border-[#E35D6A]/30 hover:border-[#E35D6A] hover:text-[#E35D6A]'
+          }`}
+        >
+          {children}
+        </span>
+        {showTip && (
+          <motion.span
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 bg-white rounded-lg shadow-lg border border-rose-100 text-sm z-20 pointer-events-none"
+          >
+            <span className="text-rose-500">{isActivated ? `${emoji} 已收集！` : `${emoji} 线索发现！`}</span>
+          </motion.span>
+        )}
+      </span>
+    );
+  };
+
   // 故事内容处理
   const renderStory = () => {
     if (chapter.id === 'chapter1') {
       return (
         <>
           在那顿打破剧本的
-          <span className="hotpot-text relative cursor-text select-text" title="试着选中这段文字">火锅</span>
+          <ClueSpan emoji="🍲" index={0}>火锅</ClueSpan>
           之前，更早发生的是在长水机场的出口。
           <br /><br />
           在见到你之前，我只听过你的声音。但当那个叫李丹的07年女孩出现在我面前时，那一刻，我整个人都被
@@ -892,35 +895,18 @@ export default function TimelinePage() {
           我记得你坚持要AA的样子，那份独立和自尊，是我见过最美的风景。
         </>
       );
+    } else if (chapter.id === 'chapter2') {
+      return (
+        <>
+          在香格里拉的<ClueSpan emoji="⛰️" index={1}>雪山</ClueSpan>脚下，我们找到了属于两人的私密时光。
+          <br /><br />
+          泡在温暖的私汤里，看着窗外的雪山和星空，世界仿佛只剩下我们两个人。那份宁静与温暖，是只属于我们的浪漫。
+        </>
+      );
     } else if (chapter.id === 'chapter3') {
       return (
         <>
-          洗衣服、做饭、遛狗、
-          <span
-            onClick={() => {
-              setCatClickCount(prev => {
-                const newCount = prev + 1;
-                if (newCount >= 2) {
-                  setShowCatPopup(true);
-                }
-                return newCount;
-              });
-            }}
-            className="relative cursor-pointer select-none"
-            title="快速点击两次试试"
-          >
-            撸猫
-            {catClickCount >= 2 && (
-              <motion.span
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="absolute -top-8 left-1/2 -translate-x-1/2 text-2xl"
-              >
-                🐱
-              </motion.span>
-            )}
-          </span>
-          ...这些平凡的日常因为有你和盼盼石榴而变得闪闪发光。
+          洗衣服、做饭、遛狗、<ClueSpan emoji="🐱" index={2}>撸猫</ClueSpan>...这些平凡的日常因为有你和盼盼石榴而变得闪闪发光。
           <br /><br />
           <span
             onClick={() => setShowVIPCard(true)}
@@ -1111,44 +1097,7 @@ export default function TimelinePage() {
                     </p>
                   </div>
 
-                  {/* 隐藏的回忆碎片 - emoji 收集器 */}
-                  {chapter.hiddenEmoji && isUnlocked && (
-                    <motion.button
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className={`absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all duration-300 ${
-                        unlockedSlots[chapter.hiddenEmoji.index]
-                          ? 'bg-green-100 text-green-600 shadow-lg cursor-default'
-                          : 'bg-white/80 hover:bg-white text-gray-400 hover:text-[#E35D6A] shadow-sm cursor-pointer hover:scale-110'
-                      }`}
-                      onClick={() => {
-                        if (!unlockedSlots[chapter.hiddenEmoji.index]) {
-                          const success = unlockSlot(chapter.hiddenEmoji.index);
-                          if (success) {
-                            // 显示 toast 提示
-                            const toast = document.createElement('div');
-                            toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-full shadow-xl border border-rose-100 z-[9999] flex items-center gap-2';
-                            toast.innerHTML = `<span class="text-2xl">✨</span><span class="text-[#7C444F] font-medium">发现回忆碎片：${chapter.hiddenEmoji.icon}！对应的密码锁已激活</span>`;
-                            document.body.appendChild(toast);
-                            setTimeout(() => toast.remove(), 2500);
-                          }
-                        }
-                      }}
-                      disabled={unlockedSlots[chapter.hiddenEmoji.index]}
-                      whileHover={!unlockedSlots[chapter.hiddenEmoji.index] ? { scale: 1.1 } : {}}
-                      whileTap={!unlockedSlots[chapter.hiddenEmoji.index] ? { scale: 0.95 } : {}}
-                      title={unlockedSlots[chapter.hiddenEmoji.index] ? '已收集' : chapter.hiddenEmoji.hint}
-                    >
-                      {unlockedSlots[chapter.hiddenEmoji.index] ? '✓' : chapter.hiddenEmoji.icon}
-                      {!unlockedSlots[chapter.hiddenEmoji.index] && (
-                        <motion.span
-                          className="absolute -top-1 -right-1 w-3 h-3 bg-[#E35D6A] rounded-full"
-                          animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        />
-                      )}
-                    </motion.button>
-                  )}
+
                 </div>
               </Tilt>
               
@@ -1202,11 +1151,8 @@ export default function TimelinePage() {
             {/* 右栏：照片画廊 */}
             <div className="lg:pt-8">
               <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01}>
-                <div className={`bg-white/40 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/50 relative ${chapter.id === 'chapter2' ? 'hover-reveal-mountain' : ''}`}
+                <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/50 relative"
                 >
-                  {chapter.id === 'chapter2' && (
-                    <span className="hidden-mountain">🏔️</span>
-                  )}
                   <PhotoGallery photos={chapter.photos} onPhotoClick={setSelectedPhoto} />
                 </div>
               </Tilt>
@@ -1295,42 +1241,6 @@ export default function TimelinePage() {
       <AABillModal isOpen={showAABill} onClose={() => setShowAABill(false)} />
       <BlackGoldVIPCard isOpen={showVIPCard} onClose={() => setShowVIPCard(false)} />
       <MVPBadge isOpen={showMVPBadge} onClose={() => setShowMVPBadge(false)} />
-
-      {/* 🐱 猫咪彩蛋弹窗 */}
-      <AnimatePresence>
-        {showCatPopup && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setShowCatPopup(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 20 }}
-              className="relative bg-white rounded-2xl p-8 shadow-2xl max-w-xs text-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-6xl mb-4">🐱</div>
-              <h3 className="text-xl font-bold text-[#7C444F] mb-2">发现了！</h3>
-              <p className="text-sm text-[#9B6A6C] mb-4">
-                盼盼和石榴正在家里等你回来~
-              </p>
-              <p className="text-xs text-[#E35D6A]">
-                🐱 是密码的第3个 Emoji
-              </p>
-              <button
-                onClick={() => setShowCatPopup(false)}
-                className="mt-4 px-6 py-2 bg-[#E35D6A] text-white rounded-full text-sm font-medium"
-              >
-                收下线索
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* 时光密码锁 - 通往足迹地图 */}
       <MasterGatekeeper unlockedSlots={unlockedSlots} />
