@@ -421,8 +421,10 @@ function LettersManager() {
   const [letters, setLetters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchLetters = () => {
+    setLoading(true);
     fetch('/api/letter')
       .then((res) => res.json())
       .then((data) => {
@@ -436,7 +438,29 @@ function LettersManager() {
         setError(err.message || '加载失败');
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchLetters();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('确定要删除这封信吗？删除后不可恢复。')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/letter?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setLetters((prev) => prev.filter((l) => l.id !== id));
+      } else {
+        alert(data.error || '删除失败');
+      }
+    } catch {
+      alert('删除失败，请稍后重试');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <Card>
@@ -473,9 +497,14 @@ function LettersManager() {
 
           {!loading && !error && letters.length > 0 && (
             <div className="space-y-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
-                <p className="font-medium mb-1">💌 来信统计</p>
-                <p>目前共收到 <span className="font-bold text-amber-900">{letters.length}</span> 封专属信件</p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 flex items-center justify-between">
+                <div>
+                  <p className="font-medium mb-1">💌 来信统计</p>
+                  <p>目前共收到 <span className="font-bold text-amber-900">{letters.length}</span> 封专属信件</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={fetchLetters}>
+                  刷新
+                </Button>
               </div>
 
               {letters.map((letter, index) => (
@@ -492,15 +521,26 @@ function LettersManager() {
                         第 {letters.length - index} 封信
                       </span>
                     </div>
-                    <span className="text-xs text-[#9B6A6C]">
-                      {new Date(letter.createdAt).toLocaleString('zh-CN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-xs text-[#9B6A6C]">
+                        {new Date(letter.createdAt).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        disabled={deletingId === letter.id}
+                        onClick={() => handleDelete(letter.id)}
+                      >
+                        {deletingId === letter.id ? '删除中...' : '删除'}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="relative">

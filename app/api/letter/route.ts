@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLetters, saveLetter } from '@/lib/letter-store';
+import { getLetters, saveLetter, deleteLetter } from '@/lib/letter-store';
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,5 +25,22 @@ export async function GET() {
   } catch (error) {
     console.error('读取信件失败:', error);
     return NextResponse.json({ error: '读取失败' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: '缺少信件 ID' }, { status: 400 });
+    }
+
+    await deleteLetter(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('删除信件失败:', error);
+    return NextResponse.json({ error: '删除失败' }, { status: 500 });
   }
 }

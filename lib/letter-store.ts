@@ -76,3 +76,16 @@ export async function saveLetter(content: string): Promise<Letter> {
 
   return letter;
 }
+
+export async function deleteLetter(id: string): Promise<boolean> {
+  if (redis) {
+    const existing = (await redis.get<Letter[]>(REDIS_KEY)) || [];
+    const updated = existing.filter((l) => l.id !== id);
+    await redis.set(REDIS_KEY, updated);
+  } else {
+    const existing = readLocal();
+    const updated = existing.filter((l) => l.id !== id);
+    writeLocal(updated);
+  }
+  return true;
+}
