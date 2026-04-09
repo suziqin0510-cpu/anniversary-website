@@ -632,33 +632,24 @@ const LineGame = ({ onSuccess }: { onSuccess: () => void }) => {
     return Math.sqrt(dx * dx + dy * dy) < hitRadius;
   };
 
-  const handleStart = (clientX: number, clientY: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    if (isNearAvatar(x, y, leftPos)) {
+  const handleStart = (localX: number, localY: number) => {
+    if (isNearAvatar(localX, localY, leftPos)) {
       setIsDrawing(true);
     }
   };
 
-  const handleMove = (clientX: number, clientY: number) => {
+  const handleMove = (localX: number, localY: number) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    // We'll store points via a data attribute hack or ref since we can't easily update React state in RAF
     const current = JSON.parse(canvas.getAttribute('data-points') || '[]');
-    current.push({ x, y });
+    current.push({ x: localX, y: localY });
     canvas.setAttribute('data-points', JSON.stringify(current));
 
-    if (isNearAvatar(x, y, rightPos)) {
+    if (isNearAvatar(localX, localY, rightPos)) {
       setIsDrawing(false);
       setCompleted(true);
       canvas.setAttribute('data-points', '[]');
