@@ -322,14 +322,40 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
   const [showPenalty, setShowPenalty] = useState(false);
   const isAlreadyUnlocked = isLevelUnlocked(6);
 
+  // 强制思考倒计时（秒）—— 本地测试可临时改为 5
+  const THINKING_DURATION = 180;
+  const [thinkingTimeLeft, setThinkingTimeLeft] = useState(THINKING_DURATION);
+  const [isThinking, setIsThinking] = useState(true);
+
+  useEffect(() => {
+    if (!isThinking) return;
+    const timer = setInterval(() => {
+      setThinkingTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsThinking(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isThinking]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   // 处理嫌疑人选择（逻辑假设）
   const handleSuspectClick = useCallback(
     (suspectId: string) => {
-      if (isLocked || showPenalty) return;
+      if (isLocked || showPenalty || isThinking) return;
       setSelectedSuspect(suspectId);
       setShowError(null);
     },
-    [isLocked, showPenalty]
+    [isLocked, showPenalty, isThinking]
   );
 
   // 跟踪用户点击的按钮（用于显示点击后的反馈，初始状态所有按钮一致）
@@ -338,7 +364,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
   // 处理逮捕
   const handleArrest = useCallback(
     (suspect: typeof SUSPECTS[0]) => {
-      if (isLocked || showPenalty) return;
+      if (isLocked || showPenalty || isThinking) return;
 
       // 记录用户点击的按钮
       setClickedSuspectId(suspect.id);
@@ -362,7 +388,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
         setShowPenalty(true);
       }
     },
-    [isLocked, showPenalty, unlockLevel, showToast, onUnlock]
+    [isLocked, showPenalty, isThinking, unlockLevel, showToast, onUnlock]
   );
 
   // 解除惩罚
@@ -463,6 +489,22 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
               </p>
             </div>
 
+            {/* 强制思考倒计时 */}
+            {isThinking && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"
+              >
+                <div className="flex items-center justify-center space-x-2 animate-pulse">
+                  <Lock className="w-5 h-5 text-amber-400" />
+                  <span className="text-amber-300 font-medium">
+                    🔒 案卷线索整理中，请仔细阅读... (剩余 {formatTime(thinkingTimeLeft)})
+                  </span>
+                </div>
+              </motion.div>
+            )}
+
             {/* 嫌疑人网格 */}
             <div className="relative">
               <EvidenceLines selectedId={selectedSuspect} />
@@ -477,7 +519,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
                       selectedSuspect &&
                       CONTRADICTIONS[selectedSuspect]?.includes(suspect.id)
                     )}
-                    isDisabled={isLocked}
+                    isDisabled={isLocked || isThinking}
                     onClick={() => handleSuspectClick(suspect.id)}
                   />
                 ))}
@@ -496,11 +538,11 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
                   <motion.button
                     key={`arrest-${suspect.id}`}
                     onClick={() => handleArrest(suspect)}
-                    disabled={isLocked}
-                    whileHover={!isLocked ? { scale: 1.05 } : {}}
-                    whileTap={!isLocked ? { scale: 0.95 } : {}}
+                    disabled={isLocked || isThinking}
+                    whileHover={!(isLocked || isThinking) ? { scale: 1.05 } : {}}
+                    whileTap={!(isLocked || isThinking) ? { scale: 0.95 } : {}}
                     className={`py-3 px-4 rounded-xl font-medium text-sm transition-all ${
-                      isLocked
+                      isLocked || isThinking
                         ? 'bg-slate-700 text-slate-500 cursor-not-allowed opacity-50'
                         : showCorrectFeedback
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg'
@@ -509,7 +551,11 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
                         : 'bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300'
                     }`}
                   >
-                    {isLocked ? '🔒 已锁定' : `🔍 逮捕${suspect.name}`}
+                    {isThinking
+                      ? `⏳ ${formatTime(thinkingTimeLeft)}`
+                      : isLocked
+                      ? '🔒 已锁定'
+                      : `🔍 逮捕${suspect.name}`}
                   </motion.button>
                 );
               })}
@@ -538,7 +584,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
             </AnimatePresence>
 
             {/* 提示信息 */}
-            {!showPenalty && !showError && (
+            {!showPenalty && !showError && !isThinking && (
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
