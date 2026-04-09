@@ -145,47 +145,32 @@ export default function PetsPage() {
         setIsTriggered(true);
         setIsFlipped(true);
 
-        // 0.5s 后：夸张玫瑰雨
+        // 0.5s 后：夸张玫瑰雨 (极高密度，总计约 1000 粒子爆发)
         setTimeout(() => {
-          const duration = 5000;
-          const end = Date.now() + duration;
           const colors = ['#E35D6A', '#F472B6', '#FB7185', '#FDA4AF', '#FECDD3', '#FFFFFF'];
-          const frame = () => {
-            confetti({
-              particleCount: 12,
-              angle: 60,
-              spread: 70,
-              origin: { x: 0 },
-              colors,
-              shapes: ['circle'],
-              scalar: 2,
-              gravity: 1.2,
-            });
-            confetti({
-              particleCount: 12,
-              angle: 120,
-              spread: 70,
-              origin: { x: 1 },
-              colors,
-              shapes: ['circle'],
-              scalar: 2,
-              gravity: 1.2,
-            });
-            confetti({
-              particleCount: 25,
-              spread: 120,
-              origin: { y: 0.5 },
-              colors,
-              shapes: ['circle'],
-              scalar: 2.5,
-              gravity: 1.5,
-              drift: 0,
-            });
-            if (Date.now() < end) {
-              requestAnimationFrame(frame);
-            }
+          const shared = {
+            colors,
+            shapes: ['circle' as const],
+            scalar: 2,
+            gravity: 1.2,
+            drift: 0,
+            ticks: 300,
           };
-          frame();
+
+          // 核心爆发 ~1000 粒子
+          const burst = (delay: number) => {
+            setTimeout(() => {
+              confetti({ ...shared, particleCount: 200, spread: 360, origin: { x: 0.5, y: 0.5 }, angle: 0 });
+              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.2, y: 0.4 }, angle: 60 });
+              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.8, y: 0.4 }, angle: 120 });
+              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.3, y: 0.7 }, angle: 90 });
+              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.7, y: 0.7 }, angle: 90 });
+            }, delay);
+          };
+
+          burst(0);
+          burst(400);
+          burst(800);
         }, 500);
 
         // 2s 后：终极告白
@@ -359,6 +344,18 @@ export default function PetsPage() {
                 <p>✦ 换一套带超大落地窗的房子，让阳光铺满你们睡觉的地方</p>
                 <p>✦ 每天都有吃不完的罐头和零食</p>
               </div>
+
+              {/* 暗号提示 */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="mt-8 pt-6 border-t border-white/20"
+              >
+                <p className="animate-pulse text-white/70 text-sm font-light tracking-wide drop-shadow-[0_0_8px_rgba(227,93,106,0.6)]">
+                  ✨ 老婆你用键盘打出SZQLD试试
+                </p>
+              </motion.div>
             </div>
           </Tilt>
         </motion.div>
