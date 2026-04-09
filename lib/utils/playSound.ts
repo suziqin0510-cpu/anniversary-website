@@ -1,6 +1,6 @@
 export function playHover() {
   try {
-    const audio = new Audio('/sounds/hover.mp3');
+    const audio = new Audio('/sounds/hover.wav');
     audio.volume = 0.3;
     audio.play().catch(() => {});
   } catch {
@@ -10,7 +10,7 @@ export function playHover() {
 
 export function playUnlock() {
   try {
-    const audio = new Audio('/sounds/unlock.mp3');
+    const audio = new Audio('/sounds/unlock.wav');
     audio.volume = 0.5;
     audio.play().catch(() => {});
   } catch {
@@ -20,7 +20,7 @@ export function playUnlock() {
 
 export function playError() {
   try {
-    const audio = new Audio('/sounds/error.mp3');
+    const audio = new Audio('/sounds/error.wav');
     audio.volume = 0.5;
     audio.play().catch(() => {});
   } catch {
