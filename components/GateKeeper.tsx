@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Lock, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const CORRECT_CODE = '咪啾咪啾';
 const STORAGE_KEY = 'isPassed';
@@ -11,6 +11,22 @@ const RESET_SIGNAL_KEY = 'gatekeeper_reset_signal';
 interface GateKeeperProps {
   children: React.ReactNode;
 }
+
+// 极简发光锁形 SVG
+const GlowingLock = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className="w-10 h-10 text-white/80"
+    style={{
+      filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.35))',
+    }}
+  >
+    <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1" />
+    <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="currentColor" strokeWidth="1" />
+    <circle cx="12" cy="16" r="1.5" fill="currentColor" />
+  </svg>
+);
 
 export default function GateKeeper({ children }: GateKeeperProps) {
   const [isPassed, setIsPassed] = useState(false);
@@ -69,11 +85,11 @@ export default function GateKeeper({ children }: GateKeeperProps) {
       setIsError(false);
       setIsSuccess(true);
       localStorage.setItem(STORAGE_KEY, 'true');
-      
+
       // 延迟后切换到主页面
       setTimeout(() => {
         setIsPassed(true);
-      }, 800);
+      }, 1400);
     } else {
       // 验证失败
       setIsError(true);
@@ -89,12 +105,42 @@ export default function GateKeeper({ children }: GateKeeperProps) {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center z-50">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0510]">
+        {/* Mesh Gradient blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            className="absolute -top-20 -left-20 w-[600px] h-[600px] rounded-full blur-[120px]"
+            style={{ background: 'radial-gradient(circle, rgba(76,29,149,0.45) 0%, transparent 70%)' }}
+          />
+          <motion.div
+            animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
+            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+            className="absolute -bottom-20 -right-20 w-[700px] h-[700px] rounded-full blur-[120px]"
+            style={{ background: 'radial-gradient(circle, rgba(190,24,93,0.35) 0%, transparent 70%)' }}
+          />
+          <motion.div
+            animate={{ x: [0, 50, 0], y: [0, 20, 0], scale: [1, 1.08, 1] }}
+            transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px]"
+            style={{ background: 'radial-gradient(circle, rgba(30,58,138,0.35) 0%, transparent 70%)' }}
+          />
+        </div>
+        {/* Noise overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            mixBlendMode: 'overlay',
+          }}
+        />
         <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.8, repeat: Infinity }}
+          className="relative z-10 text-white/80 font-mono-micro text-xs tracking-[0.3em]"
         >
-          <Heart className="w-12 h-12 text-rose-400 fill-rose-400" />
+          SYSTEM INITIALIZING
         </motion.div>
       </div>
     );
@@ -105,160 +151,200 @@ export default function GateKeeper({ children }: GateKeeperProps) {
       {!isPassed ? (
         <motion.div
           key="gate"
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex flex-col items-center justify-center z-[100]"
+          transition={{ duration: 1.2, ease: 'easeInOut' }}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-4 overflow-hidden bg-[#0a0510]"
         >
-          {/* 背景装饰 */}
+          {/* Mesh Gradient Background */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <motion.div
-              animate={{ 
-                y: [-20, 20, -20], 
-                rotate: [0, 5, 0],
-                opacity: [0.3, 0.5, 0.3] 
-              }}
-              transition={{ duration: 6, repeat: Infinity }}
-              className="absolute top-20 left-20 w-32 h-32 bg-rose-200 rounded-full blur-3xl"
+              animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              className="absolute -top-20 -left-20 w-[600px] h-[600px] rounded-full blur-[120px]"
+              style={{ background: 'radial-gradient(circle, rgba(76,29,149,0.45) 0%, transparent 70%)' }}
             />
             <motion.div
-              animate={{ 
-                y: [20, -20, 20], 
-                rotate: [0, -5, 0],
-                opacity: [0.3, 0.5, 0.3] 
-              }}
-              transition={{ duration: 8, repeat: Infinity }}
-              className="absolute bottom-20 right-20 w-40 h-40 bg-pink-200 rounded-full blur-3xl"
+              animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+              className="absolute -bottom-20 -right-20 w-[700px] h-[700px] rounded-full blur-[120px]"
+              style={{ background: 'radial-gradient(circle, rgba(190,24,93,0.35) 0%, transparent 70%)' }}
+            />
+            <motion.div
+              animate={{ x: [0, 50, 0], y: [0, 20, 0], scale: [1, 1.08, 1] }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px]"
+              style={{ background: 'radial-gradient(circle, rgba(30,58,138,0.35) 0%, transparent 70%)' }}
+            />
+            <motion.div
+              animate={{ x: [0, -20, 0], y: [0, -40, 0], scale: [1, 1.12, 1] }}
+              transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+              className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full blur-[120px]"
+              style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%)' }}
             />
           </div>
 
-          {/* 主内容 */}
+          {/* Noise overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.04]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+              mixBlendMode: 'overlay',
+            }}
+          />
+
+          {/* 主内容 - Liquid Glass Portal */}
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.92, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="relative z-10 text-center px-6"
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="relative z-10 w-full max-w-md"
           >
-            {/* 图标 */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="mb-6"
+            <div
+              className="rounded-[2.5rem] px-8 py-12 md:px-12 md:py-16 text-center"
+              style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                backdropFilter: 'blur(28px)',
+                WebkitBackdropFilter: 'blur(28px)',
+                border: '1px solid rgba(255, 255, 255, 0.10)',
+                boxShadow: '0 0 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)',
+              }}
             >
-              <div className="w-24 h-24 mx-auto bg-white rounded-full shadow-lg flex items-center justify-center">
-                <Lock className="w-12 h-12 text-rose-400" />
-              </div>
-            </motion.div>
-
-            {/* 标题 */}
-            <h1 className="text-3xl md:text-4xl font-bold text-rose-600 mb-2">
-              欢迎来到我们的记忆宇宙
-            </h1>
-            <p className="text-rose-400 mb-8 flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              请输入开启甜蜜旅程的专属暗号
-              <Sparkles className="w-4 h-4" />
-            </p>
-
-            {/* 输入框区域 */}
-            <motion.div
-              animate={isError ? { x: [-10, 10, -10, 10, 0] } : {}}
-              transition={{ duration: 0.4 }}
-              className="space-y-4"
-            >
-              <div className="relative">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => {
-                    setInputValue(e.target.value);
-                    setIsError(false);
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="在这里输入暗号..."
-                  className={`
-                    w-72 md:w-80 px-6 py-4 text-center text-lg
-                    rounded-full border-2 outline-none
-                    transition-all duration-300
-                    ${isError 
-                      ? 'border-red-400 bg-red-50 text-red-600' 
-                      : isSuccess
-                        ? 'border-green-400 bg-green-50 text-green-600'
-                        : 'border-rose-200 bg-white text-rose-700 focus:border-rose-400 focus:ring-4 focus:ring-rose-100'
-                    }
-                  `}
-                  autoFocus
-                />
-                
-                {/* 成功状态装饰 */}
-                {isSuccess && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2"
-                  >
-                    <Heart className="w-6 h-6 text-green-500 fill-green-500" />
-                  </motion.div>
-                )}
-              </div>
-
-              {/* 确认按钮 */}
-              <motion.button
-                onClick={handleSubmit}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                disabled={isSuccess}
-                className={`
-                  w-72 md:w-80 py-3 rounded-full font-bold text-lg
-                  transition-all duration-300 shadow-lg
-                  ${isSuccess
-                    ? 'bg-green-400 text-white cursor-default'
-                    : 'bg-gradient-to-r from-rose-400 to-pink-400 text-white hover:shadow-xl hover:from-rose-500 hover:to-pink-500'
-                  }
-                `}
+              {/* 锁形 / System Locked */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="mb-8 flex flex-col items-center"
               >
-                {isSuccess ? '验证成功！' : '确认开启'}
-              </motion.button>
+                <GlowingLock />
+                <div className="mt-4 font-mono-micro text-[10px] tracking-[0.25em] text-white/40">
+                  [ SYSTEM LOCKED ]
+                </div>
+              </motion.div>
 
-              {/* 错误提示 */}
-              <AnimatePresence>
-                {isError && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-red-500 text-sm mt-2"
-                  >
-                    暗号不对哦，再好好想想~ 💕
-                  </motion.p>
-                )}
-              </AnimatePresence>
+              {/* 标题 */}
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.9 }}
+                className="text-3xl md:text-4xl font-serif-display text-white tracking-wide mb-2"
+                style={{
+                  textShadow: '0 0 20px rgba(255,255,255,0.4), 0 0 40px rgba(255,255,255,0.15)',
+                }}
+              >
+                欢迎来到我们的记忆宇宙
+              </motion.h1>
 
-              {/* 成功提示 */}
-              <AnimatePresence>
-                {isSuccess && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-green-500 text-sm mt-2"
-                  >
-                    暗号正确！准备进入...
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              {/* 副提示 */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="mb-10 flex items-center justify-center gap-2 font-mono-micro text-[10px] md:text-xs tracking-widest text-white/50"
+              >
+                <span className="inline-block w-1.5 h-px bg-white/40" />
+                <span>ENTER OVERRIDE CODE_</span>
+                <span className="inline-block w-1.5 h-px bg-white/40" />
+              </motion.div>
 
-            {/* 底部提示 */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="mt-12 text-rose-300 text-sm"
-            >
-              提示：我们的专属甜蜜咒语 ✨
-            </motion.p>
+              {/* 输入区域 */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+                className="relative"
+              >
+                <div className="relative flex items-center justify-center">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => {
+                      setInputValue(e.target.value);
+                      setIsError(false);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                    className={`
+                      w-full bg-transparent border-b text-center text-xl md:text-2xl text-white placeholder-white/20
+                      focus:outline-none transition-all duration-500 py-3
+                      ${isError ? 'border-red-400/60' : isSuccess ? 'border-emerald-400/60' : 'border-white/30 focus:border-white/70'}
+                    `}
+                    style={{
+                      caretColor: 'rgba(255,255,255,0.9)',
+                      textShadow: '0 0 12px rgba(255,255,255,0.15)',
+                    }}
+                    placeholder=""
+                  />
+                  <AnimatePresence>
+                    {inputValue.trim().length > 0 && !isSuccess && (
+                      <motion.button
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -6 }}
+                        transition={{ duration: 0.25 }}
+                        onClick={handleSubmit}
+                        className="absolute right-0 text-white/60 hover:text-white transition-colors"
+                        aria-label="Submit"
+                      >
+                        <ArrowRight className="w-5 h-5" />
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Press Enter 提示 */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: inputValue.trim().length > 0 ? 1 : 0.5 }}
+                  className="mt-4 font-mono-micro text-[10px] tracking-widest text-white/30"
+                >
+                  {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : 'AWAITING INPUT_'}
+                </motion.p>
+
+                {/* 错误 / 成功提示 */}
+                <AnimatePresence mode="wait">
+                  {isError && (
+                    <motion.p
+                      key="error"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="mt-4 text-red-300/80 text-xs tracking-wide"
+                    >
+                      暗号不匹配，请再次尝试
+                    </motion.p>
+                  )}
+                  {isSuccess && (
+                    <motion.p
+                      key="success"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="mt-4 text-emerald-300/80 text-xs tracking-wide"
+                    >
+                      暗号正确，欢迎回家
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* 底部微标 */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 1 }}
+            className="absolute bottom-8 left-0 right-0 text-center"
+          >
+            <p className="font-mono-micro text-[10px] tracking-[0.2em] text-white/20">
+              SZQ & LD · MEMORY ARCHIVE
+            </p>
           </motion.div>
         </motion.div>
       ) : (
@@ -266,7 +352,7 @@ export default function GateKeeper({ children }: GateKeeperProps) {
           key="content"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
           {children}
         </motion.div>
@@ -279,8 +365,10 @@ export default function GateKeeper({ children }: GateKeeperProps) {
 export function resetGateKeeper() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.setItem(RESET_SIGNAL_KEY, Date.now().toString());
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: RESET_SIGNAL_KEY,
-    newValue: Date.now().toString()
-  }));
+  window.dispatchEvent(
+    new StorageEvent('storage', {
+      key: RESET_SIGNAL_KEY,
+      newValue: Date.now().toString(),
+    })
+  );
 }
