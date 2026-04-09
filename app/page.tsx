@@ -8,6 +8,8 @@ import ScratchCard from '@/components/ScratchCard';
 import CinemaModal from '@/components/CinemaModal';
 import InventoryBar from '@/components/InventoryBar';
 import PolaroidFlip from '@/components/PolaroidFlip';
+import MagneticButton from '@/components/MagneticButton';
+import OrganicReveal from '@/components/OrganicReveal';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
@@ -154,7 +156,7 @@ function LockedCardLink({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0, x: isShaking ? [-5, 5, -5, 5, 0] : 0 }}
       transition={{ delay, duration: 0.5 }}
-      className={`bg-white/30 backdrop-blur-md rounded-3xl p-5 shadow-lg border border-white/50 transition-all hover:bg-white/40 ${
+      className={`bg-white/30 backdrop-blur-md rounded-3xl p-5 shadow-lg border border-white/50 transition-all hover:bg-white/40 relative ${
         isLocked ? 'cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'
       }`}
     >
@@ -183,6 +185,13 @@ function LockedCardLink({
           </p>
         </div>
       </Link>
+      {/* 微观标记 */}
+      <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
+      <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
+      <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
+      <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
+      <span className="absolute top-3 left-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">ID_{(href.replace(/\//g, '') || 'HOME').toUpperCase()}</span>
+      <span className="absolute bottom-3 right-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">v1.0</span>
     </motion.div>
   );
 }
@@ -462,10 +471,21 @@ function ScatteredPolaroids() {
 // ===== 我们在昆明有个家 🏠 入口卡片（全宽横幅版） =====
 function DarkroomCard() {
   return (
-    <a href="/album" className="block group">
-      <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer">
+    <a href="/album" className="block group relative">
+      <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer relative overflow-hidden">
+        {/* 噪点 overlay */}
+        <div className="noise-overlay rounded-2xl" />
+
+        {/* 微观标记 */}
+        <div className="corner-mark top-3 left-3 border-l border-t border-white/30" />
+        <div className="corner-mark top-3 right-3 border-r border-t border-white/30" />
+        <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30" />
+        <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30" />
+        <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">ALBUM_01</span>
+        <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">KM.2024</span>
+
         {/* 左侧文案 */}
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start relative z-10">
           <h3 className="text-xl md:text-2xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] tracking-wide">
             我们在昆明有个家 🏠
           </h3>
@@ -475,7 +495,7 @@ function DarkroomCard() {
         </div>
 
         {/* 右侧图标 */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 relative z-10">
           <span className="text-3xl md:text-4xl group-hover:scale-110 transition-transform duration-300">📷</span>
           <span className="text-rose-400 text-xl md:text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">➔</span>
         </div>
@@ -624,17 +644,19 @@ function MissYouButton() {
 
   return (
     <div className="h-full flex flex-col items-center justify-center relative overflow-hidden">
-      <motion.button
-        onClick={handleClick}
-        className="relative z-10 px-6 py-3 bg-gradient-to-r from-[#E35D6A] to-[#F4A460] text-white rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <span className="flex items-center space-x-2">
-          <SmallHeart className="w-5 h-5" />
-          <span>想你</span>
-        </span>
-      </motion.button>
+      <MagneticButton strength={18} innerStrength={6} className="relative z-10">
+        <motion.button
+          onClick={handleClick}
+          className="px-6 py-3 bg-gradient-to-r from-[#E35D6A] to-[#F4A460] text-white rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <span className="flex items-center space-x-2">
+            <SmallHeart className="w-5 h-5" />
+            <span>想你</span>
+          </span>
+        </motion.button>
+      </MagneticButton>
 
       <div className="mt-3 text-center relative">
         <div className="text-2xl font-bold text-[#E35D6A] drop-shadow-[0_2px_4px_rgba(255,255,255,1)]">{count}</div>
@@ -754,6 +776,13 @@ function PetSectionCard() {
           <p className="text-[10px] text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">{isLocked ? '关卡未解锁' : '盼盼 & 石榴'}</p>
         </div>
       </Link>
+      {/* 微观标记 */}
+      <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
+      <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
+      <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
+      <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
+      <span className="absolute top-3 left-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">PET_01</span>
+      <span className="absolute bottom-3 right-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">PA+SS</span>
     </motion.div>
   );
 }
@@ -845,6 +874,19 @@ function ImageCard({
               </div>
             </div>
 
+            {/* 噪点胶片 overlay */}
+            <div className="noise-overlay rounded-3xl" />
+
+            {/* 微观标记 - 四角 */}
+            <div className="corner-mark top-3 left-3 border-l border-t" />
+            <div className="corner-mark top-3 right-3 border-r border-t" />
+            <div className="corner-mark bottom-3 left-3 border-l border-b" />
+            <div className="corner-mark bottom-3 right-3 border-r border-b" />
+            <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">LAT:25.04</span>
+            <span className="absolute top-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">LON:102.71</span>
+            <span className="absolute bottom-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">MEM_ID_001</span>
+            <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">ISO:200</span>
+
             {/* 装饰光斑 */}
             <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
           </div>
@@ -892,12 +934,12 @@ export default function HomePage() {
             <span className="animate-heartbeat"><RedHeart /></span>
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 font-handwriting text-white drop-shadow-lg">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 font-serif-display text-white drop-shadow-lg tracking-tighter">
             苏子钦 & 李丹
           </h1>
 
           <p className="text-lg text-white font-light tracking-wider drop-shadow-md">
-            CYBERSPACE v1.0 · 我们的 365 天
+            CYBERSPACE v1.0 · <span className="font-serif-display tracking-tight">我们的 365 天</span>
           </p>
 
           {/* 寄语直接悬浮在背景上 */}
@@ -916,7 +958,7 @@ export default function HomePage() {
           {/* 第一列 */}
           <div className="col-span-12 md:col-span-5 space-y-6 md:space-y-8">
             {/* 1. 时间线 - 图片背景大卡片 */}
-            <div className="h-64 md:h-80">
+            <OrganicReveal delay={0.1} className="h-64 md:h-80">
               <ImageCard
                 href="/timeline"
                 title="时间线"
@@ -925,82 +967,87 @@ export default function HomePage() {
                 bgImage="url('https://i.ibb.co/pvYQdqjC/Gemini-Generated-Image-bq75hcbq75hcbq75.png')"
                 size="large"
               />
-            </div>
+            </OrganicReveal>
 
             {/* 2. 实时心跳计时器 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60"
-            >
-              <LiveHeartbeatTimer />
-            </motion.div>
+            <OrganicReveal delay={0.15}>
+              <div className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60 relative overflow-hidden">
+                <div className="noise-overlay rounded-3xl" />
+                <div className="relative z-10">
+                  <LiveHeartbeatTimer />
+                </div>
+              </div>
+            </OrganicReveal>
 
             {/* 3. 双城天气 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60"
-            >
-              <DualCityWeather />
-            </motion.div>
+            <OrganicReveal delay={0.2}>
+              <div className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60 relative overflow-hidden">
+                <div className="noise-overlay rounded-3xl" />
+                <div className="relative z-10">
+                  <DualCityWeather />
+                </div>
+              </div>
+            </OrganicReveal>
           </div>
 
           {/* 第二列 - 整体向下偏移 mt-12 实现不对称错落 */}
           <div className="col-span-12 md:col-span-4 md:mt-16 space-y-6 md:space-y-8">
             {/* 4. 散落的拍立得 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white/40 backdrop-blur-md rounded-3xl p-4 shadow-xl border border-white/60 min-h-[420px] relative"
-            >
-              <ScatteredPolaroids />
-            </motion.div>
+            <OrganicReveal delay={0.25}>
+              <div className="bg-white/40 backdrop-blur-md rounded-3xl p-4 shadow-xl border border-white/60 min-h-[420px] relative overflow-hidden">
+                <div className="noise-overlay rounded-3xl" />
+                <div className="relative z-10">
+                  <ScatteredPolaroids />
+                </div>
+              </div>
+            </OrganicReveal>
 
             {/* 5. 想你按钮 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60"
-            >
-              <MissYouButton />
-            </motion.div>
+            <OrganicReveal delay={0.3}>
+              <div className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60 relative overflow-hidden">
+                <div className="noise-overlay rounded-3xl" />
+                <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
+                <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
+                <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
+                <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
+                <span className="absolute top-3 left-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">LAT:24.88</span>
+                <span className="absolute bottom-3 right-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">MISS_YOU</span>
+                <div className="relative z-10">
+                  <MissYouButton />
+                </div>
+              </div>
+            </OrganicReveal>
 
             {/* 6. 私密日记 */}
-            <LockedCardLink
-              href="/diary"
-              delay={0.5}
-              icon={<HandDrawnBook />}
-              title="私密日记"
-              subtitle="写给李丹"
-            />
+            <OrganicReveal delay={0.35}>
+              <LockedCardLink
+                href="/diary"
+                delay={0.5}
+                icon={<HandDrawnBook />}
+                title="私密日记"
+                subtitle="写给李丹"
+              />
+            </OrganicReveal>
           </div>
 
 
           {/* 第三列 */}
           <div className="col-span-12 md:col-span-3 space-y-6 md:space-y-8">
             {/* 7. 足迹地图 */}
-            <LockedCardLink
-              href="/map"
-              delay={0.4}
-              icon={<HandDrawnMap />}
-              title="足迹地图"
-              subtitle="一起去过的地方"
-              small
-            />
+            <OrganicReveal delay={0.2}>
+              <LockedCardLink
+                href="/map"
+                delay={0.4}
+                icon={<HandDrawnMap />}
+                title="足迹地图"
+                subtitle="一起去过的地方"
+                small
+              />
+            </OrganicReveal>
 
             {/* 8. AI 影院 - 图片背景，点击打开模态框 */}
-            <div className="h-40">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="h-full"
-              >
+            <OrganicReveal delay={0.25} className="h-40">
+              <div className="h-full">
                 <Tilt
                   tiltMaxAngleX={8}
                   tiltMaxAngleY={8}
@@ -1021,8 +1068,19 @@ export default function HomePage() {
                     {/* 深色渐变遮罩 */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
 
+                    {/* 噪点 overlay */}
+                    <div className="noise-overlay rounded-3xl" />
+
+                    {/* 微观标记 */}
+                    <div className="corner-mark top-3 left-3 border-l border-t border-white/30 z-20" />
+                    <div className="corner-mark top-3 right-3 border-r border-t border-white/30 z-20" />
+                    <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30 z-20" />
+                    <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30 z-20" />
+                    <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">FILM_01</span>
+                    <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">4K_HDR</span>
+
                     {/* 播放图标 */}
-                    <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
                       <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                         <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
                           <path d="M8 5v14l11-7z" fill="currentColor" />
@@ -1031,7 +1089,7 @@ export default function HomePage() {
                     </div>
 
                     {/* 内容 - 靠左下角对齐 */}
-                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                    <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
                       <h3 className="font-bold text-white mb-2 text-xl group-hover:scale-105 transition-transform origin-left">
                         恋爱回忆录
                       </h3>
@@ -1050,37 +1108,47 @@ export default function HomePage() {
                     <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
                   </div>
                 </Tilt>
-              </motion.div>
-            </div>
+              </div>
+            </OrganicReveal>
 
             {/* 9. 宠物专区（带字母 i 触发器） */}
-            <PetSectionCard />
+            <OrganicReveal delay={0.3}>
+              <PetSectionCard />
+            </OrganicReveal>
 
             {/* 10. 成就勋章 */}
-            <LockedCardLink
-              href="/achievements"
-              delay={0.7}
-              icon={<HandDrawnTrophy />}
-              title="成就勋章"
-              subtitle="专属纪念"
-              small
-            />
+            <OrganicReveal delay={0.35}>
+              <LockedCardLink
+                href="/achievements"
+                delay={0.7}
+                icon={<HandDrawnTrophy />}
+                title="成就勋章"
+                subtitle="专属纪念"
+                small
+              />
+            </OrganicReveal>
 
             {/* 11. 刮刮乐 - 专属兑换券 */}
-            <div className="h-48 sm:h-56">
-              <ScratchCard />
-            </div>
+            <OrganicReveal delay={0.4}>
+              <div className="h-48 sm:h-56 relative overflow-hidden rounded-3xl">
+                <div className="noise-overlay rounded-3xl" />
+                <div className="corner-mark top-3 left-3 border-l border-t border-white/30 z-20" />
+                <div className="corner-mark top-3 right-3 border-r border-t border-white/30 z-20" />
+                <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30 z-20" />
+                <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30 z-20" />
+                <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">COUPON_01</span>
+                <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">REDEEM</span>
+                <div className="relative z-10 h-full">
+                  <ScratchCard />
+                </div>
+              </div>
+            </OrganicReveal>
           </div>
 
           {/* 4.5 我们在昆明有个家 🏠 - 全宽横幅 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="col-span-full"
-          >
+          <OrganicReveal delay={0.3} className="col-span-full">
             <DarkroomCard />
-          </motion.div>
+          </OrganicReveal>
         </div>
 
         {/* 底部彩蛋 */}

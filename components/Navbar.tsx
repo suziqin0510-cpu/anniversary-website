@@ -7,6 +7,7 @@ import { Menu, X, Lock } from 'lucide-react';
 import { NAMES } from '@/lib/utils';
 import HeartBurst from './HeartBurst';
 import ThemeSwitcher from './ThemeSwitcher';
+import MagneticButton from './MagneticButton';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { usePathname } from 'next/navigation';
 
@@ -132,19 +133,20 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo - 点击触发爱心粒子彩蛋，点击3次出现字母O */}
-            <div
-              ref={logoRef}
-              onClick={handleLogoClick}
-              className="flex items-center space-x-2 group cursor-pointer select-none relative"
-            >
-              <div className="w-9 h-9 rounded-2xl bg-[#E35D6A]/20 flex items-center justify-center group-hover:bg-[#E35D6A]/30 transition-colors">
-                <HandDrawnRose />
-              </div>
-              <div className="flex flex-col relative">
-                <span className="text-sm font-medium text-white drop-shadow-md group-hover:text-white transition-colors">
-                  {NAMES.boy} & {NAMES.girl}
-                </span>
-                <span className="text-[10px] text-white/80 drop-shadow-md">微醺告白 · 点我有惊喜</span>
+            <MagneticButton strength={12} innerStrength={4} className="cursor-pointer">
+              <div
+                ref={logoRef}
+                onClick={handleLogoClick}
+                className="flex items-center space-x-2 group cursor-pointer select-none relative"
+              >
+                <div className="w-9 h-9 rounded-2xl bg-[#E35D6A]/20 flex items-center justify-center group-hover:bg-[#E35D6A]/30 transition-colors">
+                  <HandDrawnRose />
+                </div>
+                <div className="flex flex-col relative">
+                  <span className="text-sm font-medium text-white drop-shadow-md group-hover:text-white transition-colors">
+                    {NAMES.boy} & {NAMES.girl}
+                  </span>
+                  <span className="text-[10px] text-white/80 drop-shadow-md font-mono-micro tracking-wider">微醺告白 · 点我有惊喜</span>
 
                 {/* 字母 o 触发器 */}
                 <AnimatePresence>
@@ -163,46 +165,54 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
             </div>
+            </MagneticButton>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               {navItems.map((item) => {
                 const isLocked = item.level > 0 && !isLevelUnlocked(item.level);
                 return (
-                  <Link
-                    key={item.name}
-                    href={isLocked ? '#' : item.href}
-                    onClick={(e) => handleNavClick(e, item)}
-                    className={`px-4 py-2 text-sm relative group flex items-center space-x-1 transition-all duration-300 drop-shadow-md ${
-                      isLocked
-                        ? 'text-white/50 cursor-not-allowed'
-                        : pathname === item.href
-                        ? 'text-white font-medium'
-                        : 'text-white/90 hover:text-white'
-                    }`}
-                  >
-                    {isLocked && <Lock className="w-3 h-3" />}
-                    <span>{item.name}</span>
-                    {!isLocked && pathname !== item.href && (
-                      <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full" />
-                    )}
-                    {!isLocked && pathname === item.href && (
-                      <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-100 transition-transform origin-left rounded-full" />
-                    )}
-                  </Link>
+                  <MagneticButton key={item.name} strength={10} innerStrength={3}>
+                    <Link
+                      href={isLocked ? '#' : item.href}
+                      onClick={(e) => handleNavClick(e, item)}
+                      className={`px-4 py-2 text-sm relative group flex items-center space-x-1 transition-all duration-300 drop-shadow-md ${
+                        isLocked
+                          ? 'text-white/50 cursor-not-allowed'
+                          : pathname === item.href
+                          ? 'text-white font-medium'
+                          : 'text-white/90 hover:text-white'
+                      }`}
+                    >
+                      {isLocked && <Lock className="w-3 h-3" />}
+                      <span>{item.name}</span>
+                      {!isLocked && pathname !== item.href && (
+                        <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full" />
+                      )}
+                      {!isLocked && pathname === item.href && (
+                        <span className="absolute -bottom-0.5 left-4 right-4 h-0.5 bg-[#E35D6A] transform scale-x-100 transition-transform origin-left rounded-full" />
+                      )}
+                    </Link>
+                  </MagneticButton>
                 );
               })}
             </nav>
 
             {/* Status Indicator & Theme Switcher */}
             <div className="hidden md:flex items-center space-x-3">
-              <ThemeSwitcher />
-              <div className="flex items-center space-x-1.5 px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/60 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/30 transition-all duration-300 rounded-full">
-                <RedHeartSmall />
-                <span className="text-xs text-white font-medium drop-shadow-md">
-                  {unlockedLevels.length > 0 ? `已解锁 ${unlockedLevels.length} 关` : '温暖相伴'}
-                </span>
-              </div>
+              <MagneticButton strength={8} innerStrength={2}>
+                <ThemeSwitcher />
+              </MagneticButton>
+              <MagneticButton strength={10} innerStrength={3}>
+                <div className="flex items-center space-x-1.5 px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/60 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/30 transition-all duration-300 rounded-full"
+                >
+                  <RedHeartSmall />
+                  <span className="text-xs text-white font-medium drop-shadow-md font-mono-micro tracking-wide"
+                  >
+                    {unlockedLevels.length > 0 ? `已解锁 ${unlockedLevels.length} 关` : '温暖相伴'}
+                  </span>
+                </div>
+              </MagneticButton>
             </div>
 
             {/* Mobile Menu Button */}
