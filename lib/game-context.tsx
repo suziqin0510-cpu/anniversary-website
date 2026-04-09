@@ -51,6 +51,12 @@ interface GameContextType {
   floatingLetter: { letter: Letter; x: number; y: number } | null;
   triggerLetterAnimation: (letter: Letter, x: number, y: number) => void;
 
+  // 大结局序列状态
+  isEndingSequence: boolean;
+  setIsEndingSequence: (value: boolean) => void;
+  hasSeenEnding: boolean;
+  setHasSeenEnding: (value: boolean) => void;
+
   // 是否已hydrated
   isHydrated: boolean;
 }
@@ -72,6 +78,10 @@ const defaultContext: GameContextType = {
   showToast: () => {},
   triggerLetterAnimation: () => {},
   floatingLetter: null,
+  isEndingSequence: false,
+  setIsEndingSequence: () => {},
+  hasSeenEnding: false,
+  setHasSeenEnding: () => {},
   isHydrated: false,
 };
 
@@ -147,6 +157,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [floatingLetter, setFloatingLetter] = useState<{ letter: Letter; x: number; y: number } | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isEndingSequence, setIsEndingSequence] = useState(false);
+  const [hasSeenEnding, setHasSeenEnding] = useState(false);
 
   // 客户端 hydration - 加载游戏状态
   useEffect(() => {
@@ -159,6 +171,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         const state = JSON.parse(saved);
         setUnlockedLevels(state.unlockedLevels || []);
         setCollectedLetters(state.collectedLetters || []);
+        setHasSeenEnding(state.hasSeenEnding || false);
       } catch (e) {
         console.error('Failed to parse game state:', e);
       }
@@ -175,10 +188,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         JSON.stringify({
           unlockedLevels,
           collectedLetters,
+          hasSeenEnding,
         })
       );
     }
-  }, [unlockedLevels, collectedLetters, isHydrated]);
+  }, [unlockedLevels, collectedLetters, hasSeenEnding, isHydrated]);
 
   // 解锁关卡
   const unlockLevel = useCallback((level: number) => {
@@ -261,6 +275,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const resetGame = useCallback(() => {
     setUnlockedLevels([]);
     setCollectedLetters([]);
+    setHasSeenEnding(false);
     localStorage.removeItem('anniversary-game-state');
     localStorage.removeItem('anniversary-user-letter');
     showToast('🗑️ 游戏进度已重置', 'success');
@@ -297,6 +312,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         showToast,
         triggerLetterAnimation,
         floatingLetter,
+        isEndingSequence,
+        setIsEndingSequence,
+        hasSeenEnding,
+        setHasSeenEnding,
         isHydrated,
       }}
     >

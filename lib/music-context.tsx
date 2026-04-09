@@ -25,6 +25,7 @@ interface MusicContextType {
   currentSong: Song;
   currentIndex: number;
   togglePlay: () => void;
+  pause: () => void;
   playNext: () => void;
   playPrevious: () => void;
   hasStarted: boolean;
@@ -215,6 +216,12 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     }
   }, [hasStarted]);
 
+  // 无条件暂停 BGM
+  const pause = useCallback(() => {
+    audioRef.current?.pause();
+    setIsPlaying(false);
+  }, []);
+
   // 播放下一首 - 只改变索引，播放由 useEffect 处理
   const playNext = useCallback(() => {
     let nextIndex: number;
@@ -298,6 +305,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
         currentSong,
         currentIndex,
         togglePlay,
+        pause,
         playNext,
         playPrevious,
         hasStarted,

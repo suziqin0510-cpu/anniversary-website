@@ -8,6 +8,8 @@ import { animate, random, remove } from 'animejs';
 import GrandChapterToast from '@/components/GrandChapterToast';
 import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
 import { celebratePets } from '@/lib/utils/celebrate';
+import { useGame } from '@/lib/game-context';
+import { useRouter } from 'next/navigation';
 
 const HandDrawnPaw = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
@@ -105,6 +107,9 @@ const EasterEggBubble = ({
 };
 
 export default function PetsPage() {
+  const router = useRouter();
+  const { setIsEndingSequence } = useGame();
+
   const [shiliuClicks, setShiliuClicks] = useState(0);
   const [isShiliuShaking, setIsShiliuShaking] = useState(false);
   const [showShiliuResponse, setShowShiliuResponse] = useState(false);
@@ -131,6 +136,13 @@ export default function PetsPage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (isTriggered) {
+          e.preventDefault();
+          setIsEndingSequence(true);
+          router.push('/');
+          return;
+        }
+
         setShowLoveMessage(false);
         setIsTriggered(false);
         keySeqRef.current = '';
@@ -393,6 +405,10 @@ export default function PetsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            onClick={() => {
+              setIsEndingSequence(true);
+              router.push('/');
+            }}
           >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <motion.div

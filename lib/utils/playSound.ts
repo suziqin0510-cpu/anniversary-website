@@ -27,3 +27,13 @@ export function playError() {
     // ignore
   }
 }
+
+export function playTypewriter() {
+  try {
+    const audio = new Audio('/sounds/typewriter_click.mp3');
+    audio.volume = 0.4;
+    audio.play().catch(() => {});
+  } catch {
+    // ignore
+  }
+}
