@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, Sparkles, AlertCircle, Search, ShieldAlert } from 'lucide-react';
 import { useGame } from '@/lib/game-context';
+import { playError } from '@/lib/utils/playSound';
 import confetti from 'canvas-confetti';
 
 interface DetectivePuzzleProps {
@@ -385,6 +386,7 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
         // 错误答案 - 触发惩罚
         setShowError(suspect.errorHint);
         setIsLocked(true);
+        playError();
         setShowPenalty(true);
       }
     },

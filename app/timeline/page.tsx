@@ -9,6 +9,7 @@ import MasterGatekeeper from '@/components/MasterGatekeeper';
 import GrandChapterToast from '@/components/GrandChapterToast';
 import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
 import { celebrateTimeline } from '@/lib/utils/celebrate';
+import { playUnlock } from '@/lib/utils/playSound';
 
 // ==================== 隐藏 Emoji 样式 ====================
 // 技巧1: 悬停提示 - 悬停"火锅"文字时显示🍲
@@ -1247,6 +1248,7 @@ export default function TimelinePage() {
           setClueToast(prev => ({ ...prev, show: false }));
         }, 4500);
       }
+      playUnlock();
       return true;
     }
     return false;

@@ -13,6 +13,7 @@ import InventoryBar from "@/components/InventoryBar";
 import FinalPuzzleModal from "@/components/FinalPuzzleModal";
 import RouteGuard from "@/components/RouteGuard";
 import GateKeeper from "@/components/GateKeeper";
+import ConsoleGreeting from "@/components/ConsoleGreeting";
 import { GameProvider } from "@/lib/game-context";
 import { MusicProvider } from "@/lib/music-context";
 
@@ -45,6 +46,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gradient-to-br from-[#FFF5F5] to-[#FFE4E1] relative">
         <GameProvider>
           <MusicProvider>
+            <ConsoleGreeting />
             <GlobalEffects />
             <AmbientBlobs />
             <HeartCursorTrail />

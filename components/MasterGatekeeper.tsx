@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, MapPin, Sparkles } from 'lucide-react';
 import { useGame } from '@/lib/game-context';
+import { playUnlock } from '@/lib/utils/playSound';
 import confetti from 'canvas-confetti';
 
 const EMOJI_POOL = ['☕️', '🚗', '🌹', '💍', '🍲', '🏔️', '🐱', '✈️', '🐶', '🎬', '📚', '🎵'];
@@ -51,6 +52,7 @@ export default function MasterGatekeeper({ unlockedSlots }: MasterGatekeeperProp
       setIsUnlocked(true);
       setShowSuccess(true);
       showToast('🎉 密码正确！解锁通往足迹地图的道路！', 'success');
+      playUnlock();
 
       // 播放撒花特效
       const duration = 3000;
