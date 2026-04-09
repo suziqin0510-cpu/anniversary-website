@@ -1,19 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AmbientBlobs from "@/components/AmbientBlobs";
-import HeartReactor from "@/components/HeartReactor";
-import GlobalEffects from "@/components/GlobalEffects";
-import SecretCode from "@/components/SecretCode";
-import HeartCursorTrail from "@/components/HeartCursorTrail";
-import VinylPlayer from "@/components/VinylPlayer";
-import ScrollJourney from "@/components/ScrollJourney";
+import LayoutShell from "@/components/LayoutShell";
 import InventoryBar from "@/components/InventoryBar";
-import FinalPuzzleModal from "@/components/FinalPuzzleModal";
-import RouteGuard from "@/components/RouteGuard";
-import GateKeeper from "@/components/GateKeeper";
-import ConsoleGreeting from "@/components/ConsoleGreeting";
 import { GameProvider } from "@/lib/game-context";
 import { MusicProvider } from "@/lib/music-context";
 
@@ -46,24 +34,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gradient-to-br from-[#FFF5F5] to-[#FFE4E1] relative">
         <GameProvider>
           <MusicProvider>
-            <ConsoleGreeting />
-            <GlobalEffects />
-            <AmbientBlobs />
-            <HeartCursorTrail />
-            <SecretCode />
-            <ScrollJourney />
-            <VinylPlayer />
-            <Navbar />
-            
-            <GateKeeper>
-              <RouteGuard>
-              <main className="flex-1 relative z-10">{children}</main>
-            </RouteGuard>
-            </GateKeeper>
-
-            <Footer />
-            <HeartReactor />
-            <FinalPuzzleModal />
+            <LayoutShell>
+              {children}
+            </LayoutShell>
           </MusicProvider>
         </GameProvider>
       </body>

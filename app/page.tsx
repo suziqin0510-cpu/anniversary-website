@@ -8,7 +8,7 @@ import ScratchCard from '@/components/ScratchCard';
 import CinemaModal from '@/components/CinemaModal';
 import InventoryBar from '@/components/InventoryBar';
 import PolaroidFlip from '@/components/PolaroidFlip';
-import VoiceLetterFinale from '@/components/VoiceLetterFinale';
+import EndingStage from '@/components/EndingStage';
 import AnniversaryMedal from '@/components/AnniversaryMedal';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { useRouter } from 'next/navigation';
@@ -861,6 +861,17 @@ export default function HomePage() {
   const [isCinemaOpen, setIsCinemaOpen] = useState(false);
   const { isEndingSequence, setIsEndingSequence, hasSeenEnding, setHasSeenEnding } = useGame();
 
+  if (isEndingSequence) {
+    return (
+      <EndingStage
+        onComplete={() => {
+          setIsEndingSequence(false);
+          setHasSeenEnding(true);
+        }}
+      />
+    );
+  }
+
   return (
     <>
       {/* 👉 强制绕过 Next.js 优化的高清背景层 👈 */}
@@ -1106,14 +1117,6 @@ export default function HomePage() {
       {/* AI影院模态框 */}
       <CinemaModal isOpen={isCinemaOpen} onClose={() => setIsCinemaOpen(false)} />
 
-      {isEndingSequence && (
-        <VoiceLetterFinale
-          onComplete={() => {
-            setIsEndingSequence(false);
-            setHasSeenEnding(true);
-          }}
-        />
-      )}
       {hasSeenEnding && <AnniversaryMedal />}
     </div>
     </>
