@@ -6,6 +6,9 @@ import { ChevronLeft, ChevronRight, MapPin, Calendar, X, Sparkles, Lock, Unlock,
 import Tilt from 'react-parallax-tilt';
 import TimeCapsule from '@/components/TimeCapsule';
 import MasterGatekeeper from '@/components/MasterGatekeeper';
+import GrandChapterToast from '@/components/GrandChapterToast';
+import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
+import { celebrateTimeline } from '@/lib/utils/celebrate';
 
 // ==================== 隐藏 Emoji 样式 ====================
 // 技巧1: 悬停提示 - 悬停"火锅"文字时显示🍲
@@ -1177,6 +1180,14 @@ export default function TimelinePage() {
   const [showSnowClue, setShowSnowClue] = useState(false);
   const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const { toast } = useGrandChapterCelebration({
+    level: 1,
+    id: 'timeline',
+    title: '第一章解锁',
+    subtitle: '我们的故事，从这里开始',
+    celebrate: celebrateTimeline,
+  });
+
   // 四重奏解锁状态: [火锅, 山, 猫, 飞机]
   const [unlockedSlots, setUnlockedSlots] = useState(() => {
     if (typeof window === 'undefined') return [false, false, false, false];
@@ -1393,7 +1404,8 @@ export default function TimelinePage() {
     <div className="min-h-screen pt-20 pb-12 relative overflow-hidden">
       <HiddenEmojiStyles />
       <GridBackground />
-      
+      <GrandChapterToast toast={toast} />
+
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 页面标题 */}
         <motion.div 

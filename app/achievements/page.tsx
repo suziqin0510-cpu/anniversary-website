@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
 import TimeMailbox from '@/components/TimeMailbox';
+import GrandChapterToast from '@/components/GrandChapterToast';
+import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
+import { celebrateMedals } from '@/lib/utils/celebrate';
 
 const HandDrawnTrophy = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
@@ -53,6 +56,14 @@ export default function AchievementsPage() {
   const [selectedMedal, setSelectedMedal] = useState<typeof achievements[0] | null>(null);
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
+  const { toast } = useGrandChapterCelebration({
+    level: 3,
+    id: 'achievements',
+    title: '第三章解锁',
+    subtitle: '每一枚勋章，都是爱的见证',
+    celebrate: celebrateMedals,
+  });
+
   return (
     <>
       <div
@@ -60,6 +71,7 @@ export default function AchievementsPage() {
         style={{ backgroundImage: "url('/achievements_bg.png?v=1')" }}
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <GrandChapterToast toast={toast} />
       <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">

@@ -6,6 +6,9 @@ import { Navigation, Ticket } from 'lucide-react';
 import BoardingPass from '@/components/BoardingPass';
 import GlobeLock from '@/components/GlobeLock';
 import GlobeShowcase from '@/components/GlobeShowcase';
+import GrandChapterToast from '@/components/GrandChapterToast';
+import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
+import { celebrateFootprints } from '@/lib/utils/celebrate';
 
 interface Place {
   id: string;
@@ -586,6 +589,14 @@ export default function MapPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBoardingPassOpen, setIsBoardingPassOpen] = useState(false);
 
+  const { toast } = useGrandChapterCelebration({
+    level: 2,
+    id: 'map',
+    title: '第二章解锁',
+    subtitle: '我们的足迹，遍布山海',
+    celebrate: celebrateFootprints,
+  });
+
   const handlePlaceClick = (place: Place) => {
     setSelectedPlace(place);
     setIsModalOpen(true);
@@ -599,6 +610,7 @@ export default function MapPage() {
       />
       {/* 增加全局暗调遮罩，降低背景干扰 */}
       <div className="fixed inset-0 -z-10 bg-black/30 backdrop-blur-[2px] pointer-events-none" />
+      <GrandChapterToast toast={toast} />
       <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 标题 */}

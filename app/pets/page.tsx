@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
+import GrandChapterToast from '@/components/GrandChapterToast';
+import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
+import { celebratePets } from '@/lib/utils/celebrate';
 
 const HandDrawnPaw = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
@@ -110,6 +113,14 @@ export default function PetsPage() {
   const [showPanpanResponse, setShowPanpanResponse] = useState(false);
   const [panpanHovered, setPanpanHovered] = useState(false);
 
+  const { toast } = useGrandChapterCelebration({
+    level: 6,
+    id: 'pets',
+    title: '第六章解锁',
+    subtitle: '盼盼和石榴，欢迎回家',
+    celebrate: celebratePets,
+  });
+
   const handleShiliuClick = () => {
     const newCount = shiliuClicks + 1;
     setShiliuClicks(newCount);
@@ -155,6 +166,7 @@ export default function PetsPage() {
         style={{ backgroundImage: "url('/pets_bg.png?v=1')" }}
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <GrandChapterToast toast={toast} />
       <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">

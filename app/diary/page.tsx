@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Mail, Heart, Lock, Unlock } from 'lucide-react';
 import Tilt from 'react-parallax-tilt';
 import DetectivePuzzle from '@/components/DetectivePuzzle';
+import GrandChapterToast from '@/components/GrandChapterToast';
+import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
+import { celebrateDiary } from '@/lib/utils/celebrate';
 
 const HandDrawnHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 animate-heartbeat">
@@ -104,6 +107,14 @@ export default function DiaryPage() {
   const [unlockedLetters, setUnlockedLetters] = useState<Set<string>>(new Set());
   const [passwordError, setPasswordError] = useState(false);
 
+  const { toast } = useGrandChapterCelebration({
+    level: 5,
+    id: 'diary',
+    title: '第五章解锁',
+    subtitle: '这里是只属于我们的秘密日记',
+    celebrate: celebrateDiary,
+  });
+
   const handleViewClick = (letter: Letter) => {
     if (letter.isLocked && !unlockedLetters.has(letter.id)) {
       setSelectedLetter(letter);
@@ -135,6 +146,7 @@ export default function DiaryPage() {
         style={{ backgroundImage: "url('/diary_bg.png?v=1')" }}
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <GrandChapterToast toast={toast} />
       <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div

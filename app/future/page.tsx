@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
 import SoulQuiz from '@/components/SoulQuiz';
+import GrandChapterToast from '@/components/GrandChapterToast';
+import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
+import { celebrateWishes } from '@/lib/utils/celebrate';
 
 const HandDrawnStar = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
@@ -98,6 +101,14 @@ export default function FuturePage() {
     setWishList(wishList.map(wish => wish.id === id ? { ...wish, completed: !wish.completed } : wish));
   };
 
+  const { toast } = useGrandChapterCelebration({
+    level: 4,
+    id: 'future',
+    title: '第四章解锁',
+    subtitle: '愿所有未来，都与你有关',
+    celebrate: celebrateWishes,
+  });
+
   return (
     <>
       <div
@@ -105,6 +116,7 @@ export default function FuturePage() {
         style={{ backgroundImage: "url('/future_bg.png?v=2')" }}
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <GrandChapterToast toast={toast} />
       <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
