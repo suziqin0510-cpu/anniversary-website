@@ -11,9 +11,14 @@ export interface Letter {
 const REDIS_KEY = 'anniversary-user-letters';
 const LOCAL_FILE = join(process.cwd(), 'data', 'letters.json');
 
-// Try to create Redis client from env (Upstash / Vercel Integrations)
+// In-memory fallback when both Redis and filesystem are unavailable (e.g. Vercel serverless)
+let memoryLetters: Letter[] = [];
+
+// Try to create Redis client from env (Upstash / Vercel KV Integrations)
 function createRedis(): Redis | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_URL;
+  // KV_REST_API_URL is the correct REST endpoint for Vercel KV
+  // KV_URL is usually redis:// and not suitable for @upstash/redis REST client
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.KV_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
   if (!url || !token) {
@@ -31,9 +36,6 @@ const redis = createRedis();
 
 function readLocal(): Letter[] {
   if (!existsSync(LOCAL_FILE)) {
-    const dir = join(process.cwd(), 'data');
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(LOCAL_FILE, JSON.stringify([]));
     return [];
   }
   try {
@@ -44,17 +46,48 @@ function readLocal(): Letter[] {
 }
 
 function writeLocal(letters: Letter[]) {
-  const dir = join(process.cwd(), 'data');
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(LOCAL_FILE, JSON.stringify(letters, null, 2));
+  try {
+    const dir = join(process.cwd(), 'data');
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(LOCAL_FILE, JSON.stringify(letters, null, 2));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function readLetters(): Promise<Letter[]> {
+  if (redis) {
+    try {
+      const letters = await redis.get<Letter[]>(REDIS_KEY);
+      return letters || [];
+    } catch (err) {
+      console.warn('Redis read failed, falling back:', err);
+    }
+  }
+  return readLocal();
+}
+
+async function writeLetters(letters: Letter[]) {
+  if (redis) {
+    try {
+      await redis.set(REDIS_KEY, letters);
+      return true;
+    } catch (err) {
+      console.warn('Redis write failed, falling back:', err);
+    }
+  }
+  if (writeLocal(letters)) {
+    return true;
+  }
+  memoryLetters = letters;
+  console.warn('Filesystem write also failed, using in-memory fallback.');
+  return true;
 }
 
 export async function getLetters(): Promise<Letter[]> {
-  if (redis) {
-    const letters = await redis.get<Letter[]>(REDIS_KEY);
-    return letters || [];
-  }
-  return readLocal();
+  const letters = await readLetters();
+  return letters;
 }
 
 export async function saveLetter(content: string): Promise<Letter> {
@@ -64,28 +97,16 @@ export async function saveLetter(content: string): Promise<Letter> {
     createdAt: new Date().toISOString(),
   };
 
-  if (redis) {
-    const existing = (await redis.get<Letter[]>(REDIS_KEY)) || [];
-    const updated = [letter, ...existing];
-    await redis.set(REDIS_KEY, updated);
-  } else {
-    const existing = readLocal();
-    const updated = [letter, ...existing];
-    writeLocal(updated);
-  }
+  const existing = await readLetters();
+  const updated = [letter, ...existing];
+  await writeLetters(updated);
 
   return letter;
 }
 
 export async function deleteLetter(id: string): Promise<boolean> {
-  if (redis) {
-    const existing = (await redis.get<Letter[]>(REDIS_KEY)) || [];
-    const updated = existing.filter((l) => l.id !== id);
-    await redis.set(REDIS_KEY, updated);
-  } else {
-    const existing = readLocal();
-    const updated = existing.filter((l) => l.id !== id);
-    writeLocal(updated);
-  }
+  const existing = await readLetters();
+  const updated = existing.filter((l) => l.id !== id);
+  await writeLetters(updated);
   return true;
 }
