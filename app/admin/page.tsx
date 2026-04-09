@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Image as ImageIcon, Video, Music, Settings, Database, ExternalLink, Trash2, AlertTriangle } from 'lucide-react';
+import { Upload, Image as ImageIcon, Video, Music, Settings, Database, ExternalLink, Trash2, AlertTriangle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,18 +32,25 @@ const adminModules = [
     color: 'from-orange-400 to-amber-400',
   },
   {
+    id: 'letters',
+    name: '信件收件箱',
+    icon: <Mail className="w-6 h-6" />,
+    description: '查看女主角提交的专属信件',
+    color: 'from-amber-400 to-yellow-400',
+  },
+  {
     id: 'data',
     name: '数据管理',
     icon: <Database className="w-6 h-6" />,
     description: '导入/导出网站数据，重置游戏进度',
-    color: 'from-amber-400 to-yellow-400',
+    color: 'from-yellow-400 to-lime-400',
   },
   {
     id: 'settings',
     name: '网站设置',
     icon: <Settings className="w-6 h-6" />,
     description: '修改纪念日、名字等基本信息',
-    color: 'from-yellow-400 to-lime-400',
+    color: 'from-lime-400 to-green-400',
   },
 ];
 
@@ -106,6 +113,9 @@ export default function AdminPage() {
           )}
           {activeTab === 'music' && (
             <MusicManager />
+          )}
+          {activeTab === 'letters' && (
+            <LettersManager />
           )}
           {activeTab === 'data' && (
             <DataManager />
@@ -400,6 +410,115 @@ function SettingsManager() {
           </div>
 
           <Button className="w-full">保存设置</Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// 信件收件箱组件
+function LettersManager() {
+  const [letters, setLetters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/letter')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setLetters(data.letters || []);
+        } else {
+          setError(data.error || '加载失败');
+        }
+      })
+      .catch((err) => {
+        setError(err.message || '加载失败');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Mail className="w-5 h-5 text-rose-500" />
+          <span>专属信件收件箱</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {loading && (
+            <div className="text-center py-12 text-[#6B6B6B]">正在加载信件...</div>
+          )}
+
+          {!loading && error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+              <p className="font-medium mb-1">加载失败</p>
+              <p>{error}</p>
+            </div>
+          )}
+
+          {!loading && !error && letters.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-50 flex items-center justify-center">
+                <Mail className="w-8 h-8 text-rose-300" />
+              </div>
+              <p className="text-[#6B6B6B] font-medium">暂未收到信件，请耐心等待~</p>
+              <p className="text-xs text-[#9B6A6C] mt-1">
+                女主角在成就勋章页投递的信件将显示在这里
+              </p>
+            </div>
+          )}
+
+          {!loading && !error && letters.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+                <p className="font-medium mb-1">💌 来信统计</p>
+                <p>目前共收到 <span className="font-bold text-amber-900">{letters.length}</span> 封专属信件</p>
+              </div>
+
+              {letters.map((letter, index) => (
+                <div
+                  key={letter.id || index}
+                  className="border rounded-xl p-5 bg-gradient-to-br from-white to-rose-50/30"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold">
+                        {letters.length - index}
+                      </span>
+                      <span className="font-medium text-[#2D2D2D]">
+                        第 {letters.length - index} 封信
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#9B6A6C]">
+                      {new Date(letter.createdAt).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <div
+                      className="w-full p-4 rounded-lg bg-[#FDFBF7] text-[#7C444F] leading-relaxed whitespace-pre-wrap min-h-[120px]"
+                      style={{
+                        backgroundImage:
+                          'repeating-linear-gradient(transparent, transparent 27px, rgba(227, 93, 106, 0.08) 27px, rgba(227, 93, 106, 0.08) 28px)',
+                        lineHeight: '28px',
+                      }}
+                    >
+                      {letter.content}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -237,25 +237,40 @@ export default function TimeMailbox({ onUnlock }: TimeMailboxProps) {
     }
   }, []);
 
-  const handleSubmit = useCallback((content: string) => {
-    // 保存信件到 localStorage
-    localStorage.setItem('anniversary-user-letter', content);
-    setLetterContent(content);
+  const handleSubmit = useCallback(async (content: string) => {
+    try {
+      // 1. 发送到后端持久化
+      const res = await fetch('/api/letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
 
-    // 解锁关卡4
-    unlockLevel(4);
-    showToast('💌 信件已投递！愿望清单已开启', 'success');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || '提交失败');
+      }
 
-    // 关闭模态框
-    setIsModalOpen(false);
+      // 2. 同时保留 localStorage 作为前端缓存
+      localStorage.setItem('anniversary-user-letter', content);
+      setLetterContent(content);
 
-    // 触发父组件回调
-    onUnlock?.();
+      // 3. 解锁关卡4
+      unlockLevel(4);
+      showToast('💌 信件已投递！愿望清单已开启', 'success');
 
-    // 平滑滚动到底部
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }, 500);
+      // 4. 关闭模态框并触发回调
+      setIsModalOpen(false);
+      onUnlock?.();
+
+      // 5. 平滑滚动到底部
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 500);
+    } catch (err: any) {
+      console.error('提交信件失败:', err);
+      showToast(err.message || '信件投递失败，请重试', 'error');
+    }
   }, [unlockLevel, showToast, onUnlock]);
 
   // 如果已解锁，显示发光入口
