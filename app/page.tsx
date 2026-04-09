@@ -8,8 +8,6 @@ import ScratchCard from '@/components/ScratchCard';
 import CinemaModal from '@/components/CinemaModal';
 import InventoryBar from '@/components/InventoryBar';
 import PolaroidFlip from '@/components/PolaroidFlip';
-import EndingStage from '@/components/EndingStage';
-import AnniversaryMedal from '@/components/AnniversaryMedal';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
@@ -859,18 +857,6 @@ function ImageCard({
 // ===== 主页面 =====
 export default function HomePage() {
   const [isCinemaOpen, setIsCinemaOpen] = useState(false);
-  const { isEndingSequence, setIsEndingSequence, hasSeenEnding, setHasSeenEnding } = useGame();
-
-  if (isEndingSequence) {
-    return (
-      <EndingStage
-        onComplete={() => {
-          setIsEndingSequence(false);
-          setHasSeenEnding(true);
-        }}
-      />
-    );
-  }
 
   return (
     <>
@@ -1117,7 +1103,6 @@ export default function HomePage() {
       {/* AI影院模态框 */}
       <CinemaModal isOpen={isCinemaOpen} onClose={() => setIsCinemaOpen(false)} />
 
-      {hasSeenEnding && <AnniversaryMedal />}
     </div>
     </>
   );

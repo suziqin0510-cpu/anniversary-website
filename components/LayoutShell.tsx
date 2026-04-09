@@ -13,13 +13,22 @@ import HeartReactor from '@/components/HeartReactor';
 import FinalPuzzleModal from '@/components/FinalPuzzleModal';
 import RouteGuard from '@/components/RouteGuard';
 import GateKeeper from '@/components/GateKeeper';
+import EndingStage from '@/components/EndingStage';
+import AnniversaryMedal from '@/components/AnniversaryMedal';
 import { useGame } from '@/lib/game-context';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
-  const { isEndingSequence } = useGame();
+  const { isEndingSequence, setIsEndingSequence, hasSeenEnding, setHasSeenEnding } = useGame();
 
   if (isEndingSequence) {
-    return <>{children}</>;
+    return (
+      <EndingStage
+        onComplete={() => {
+          setIsEndingSequence(false);
+          setHasSeenEnding(true);
+        }}
+      />
+    );
   }
 
   return (
@@ -40,6 +49,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <Footer />
       <HeartReactor />
       <FinalPuzzleModal />
+      {hasSeenEnding && <AnniversaryMedal />}
     </>
   );
 }
