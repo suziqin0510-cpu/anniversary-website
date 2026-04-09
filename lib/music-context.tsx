@@ -70,6 +70,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       const nextIndex = (currentIndex + 1) % PLAYLIST.length;
       setCurrentIndex(nextIndex);
       localStorage.removeItem(STORAGE_TIME_KEY);
+      savedTimeRef.current = null;
     };
 
     // 监听错误
@@ -80,6 +81,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       const nextIndex = (currentIndex + 1) % PLAYLIST.length;
       setCurrentIndex(nextIndex);
       localStorage.removeItem(STORAGE_TIME_KEY);
+      savedTimeRef.current = null;
     };
 
     audioRef.current.addEventListener('ended', handleEnded);
@@ -104,6 +106,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       // 恢复之前保存的播放时间（页面切换后接着播）
       if (savedTimeRef.current && !isNaN(savedTimeRef.current)) {
         audioRef.current.currentTime = savedTimeRef.current;
+      } else {
+        audioRef.current.currentTime = 0;
       }
 
       // 强制开始播放（无论之前是播放还是暂停状态）
