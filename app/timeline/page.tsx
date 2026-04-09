@@ -1205,6 +1205,22 @@ export default function TimelinePage() {
     localStorage.setItem('timeline-emoji-slots', JSON.stringify(unlockedSlots));
   }, [unlockedSlots]);
 
+  // 监听跨组件/标签页的 timeline-emoji-slots 变化（例如 Footer 飞机彩蛋解锁）
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'timeline-emoji-slots' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed) && parsed.length === 4) {
+            setUnlockedSlots(parsed);
+          }
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const handlePrev = () => {
     if (currentChapter > 0) {
       setDirection(-1);

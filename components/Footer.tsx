@@ -185,7 +185,25 @@ export default function Footer() {
                     exit={{ scale: 0, opacity: 0 }}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setShowPlaneClue(true)}
+                    onClick={() => {
+                      setShowPlaneClue(true);
+                      // 同步解锁时间线第4个密码槽位（✈️）
+                      const saved = localStorage.getItem('timeline-emoji-slots');
+                      if (saved) {
+                        try {
+                          const parsed = JSON.parse(saved);
+                          if (Array.isArray(parsed) && parsed.length === 4) {
+                            parsed[3] = true;
+                            localStorage.setItem('timeline-emoji-slots', JSON.stringify(parsed));
+                            window.dispatchEvent(new StorageEvent('storage', {
+                              key: 'timeline-emoji-slots',
+                              newValue: JSON.stringify(parsed),
+                              oldValue: saved,
+                            }));
+                          }
+                        } catch (e) {}
+                      }
+                    }}
                     className="absolute -right-10 top-1/2 -translate-y-1/2 text-2xl cursor-pointer z-10"
                     title="点击我！"
                   >
