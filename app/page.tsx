@@ -174,7 +174,7 @@ function LockedCardLink({
         </div>
         <div>
           <h3
-            className={`font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] transition-colors ${
+            className={`font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] transition-colors font-serif-display ${
               small ? 'text-sm' : ''
             } ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}
           >
@@ -363,7 +363,7 @@ function LiveHeartbeatTimer() {
     <div className="flex flex-col items-center justify-center h-full">
       <div className="flex items-center space-x-1 mb-2">
         <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
-        <span className="text-sm text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">实时心跳</span>
+        <span className="text-sm text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] font-serif-display">实时心跳</span>
         <span className="animate-heartbeat"><SmallHeart className="w-5 h-5" /></span>
       </div>
       <div
@@ -441,7 +441,7 @@ function ScatteredPolaroids() {
     <div className="h-full flex flex-col">
       {/* 标题 */}
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] font-handwriting">散落的回忆</h3>
+        <h3 className="text-xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] font-serif-display">散落的回忆</h3>
         <p className="text-xs text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-1">点击照片，翻转查看背面文字</p>
       </div>
 
@@ -455,6 +455,7 @@ function ScatteredPolaroids() {
             backText={p.backText}
             rotate={p.rotate}
             delay={index * 0.1}
+            index={index}
             letterTrigger={index === 0 ? ('p' as Letter) : undefined} // 第一张拍立得包含字母 p
           />
         ))}
@@ -476,17 +477,15 @@ function DarkroomCard() {
         {/* 噪点 overlay */}
         <div className="noise-overlay rounded-2xl" />
 
-        {/* 微观标记 */}
+        {/* 微观标记 - 纯装饰细线 */}
         <div className="corner-mark top-3 left-3 border-l border-t border-white/30" />
         <div className="corner-mark top-3 right-3 border-r border-t border-white/30" />
         <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30" />
         <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30" />
-        <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">ALBUM_01</span>
-        <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">KM.2024</span>
 
         {/* 左侧文案 */}
         <div className="flex flex-col items-start relative z-10">
-          <h3 className="text-xl md:text-2xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] tracking-wide">
+          <h3 className="text-xl md:text-2xl font-bold text-gray-900 drop-shadow-[0_4px_4px_rgba(255,255,255,0.8)] tracking-wide font-serif-display">
             我们在昆明有个家 🏠
           </h3>
           <p className="text-sm text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] mt-2">
@@ -525,7 +524,7 @@ function DualCityWeather() {
     <div className="h-full flex flex-col justify-center">
       <div className="flex items-center justify-center space-x-2 mb-4">
         <WeatherSun />
-        <span className="text-sm font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">双城天气</span>
+        <span className="text-sm font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] font-serif-display">双城天气</span>
       </div>
 
       <div className="flex items-center justify-center space-x-4">
@@ -770,19 +769,17 @@ function PetSectionCard() {
           )}
         </motion.div>
         <div>
-          <h3 className={`font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] transition-colors text-sm ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}>
+          <h3 className={`font-bold text-gray-900 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] transition-colors text-sm font-serif-display ${isLocked ? '' : 'group-hover:text-[#E35D6A]'}`}>
             {isLocked ? '🔒 宠物专区' : '宠物专区'}
           </h3>
           <p className="text-[10px] text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">{isLocked ? '关卡未解锁' : '盼盼 & 石榴'}</p>
         </div>
       </Link>
-      {/* 微观标记 */}
+      {/* 微观标记 - 纯装饰细线 */}
       <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
       <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
       <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
       <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
-      <span className="absolute top-3 left-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">PET_01</span>
-      <span className="absolute bottom-3 right-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">PA+SS</span>
     </motion.div>
   );
 }
@@ -877,15 +874,11 @@ function ImageCard({
             {/* 噪点胶片 overlay */}
             <div className="noise-overlay rounded-3xl" />
 
-            {/* 微观标记 - 四角 */}
+            {/* 微观标记 - 四角（纯装饰细线） */}
             <div className="corner-mark top-3 left-3 border-l border-t" />
             <div className="corner-mark top-3 right-3 border-r border-t" />
             <div className="corner-mark bottom-3 left-3 border-l border-b" />
             <div className="corner-mark bottom-3 right-3 border-r border-b" />
-            <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">LAT:25.04</span>
-            <span className="absolute top-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">LON:102.71</span>
-            <span className="absolute bottom-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">MEM_ID_001</span>
-            <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">ISO:200</span>
 
             {/* 装饰光斑 */}
             <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
@@ -938,8 +931,8 @@ export default function HomePage() {
             苏子钦 & 李丹
           </h1>
 
-          <p className="text-lg text-white font-light tracking-wider drop-shadow-md">
-            CYBERSPACE v1.0 · <span className="font-serif-display tracking-tight">我们的 365 天</span>
+          <p className="text-lg text-white font-light tracking-wider drop-shadow-md font-serif-display">
+            我们的 365 天
           </p>
 
           {/* 寄语直接悬浮在背景上 */}
@@ -994,7 +987,7 @@ export default function HomePage() {
           <div className="col-span-12 md:col-span-4 md:mt-16 space-y-6 md:space-y-8">
             {/* 4. 散落的拍立得 */}
             <OrganicReveal delay={0.25}>
-              <div className="bg-white/40 backdrop-blur-md rounded-3xl p-4 shadow-xl border border-white/60 min-h-[420px] relative overflow-hidden">
+              <div className="rounded-3xl p-4 liquid-glass min-h-[420px] relative overflow-hidden">
                 <div className="noise-overlay rounded-3xl" />
                 <div className="relative z-10">
                   <ScatteredPolaroids />
@@ -1010,8 +1003,6 @@ export default function HomePage() {
                 <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
                 <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
                 <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
-                <span className="absolute top-3 left-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">LAT:24.88</span>
-                <span className="absolute bottom-3 right-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">MISS_YOU</span>
                 <div className="relative z-10">
                   <MissYouButton />
                 </div>
@@ -1071,13 +1062,11 @@ export default function HomePage() {
                     {/* 噪点 overlay */}
                     <div className="noise-overlay rounded-3xl" />
 
-                    {/* 微观标记 */}
+                    {/* 微观标记 - 纯装饰细线 */}
                     <div className="corner-mark top-3 left-3 border-l border-t border-white/30 z-20" />
                     <div className="corner-mark top-3 right-3 border-r border-t border-white/30 z-20" />
                     <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30 z-20" />
                     <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30 z-20" />
-                    <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">FILM_01</span>
-                    <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">4K_HDR</span>
 
                     {/* 播放图标 */}
                     <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -1090,7 +1079,7 @@ export default function HomePage() {
 
                     {/* 内容 - 靠左下角对齐 */}
                     <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
-                      <h3 className="font-bold text-white mb-2 text-xl group-hover:scale-105 transition-transform origin-left">
+                      <h3 className="font-bold text-white mb-2 text-xl group-hover:scale-105 transition-transform origin-left font-serif-display">
                         恋爱回忆录
                       </h3>
                       <p className="text-white/80 text-sm">
@@ -1136,8 +1125,6 @@ export default function HomePage() {
                 <div className="corner-mark top-3 right-3 border-r border-t border-white/30 z-20" />
                 <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30 z-20" />
                 <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30 z-20" />
-                <span className="absolute top-4 left-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">COUPON_01</span>
-                <span className="absolute bottom-4 right-4 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">REDEEM</span>
                 <div className="relative z-10 h-full">
                   <ScratchCard />
                 </div>

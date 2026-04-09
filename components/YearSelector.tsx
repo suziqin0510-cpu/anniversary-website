@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
+import MagneticButton from '@/components/MagneticButton';
 import { YEARS, getNextAnniversaryCountdown } from '@/lib/year-config';
 
 interface YearSelectorProps {
@@ -43,24 +44,25 @@ export default function YearSelector({ selectedYear, onSelectYear, onLockedClick
       animate={{ opacity: 1, y: 0 }}
       className="inline-flex flex-col items-center"
     >
-      <div className="flex items-center space-x-2 bg-white/30 backdrop-blur-md border border-white/50 rounded-full p-1.5 shadow-lg">
+      <div className="flex items-center space-x-2 liquid-glass rounded-full p-1.5">
         {YEARS.map((yearConfig, index) => {
           const isSelected = selectedYear === yearConfig.year;
           const isLocked = yearConfig.status === 'locked';
           return (
-            <button
-              key={yearConfig.year}
-              onClick={() => handleClick(yearConfig, index)}
-              className={`
-                relative flex items-center space-x-1 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
-                ${isSelected && !isLocked ? 'bg-gradient-to-r from-[#E35D6A] to-[#F4A460] text-white shadow-md' : ''}
-                ${!isSelected && !isLocked ? 'text-white/90 hover:bg-white/20' : ''}
-                ${isLocked ? 'text-white/50 cursor-not-allowed' : ''}
-              `}
-            >
-              {isLocked && <Lock className="w-3 h-3" />}
-              <span>{yearConfig.year}</span>
-            </button>
+            <MagneticButton key={yearConfig.year} strength={10} innerStrength={3}>
+              <button
+                onClick={() => handleClick(yearConfig, index)}
+                className={`
+                  relative flex items-center space-x-1 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+                  ${isSelected && !isLocked ? 'bg-gradient-to-r from-[#E35D6A] to-[#F4A460] text-white shadow-md' : ''}
+                  ${!isSelected && !isLocked ? 'text-white/90 hover:bg-white/20' : ''}
+                  ${isLocked ? 'text-white/50 cursor-not-allowed' : ''}
+                `}
+              >
+                {isLocked && <Lock className="w-3 h-3" />}
+                <span>{yearConfig.year}</span>
+              </button>
+            </MagneticButton>
           );
         })}
       </div>

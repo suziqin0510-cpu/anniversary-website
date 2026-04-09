@@ -8,6 +8,7 @@ import TimeCapsule from '@/components/TimeCapsule';
 import MasterGatekeeper from '@/components/MasterGatekeeper';
 import GrandChapterToast from '@/components/GrandChapterToast';
 import YearSelector from '@/components/YearSelector';
+import MagneticButton from '@/components/MagneticButton';
 import { YEARS } from '@/lib/year-config';
 import { useGame } from '@/lib/game-context';
 import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
@@ -1459,10 +1460,10 @@ export default function TimelinePage() {
           animate={{ opacity: 1, y: 0 }} 
           className="text-center mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-[#7C444F] mb-2 font-handwriting">
+          <h1 className="text-3xl md:text-5xl font-bold text-[#7C444F] mb-2 font-serif-display tracking-tight">
             我们的故事
           </h1>
-          <p className="text-[#9B6A6C] text-sm">从昆明开始，到一起的未来</p>
+          <p className="text-[#9B6A6C] text-sm font-serif-display tracking-wide">从昆明开始，到一起的未来</p>
         </motion.div>
 
         <div className="flex justify-center mb-6">
@@ -1475,37 +1476,43 @@ export default function TimelinePage() {
 
         {selectedYear === 2026 ? (
           <>
-            {/* 章节进度条 */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between relative px-2">
-            <div className="absolute top-1/2 left-2 right-2 h-0.5 bg-rose-200/50 -translate-y-1/2" />
+            {/* 章节进度条 - 流体发光节点 */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between relative px-4">
+            {/* 柔和发光连线 */}
+            <div className="absolute top-1/2 left-4 right-4 h-px bg-gradient-to-r from-rose-200/30 via-rose-300/40 to-rose-200/30 -translate-y-1/2 blur-[1px]" />
             <motion.div 
-              className="absolute top-1/2 left-2 h-0.5 bg-gradient-to-r from-[#E35D6A] to-rose-400 -translate-y-1/2 transition-all duration-500"
+              className="absolute top-1/2 left-4 h-px bg-gradient-to-r from-[#E35D6A] via-[#F4A460] to-rose-300 -translate-y-1/2 transition-all duration-700"
               style={{ width: `${(currentChapter / (chapters.length - 1)) * 100}%` }}
             />
             
             {chapters.map((ch, index) => (
-              <button 
-                key={ch.id} 
-                onClick={() => { 
-                  setDirection(index > currentChapter ? 1 : -1); 
-                  setCurrentChapter(index); 
-                }} 
-                className="relative z-10 flex flex-col items-center group"
-              >
-                <div className={`w-8 h-8 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
-                  index <= currentChapter 
-                    ? 'bg-[#E35D6A] border-[#E35D6A] text-white' 
-                    : 'bg-white/80 border-rose-300 text-[#9B6A6C] hover:border-[#E35D6A]'
-                }`}>
-                  <span className="text-xs font-bold">{ch.number}</span>
-                </div>
-                <span className={`mt-1.5 text-xs font-medium transition-colors ${
-                  index === currentChapter ? 'text-[#E35D6A]' : 'text-[#9B6A6C]'
-                }`}>
-                  {ch.title}
-                </span>
-              </button>
+              <MagneticButton key={ch.id} strength={12} innerStrength={4}>
+                <button 
+                  onClick={() => { 
+                    setDirection(index > currentChapter ? 1 : -1); 
+                    setCurrentChapter(index); 
+                  }} 
+                  className="relative z-10 flex flex-col items-center group"
+                >
+                  <motion.div 
+                    whileHover={{ scale: 1.1 }}
+                    className={`w-10 h-10 border transition-all duration-500 flex items-center justify-center shadow-sm ${
+                      index <= currentChapter 
+                        ? 'bg-[#E35D6A] border-[#E35D6A] text-white shadow-[0_0_15px_rgba(227,93,106,0.4)]' 
+                        : 'bg-white/70 border-rose-200 text-[#9B6A6C] hover:border-[#E35D6A] hover:shadow-[0_0_12px_rgba(227,93,106,0.2)]'
+                    }`}
+                    style={{ borderRadius: '40% 60% 55% 45% / 55% 45% 60% 40%' }}
+                  >
+                    <span className="text-xs font-bold font-serif-display">{ch.number}</span>
+                  </motion.div>
+                  <span className={`mt-2 text-xs font-medium transition-colors font-serif-display ${
+                    index === currentChapter ? 'text-[#E35D6A]' : 'text-[#9B6A6C]'
+                  }`}>
+                    {ch.title}
+                  </span>
+                </button>
+              </MagneticButton>
             ))}
           </div>
         </div>
@@ -1521,19 +1528,28 @@ export default function TimelinePage() {
             className="grid lg:grid-cols-2 gap-6 lg:gap-8"
           >
             {/* 左栏：文字内容 */}
-            <div className="space-y-4">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } }
+              }}
+              className="space-y-4"
+            >
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 标题栏 + 解密按钮 */}
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-4xl font-bold text-[#E35D6A]/30 font-handwriting">
+                    <span className="text-4xl font-bold text-[#E35D6A]/30 font-serif-display">
                       {chapter.number}
                     </span>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-[#7C444F]">
+                      <h2 className="text-2xl md:text-3xl font-bold text-[#7C444F] font-serif-display">
                         {chapter.title}
                       </h2>
-                      <p className="text-[#E35D6A] text-sm">{chapter.subtitle}</p>
+                      <p className="text-[#E35D6A] text-sm font-serif-display tracking-wide">{chapter.subtitle}</p>
                     </div>
                   </div>                  
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -1582,10 +1598,12 @@ export default function TimelinePage() {
                   )}
                 </div>
               </div>
-              
+              </motion.div>
+
               {/* 故事文字块 - 解锁前模糊 */}
-              <Tilt tiltMaxAngleX={2} tiltMaxAngleY={2} perspective={1000} scale={1.01}>                <div 
-                  className={`relative bg-white/90 backdrop-blur-sm rounded-2xl p-5 shadow-sm border border-rose-100/50 transition-all duration-500 ${
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
+              <Tilt tiltMaxAngleX={2} tiltMaxAngleY={2} perspective={1000} scale={1.01}>                <div
+                  className={`relative rounded-2xl p-5 liquid-glass-deep transition-all duration-500 ${
                     !isUnlocked ? 'blur-[2px]' : ''
                   }`}
                 >
@@ -1594,29 +1612,31 @@ export default function TimelinePage() {
                       {renderStory()}
                     </p>
                   </div>
-
-
                 </div>
               </Tilt>
+              </motion.div>
               
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 标签 */}
               <div className="flex flex-wrap gap-2">
                 {chapter.tags.map((tag) => (
-                  <span 
-                    key={tag} 
-                    className="px-3 py-1 rounded-full bg-white/60 backdrop-blur-sm text-xs text-[#7C444F] border border-rose-100"
+                  <span
+                    key={tag}
+                    className="px-3 py-1 rounded-full bg-white/25 backdrop-blur-sm text-xs text-[#7C444F] border border-white/20"
                   >
                     #{tag}
                   </span>
                 ))}
               </div>
+              </motion.div>
               
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 引用块 - 带引号装饰和粉色边框 */}
               <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} perspective={1000} scale={1.02}>
-                <div className="relative bg-gradient-to-r from-rose-50/80 to-white/80 rounded-2xl p-5 shadow-sm border-l-4 border-[#E35D6A] overflow-hidden">
+                <div className="relative rounded-2xl p-5 liquid-glass-deep border-l-4 border-[#E35D6A]/80 overflow-hidden">
                   <Quote className="absolute top-3 right-3 w-8 h-8 text-[#E35D6A]/20" />
                   <div className="relative z-10">
-                    <p className="text-lg text-[#7C444F] italic leading-relaxed font-light">
+                    <p className="text-lg text-[#7C444F] italic leading-relaxed font-light font-serif-display">
                       "{chapter.quote}"
                     </p>
                     <div className="mt-3 flex items-center gap-2 text-[#9B6A6C] text-xs">
@@ -1626,10 +1646,12 @@ export default function TimelinePage() {
                   </div>
                 </div>
               </Tilt>
+              </motion.div>
               
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 高光时刻 */}
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-sm">
-                <h3 className="text-sm font-medium text-[#7C444F] mb-3 flex items-center gap-2">
+              <div className="rounded-xl p-4 liquid-glass">
+                <h3 className="text-sm font-medium text-[#7C444F] mb-3 flex items-center gap-2 font-serif-display">
                   <Sparkles className="w-4 h-4 text-[#E35D6A]" />
                   高光时刻
                 </h3>                
@@ -1644,13 +1666,19 @@ export default function TimelinePage() {
                   ))}
                 </div>
               </div>
-            </div>
+              </motion.div>
+            </motion.div>
             
             {/* 右栏：照片画廊 */}
-            <div className="lg:pt-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:pt-8"
+            >
               <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01}>
                 <div
-                  className="bg-white/40 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/50 relative"
+                  className="rounded-3xl p-4 liquid-glass relative"
                   onMouseEnter={() => {
                     if (chapter.id === 'chapter2' && !unlockedSlots[1] && !showSnowClue) {
                       photoHoverTimerRef.current = setTimeout(() => {
@@ -1686,33 +1714,37 @@ export default function TimelinePage() {
                   )}
                 </div>
               </Tilt>
-            </div>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
         
         {/* 章节导航按钮 */}
         <div className="flex justify-between mt-8">
-          <button 
-            onClick={handlePrev} 
-            disabled={currentChapter === 0}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all ${
-              currentChapter === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white hover:shadow-md'
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4 text-[#E35D6A]" />
-            <span className="text-sm text-[#7C444F]">上一章</span>
-          </button>
-          
-          <button 
-            onClick={handleNext} 
-            disabled={currentChapter === chapters.length - 1}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all ${
-              currentChapter === chapters.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white hover:shadow-md'
-            }`}
-          >
-            <span className="text-sm text-[#7C444F]">下一章</span>
-            <ChevronRight className="w-4 h-4 text-[#E35D6A]" />
-          </button>
+          <MagneticButton strength={10} innerStrength={3}>
+            <button
+              onClick={handlePrev}
+              disabled={currentChapter === 0}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full liquid-glass transition-all ${
+                currentChapter === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/40 hover:shadow-md'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4 text-[#E35D6A]" />
+              <span className="text-sm text-[#7C444F]">上一章</span>
+            </button>
+          </MagneticButton>
+
+          <MagneticButton strength={10} innerStrength={3}>
+            <button
+              onClick={handleNext}
+              disabled={currentChapter === chapters.length - 1}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full liquid-glass transition-all ${
+                currentChapter === chapters.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/40 hover:shadow-md'
+              }`}
+            >
+              <span className="text-sm text-[#7C444F]">下一章</span>
+              <ChevronRight className="w-4 h-4 text-[#E35D6A]" />
+            </button>
+          </MagneticButton>
         </div>
           </>
         ) : (
