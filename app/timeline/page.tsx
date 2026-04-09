@@ -462,6 +462,8 @@ const chapters: Chapter[] = [
 
 // ==================== 解密游戏组件 ====================
 
+type GameType = 'password' | 'line' | 'fill' | 'puzzle';
+
 
 const HandwrittenText = ({ text, isVisible }: { text: string; isVisible: boolean }) => {
   const characters = text.split('');
@@ -481,25 +483,49 @@ const HandwrittenText = ({ text, isVisible }: { text: string; isVisible: boolean
   );
 };
 
-const PasswordGame = ({ onSuccess }: { onSuccess: () => void }) => {
+const PasswordGame = ({
+  onSuccess,
+  prompt,
+  successText,
+  errorText,
+  targetCode = '0520',
+}: {
+  onSuccess: () => void;
+  prompt?: string;
+  successText?: string;
+  errorText?: string;
+  targetCode?: string;
+}) => {
   const [input, setInput] = useState('');
   const [error, setError] = useState(false);
-  
+  const [success, setSuccess] = useState(false);
+
   const handleSubmit = () => {
-    if (input === '0520') {
-      onSuccess();
+    if (input === targetCode) {
+      setSuccess(true);
+      setTimeout(() => onSuccess(), 600);
     } else {
       setError(true);
       setTimeout(() => setError(false), 800);
     }
   };
-  
+
   return (
     <div className="text-center space-y-4">
       <div className="text-5xl">🔐</div>
       <h4 className="text-lg font-bold text-[#7C444F]">输入解锁密码</h4>
-      <p className="text-xs text-[#9B6A6C]">提示：我们第一次见面的日期（MMDD）</p>
-      
+      <p className="text-xs text-[#9B6A6C] px-2">{prompt || '提示：我们第一次见面的日期（MMDD）'}</p>
+
+      {success && successText ? (
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-bold text-green-600">
+          {successText}
+        </motion.p>
+      ) : error && errorText ? (
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-bold text-red-500">
+          {errorText}
+        </motion.p>
+      ) : null}
+
       <div className="flex justify-center gap-2">
         {[0, 1, 2, 3].map((i) => (
           <motion.div
@@ -507,24 +533,26 @@ const PasswordGame = ({ onSuccess }: { onSuccess: () => void }) => {
             animate={error ? { x: [-4, 4, -4, 4, 0] } : {}}
             transition={{ duration: 0.3 }}
             className={`w-10 h-12 rounded-lg border-2 flex items-center justify-center text-xl font-bold ${
-              error ? 'border-red-400 bg-red-50' : 'border-rose-300 bg-white'
+              error ? 'border-red-400 bg-red-50' : success ? 'border-green-400 bg-green-50' : 'border-rose-300 bg-white'
             }`}
           >
             {input[i] || ''}
           </motion.div>
         ))}
       </div>
-      
+
       <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '→'].map((num) => (
+        {['1','2','3','4','5','6','7','8','9','C','0','→'].map((num) => (
           <button
             key={num}
+            disabled={success}
             onClick={() => {
+              if (success) return;
               if (num === 'C') setInput('');
               else if (num === '→') handleSubmit();
-              else if (input.length < 4) setInput(prev => prev + num);
+              else if (input.length < 4) setInput((prev) => prev + num);
             }}
-            className="w-12 h-12 rounded-lg bg-white hover:bg-rose-50 border border-rose-200 text-[#7C444F] font-bold transition-colors active:scale-95 text-sm"
+            className={`w-12 h-12 rounded-lg bg-white hover:bg-rose-50 border border-rose-200 text-[#7C444F] font-bold transition-colors active:scale-95 text-sm ${success ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {num}
           </button>
@@ -535,6 +563,368 @@ const PasswordGame = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 // 头像连线游戏 - 带爱心动画
+const LineGame = ({ onSuccess }: { onSuccess: () => void }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [showHeart, setShowHeart] = useState(false);
+  const [avatarsMoved, setAvatarsMoved] = useState(false);
+
+  const leftPos = { x: 60, y: 90 };
+  const rightPos = { x: 240, y: 90 };
+  const avatarSize = 56;
+  const hitRadius = 45;
+  const maleAvatar = '/avatar-male.png';
+  const femaleAvatar = '/avatar-female.png';
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let pathPoints: { x: number; y: number }[] = [];
+    let animationId: number;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 头像边框 - 玫瑰色调
+      const drawAvatarBorder = (x: number, y: number) => {
+        ctx.beginPath();
+        ctx.roundRect(x - 6, y - 6, avatarSize + 12, avatarSize + 12, 12);
+        ctx.strokeStyle = '#E35D6A';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(227, 93, 106, 0.08)';
+        ctx.fill();
+      };
+
+      drawAvatarBorder(leftPos.x, leftPos.y);
+      drawAvatarBorder(rightPos.x, rightPos.y);
+
+      // 连线
+      if (pathPoints.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+        for (let i = 1; i < pathPoints.length; i++) {
+          ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+        }
+        ctx.strokeStyle = '#E35D6A';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
+  const isNearAvatar = (x: number, y: number, pos: typeof leftPos) => {
+    const dx = x - (pos.x + avatarSize / 2);
+    const dy = y - (pos.y + avatarSize / 2);
+    return Math.sqrt(dx * dx + dy * dy) < hitRadius;
+  };
+
+  const handleStart = (clientX: number, clientY: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    if (isNearAvatar(x, y, leftPos)) {
+      setIsDrawing(true);
+    }
+  };
+
+  const handleMove = (clientX: number, clientY: number) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    // We'll store points via a data attribute hack or ref since we can't easily update React state in RAF
+    const current = JSON.parse(canvas.getAttribute('data-points') || '[]');
+    current.push({ x, y });
+    canvas.setAttribute('data-points', JSON.stringify(current));
+
+    if (isNearAvatar(x, y, rightPos)) {
+      setIsDrawing(false);
+      setCompleted(true);
+      canvas.setAttribute('data-points', '[]');
+      setShowHeart(true);
+      setTimeout(() => setAvatarsMoved(true), 800);
+      setTimeout(() => onSuccess(), 1200);
+    }
+  };
+
+  const handleEnd = () => {
+    if (!completed) {
+      setIsDrawing(false);
+      const canvas = canvasRef.current;
+      if (canvas) canvas.setAttribute('data-points', '[]');
+    }
+  };
+
+  return (
+    <div className="relative w-full h-52 bg-rose-50/60 rounded-2xl overflow-hidden select-none touch-none">
+      <canvas
+        ref={canvasRef}
+        width={320}
+        height={208}
+        className="absolute inset-0 w-full h-full"
+        onMouseDown={(e) => handleStart(e.nativeEvent.offsetX, e.nativeEvent.offsetY)}
+        onMouseMove={(e) => handleMove(e.nativeEvent.offsetX, e.nativeEvent.offsetY)}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) handleStart(touch.clientX - rect.left, touch.clientY - rect.top);
+        }}
+        onTouchMove={(e) => {
+          const touch = e.touches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) handleMove(touch.clientX - rect.left, touch.clientY - rect.top);
+        }}
+        onTouchEnd={handleEnd}
+      />
+
+      {/* 左头像 - 男生 */}
+      <motion.div
+        animate={avatarsMoved ? { x: 40 } : {}}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="absolute"
+        style={{ left: leftPos.x, top: leftPos.y, width: avatarSize, height: avatarSize }}
+      >
+        <img src={maleAvatar} alt="苏子钦" className="w-full h-full object-cover rounded-xl" />
+      </motion.div>
+
+      {/* 右头像 - 女生 */}
+      <motion.div
+        animate={avatarsMoved ? { x: -40 } : {}}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="absolute"
+        style={{ left: rightPos.x, top: rightPos.y, width: avatarSize, height: avatarSize }}
+      >
+        <img src={femaleAvatar} alt="李丹" className="w-full h-full object-cover rounded-xl" />
+      </motion.div>
+
+      {/* 爱心动画 */}
+      <AnimatePresence>
+        {showHeart && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1.2, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl pointer-events-none"
+          >
+            ❤️
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!isDrawing && !completed && (
+        <div className="absolute bottom-3 left-0 right-0 text-center">
+          <p className="text-xs text-[#9B6A6C]">从苏子钦的手指划向李丹</p>
+        </div>
+      )}
+
+      {avatarsMoved && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <span className="text-rose-500 text-xs font-medium bg-white/80 px-2 py-1 rounded-full">
+            靠近中...
+          </span>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+// 爱心注入游戏
+const HeartFillGame = ({ onSuccess }: { onSuccess: () => void }) => {
+  const [progress, setProgress] = useState(0);
+  const [isPressing, setIsPressing] = useState(false);
+  const [filled, setFilled] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startPress = () => {
+    if (filled) return;
+    setIsPressing(true);
+    timerRef.current = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 100) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          setFilled(true);
+          setIsPressing(false);
+          setTimeout(() => onSuccess(), 500);
+          return 100;
+        }
+        return p + 3.5;
+      });
+    }, 100);
+  };
+
+  const endPress = () => {
+    setIsPressing(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!filled) {
+      timerRef.current = setInterval(() => {
+        setProgress((p) => {
+          if (p <= 0) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            return 0;
+          }
+          return p - 8;
+        });
+      }, 50);
+    }
+  };
+
+  return (
+    <div className="text-center space-y-5">
+      <div className="text-3xl">❤️</div>
+      <h4 className="text-lg font-bold text-[#7C444F]">注入爱意</h4>
+      <p className="text-xs text-[#9B6A6C]">长按按钮，把爱心填满</p>
+
+      <div className="relative w-24 h-24 mx-auto">
+        {/* 背景心 */}
+        <svg viewBox="0 0 24 24" className="absolute inset-0 w-full h-full text-rose-200">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
+        </svg>
+        {/* 填充心 - clip by progress */}
+        <div
+          className="absolute inset-0 overflow-hidden transition-all duration-100"
+          style={{ clipPath: `inset(${100 - progress}% 0 0 0)` }}
+        >
+          <svg viewBox="0 0 24 24" className={`w-full h-full text-[#E35D6A] ${filled ? 'animate-pulse' : ''}`}>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="w-48 h-2 bg-rose-100 rounded-full mx-auto overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-rose-300 to-[#E35D6A] rounded-full"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <motion.button
+        onMouseDown={startPress}
+        onMouseUp={endPress}
+        onMouseLeave={endPress}
+        onTouchStart={startPress}
+        onTouchEnd={endPress}
+        disabled={filled}
+        whileTap={{ scale: 0.95 }}
+        className={`px-8 py-3 rounded-full font-bold shadow-lg transition-all ${
+          filled
+            ? 'bg-green-400 text-white cursor-default'
+            : 'bg-gradient-to-r from-[#E35D6A] to-rose-500 text-white hover:shadow-xl'
+        }`}
+      >
+        {filled ? '爱心已满' : isPressing ? '注入中...' : '长按注入 ❤️'}
+      </motion.button>
+    </div>
+  );
+};
+
+// 九宫格拼图游戏
+const PuzzleGame = ({ onSuccess }: { onSuccess: () => void }) => {
+  const puzzleImage = '/puzzle-photo.png';
+  const [pieces, setPieces] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    // 随机打乱
+    let shuffled = [...pieces];
+    do {
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+    } while (shuffled.every((val, idx) => val === idx));
+    setPieces(shuffled);
+  }, []);
+
+  const handlePieceClick = (index: number) => {
+    if (isComplete) return;
+    if (selectedPiece === null) {
+      setSelectedPiece(index);
+    } else if (selectedPiece === index) {
+      setSelectedPiece(null);
+    } else {
+      const newPieces = [...pieces];
+      [newPieces[selectedPiece], newPieces[index]] = [newPieces[index], newPieces[selectedPiece]];
+      setPieces(newPieces);
+      setSelectedPiece(null);
+      if (newPieces.every((val, idx) => val === idx)) {
+        setIsComplete(true);
+        setTimeout(() => onSuccess(), 600);
+      }
+    }
+  };
+
+  return (
+    <div className="text-center space-y-4">
+      <div className="text-3xl">🧩</div>
+      <h4 className="text-lg font-bold text-[#7C444F]">拼出我们的回忆</h4>
+      <p className="text-xs text-[#9B6A6C]">点击方块交换位置，还原完整照片</p>
+
+      <div className="relative w-64 h-64 mx-auto bg-rose-100 rounded-xl overflow-hidden shadow-inner">
+        <div className="grid grid-cols-3 gap-0.5 w-full h-full p-1">
+          {pieces.map((pieceIndex, displayIndex) => {
+            const row = Math.floor(pieceIndex / 3);
+            const col = pieceIndex % 3;
+            return (
+              <motion.button
+                key={displayIndex}
+                onClick={() => handlePieceClick(displayIndex)}
+                whileTap={{ scale: 0.95 }}
+                className={`relative w-full h-full overflow-hidden rounded-sm ${
+                  selectedPiece === displayIndex ? 'ring-2 ring-[#E35D6A] z-10' : ''
+                }`}
+                style={{
+                  backgroundImage: `url(${puzzleImage})`,
+                  backgroundSize: '300% 300%',
+                  backgroundPosition: `${col * 50}% ${row * 50}%`,
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {isComplete && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl"
+          >
+            <div className="text-6xl">🎉</div>
+          </motion.div>
+        )}
+      </div>
+
+      <p className="text-sm text-[#9B6A6C]">
+        {isComplete ? '回忆已完整! 💕' : selectedPiece !== null ? '再选一块交换' : '点击选择拼图块'}
+      </p>
+    </div>
+  );
+};
+
 const DecryptionModal = ({
   isOpen,
   onClose,
@@ -551,8 +941,17 @@ const DecryptionModal = ({
   const [gameWon, setGameWon] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
 
+  const [currentGame, setCurrentGame] = useState<GameType>('password');
+
   useEffect(() => {
     if (isOpen && !isUnlocked) {
+      const chapterGames: Record<string, GameType> = {
+        'chapter1': 'line',
+        'chapter2': 'password',
+        'chapter3': 'fill',
+        'chapter4': 'puzzle',
+      };
+      setCurrentGame(chapterGames[chapter.id] || 'password');
       setGameWon(false);
       setShowMessage(false);
     } else if (isOpen && isUnlocked) {
@@ -567,6 +966,24 @@ const DecryptionModal = ({
       onUnlock();
     }, 400);
   };
+
+  const games = {
+    password: <PasswordGame onSuccess={handleGameSuccess} />,
+    line: <LineGame onSuccess={handleGameSuccess} />,
+    fill: <HeartFillGame onSuccess={handleGameSuccess} />,
+    puzzle: <PuzzleGame onSuccess={handleGameSuccess} />,
+  };
+
+  // Chapter 2 custom password game
+  const chapter2Game = (
+    <PasswordGame
+      onSuccess={handleGameSuccess}
+      prompt="世界上最帅气的男人是什么时候诞生的？"
+      targetCode="0510"
+      successText="不愧是我老婆"
+      errorText="你要死了，李丹！"
+    />
+  );
 
   return (
     <AnimatePresence>
@@ -619,7 +1036,7 @@ const DecryptionModal = ({
                         <p className="text-base font-bold text-[#E35D6A]">解锁成功！</p>
                       </motion.div>
                     ) : (
-                      <PasswordGame onSuccess={handleGameSuccess} />
+                      currentGame === 'password' && chapter.id === 'chapter2' ? chapter2Game : games[currentGame]
                     )}
                   </>
                 ) : (
