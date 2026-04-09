@@ -49,7 +49,7 @@ function playSyntheticTypewriter() {
 }
 
 export default function EndingStage({ onComplete }: EndingStageProps) {
-  const [phase, setPhase] = useState<'shake' | 'blackout' | 'spotlight' | 'waveform' | 'finale'>('shake');
+  const [phase, setPhase] = useState<'shake' | 'spotlight' | 'waveform' | 'finale'>('shake');
   const [typedText, setTypedText] = useState('');
   const [showWaveform, setShowWaveform] = useState(false);
   const [isWaveformActive, setIsWaveformActive] = useState(false);
@@ -63,7 +63,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const music = useMusic();
 
-  // Phase 1: Screen shake
+  // Phase 1: Screen shake -> directly to spotlight after 3s
   useEffect(() => {
     console.log('Ending sequence started');
     document.body.classList.add('violent-shake');
@@ -71,18 +71,19 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
 
     const t1 = setTimeout(() => {
       document.body.classList.remove('violent-shake');
-      setPhase('blackout');
-      console.log('Blackout complete');
-    }, 3000);
-
-    const t2 = setTimeout(() => {
+      // Force reflow so browsers recalculate any fixed/absolute boxes after transform ends
+      const body = document.body;
+      if (body) {
+        body.style.transform = 'none';
+        void body.offsetHeight;
+        body.style.transform = '';
+      }
       setPhase('spotlight');
-      console.log('Typewriter started');
-    }, 4000);
+      console.log('Spotlight started');
+    }, 3000);
 
     return () => {
       clearTimeout(t1);
-      clearTimeout(t2);
       document.body.classList.remove('violent-shake');
     };
   }, []);
@@ -243,14 +244,14 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   }, [phase, onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#000000]">
-      {/* Spotlight radial gradient */}
+    <div className="absolute inset-0 z-[9999] bg-[#000000]">
+      {/* Spotlight radial gradient - brighter and wider */}
       {(phase === 'spotlight' || phase === 'waveform') && (
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 70%)',
+              'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22) 0%, transparent 60%)',
           }}
         />
       )}
@@ -271,11 +272,11 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
 
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-2xl md:text-4xl font-bold text-white text-center tracking-wide drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+        <p
+          className="text-2xl md:text-4xl font-bold text-white text-center tracking-wide transition-opacity duration-500"
           style={{
+            opacity: 1,
+            filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.8))',
             textShadow:
               '0 0 20px rgba(227, 93, 106, 0.9), 0 0 40px rgba(227, 93, 106, 0.7), 0 0 60px rgba(227, 93, 106, 0.5)',
           }}
@@ -284,7 +285,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
           {phase !== 'finale' && (
             <span className="inline-block w-1 h-8 md:h-10 bg-white ml-1 align-middle animate-pulse" />
           )}
-        </motion.p>
+        </p>
 
         <AnimatePresence>
           {phase === 'waveform' && showWaveform && (
