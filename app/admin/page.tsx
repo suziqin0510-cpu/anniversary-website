@@ -288,7 +288,10 @@ function DataManager() {
     resetGateKeeper();
     localStorage.removeItem('authenticated');
 
-    // 4. 通知用户并重载页面
+    // 4. 重置时间线章节槽位
+    localStorage.removeItem('timeline-emoji-slots');
+
+    // 5. 通知用户并重载页面
     setShowConfirm(false);
 
     // 跳转回首页并强制刷新，使所有组件重新加载初始状态
