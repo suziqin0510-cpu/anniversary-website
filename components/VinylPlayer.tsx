@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Music, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Music, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { useGame, Letter } from '@/lib/game-context';
 import { useMusic } from '@/lib/music-context';
 
@@ -44,7 +44,7 @@ const MusicNote = ({ delay }: { delay: number }) => {
 
 export default function VinylPlayer() {
   const [showLetterR, setShowLetterR] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [isExpanded, setIsExpanded] = useState(true);
   const { collectLetter, hasCollectedLetter, triggerLetterAnimation, showToast } = useGame();
   const {
     isPlaying,
@@ -79,15 +79,6 @@ export default function VinylPlayer() {
     e.stopPropagation();
     toggleShuffle();
   }, [toggleShuffle]);
-
-  const handleScaleToggle = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setScale((prev) => {
-      if (prev >= 1.15) return 0.85;
-      if (prev <= 0.9) return 1;
-      return 1.2;
-    });
-  }, []);
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     seek(parseFloat(e.target.value));
@@ -158,11 +149,8 @@ export default function VinylPlayer() {
         transition={{ delay: 1 }}
       >
         {/* Glassmorphism Control Console */}
-        <div
-          className="flex items-center gap-4 bg-white/30 backdrop-blur-md border border-white/50 shadow-2xl rounded-2xl px-4 py-3 pr-5 transition-transform duration-300"
-          style={{ transform: `scale(${scale})`, transformOrigin: 'bottom left' }}
-        >
-          {/* Vinyl Disc */}
+        <div className="flex items-center gap-3 bg-white/30 backdrop-blur-md border border-white/50 shadow-2xl rounded-full pl-1.5 pr-2 py-1.5">
+          {/* Vinyl Disc - 始终显示 */}
           <motion.button
             onClick={handleTogglePlay}
             className="relative w-12 h-12 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 shadow-lg border border-rose-300 hover:border-rose-400 transition-colors flex-shrink-0"
@@ -237,90 +225,107 @@ export default function VinylPlayer() {
             />
           </motion.button>
 
-          {/* Controls */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrevious}
-              className="w-8 h-8 rounded-full bg-white/40 hover:bg-white/60 flex items-center justify-center transition-colors"
-              title="上一首"
-            >
-              <SkipBack className="w-4 h-4 text-[#7C444F]" fill="currentColor" />
-            </button>
+          {/* 展开态：完整控制台内容 */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ width: 0, opacity: 0, x: -10 }}
+                animate={{ width: 'auto', opacity: 1, x: 0 }}
+                exit={{ width: 0, opacity: 0, x: -10 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex items-center gap-3 overflow-hidden"
+              >
+                {/* Controls */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={handlePrevious}
+                    className="w-8 h-8 rounded-full bg-white/40 hover:bg-white/60 flex items-center justify-center transition-colors"
+                    title="上一首"
+                  >
+                    <SkipBack className="w-4 h-4 text-[#7C444F]" fill="currentColor" />
+                  </button>
 
-            <button
-              onClick={handleTogglePlay}
-              className="w-10 h-10 rounded-full bg-gradient-to-r from-[#E35D6A] to-[#F4A460] hover:from-[#d44d5a] hover:to-[#e49450] flex items-center justify-center transition-all shadow-md"
-              title={isPlaying ? '暂停' : '播放'}
-            >
-              {isPlaying ? (
-                <Pause className="w-5 h-5 text-white" fill="currentColor" />
-              ) : (
-                <Play className="w-5 h-5 text-white ml-0.5" fill="currentColor" />
-              )}
-            </button>
+                  <button
+                    onClick={handleTogglePlay}
+                    className="w-10 h-10 rounded-full bg-gradient-to-r from-[#E35D6A] to-[#F4A460] hover:from-[#d44d5a] hover:to-[#e49450] flex items-center justify-center transition-all shadow-md"
+                    title={isPlaying ? '暂停' : '播放'}
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-5 h-5 text-white" fill="currentColor" />
+                    ) : (
+                      <Play className="w-5 h-5 text-white ml-0.5" fill="currentColor" />
+                    )}
+                  </button>
 
-            <button
-              onClick={handleNext}
-              className="w-8 h-8 rounded-full bg-white/40 hover:bg-white/60 flex items-center justify-center transition-colors"
-              title="下一首"
-            >
-              <SkipForward className="w-4 h-4 text-[#7C444F]" fill="currentColor" />
-            </button>
+                  <button
+                    onClick={handleNext}
+                    className="w-8 h-8 rounded-full bg-white/40 hover:bg-white/60 flex items-center justify-center transition-colors"
+                    title="下一首"
+                  >
+                    <SkipForward className="w-4 h-4 text-[#7C444F]" fill="currentColor" />
+                  </button>
 
-            <button
-              onClick={handleShuffleToggle}
-              className={`h-8 rounded-full flex items-center justify-center gap-1 px-2 transition-colors ${
-                isShuffle
-                  ? 'bg-rose-100 text-[#E35D6A]'
-                  : 'bg-white/40 text-[#7C444F] hover:bg-white/60'
-              }`}
-              title={isShuffle ? '随机播放' : '顺序播放'}
-            >
-              <Shuffle className="w-4 h-4" />
-              <span className="text-[10px] font-medium leading-none">
-                {isShuffle ? '随机' : '顺序'}
-              </span>
-            </button>
+                  <button
+                    onClick={handleShuffleToggle}
+                    className={`h-8 rounded-full flex items-center justify-center gap-1 px-2 transition-colors ${
+                      isShuffle
+                        ? 'bg-rose-100 text-[#E35D6A]'
+                        : 'bg-white/40 text-[#7C444F] hover:bg-white/60'
+                    }`}
+                    title={isShuffle ? '随机播放' : '顺序播放'}
+                  >
+                    <Shuffle className="w-4 h-4" />
+                    <span className="text-[10px] font-medium leading-none whitespace-nowrap">
+                      {isShuffle ? '随机' : '顺序'}
+                    </span>
+                  </button>
+                </div>
 
-            <button
-              onClick={handleScaleToggle}
-              className="w-8 h-8 rounded-full bg-white/40 hover:bg-white/60 text-[#7C444F] flex items-center justify-center transition-colors"
-              title="切换大小"
-            >
-              {scale >= 1.15 ? (
-                <Minimize2 className="w-4 h-4" />
-              ) : (
-                <Maximize2 className="w-4 h-4" />
-              )}
-            </button>
-          </div>
+                {/* Divider */}
+                <div className="hidden sm:block w-px h-8 bg-white/60 flex-shrink-0" />
 
-          {/* Divider */}
-          <div className="hidden sm:block w-px h-8 bg-white/60" />
+                {/* Progress & Info */}
+                <div className="flex-1 min-w-0 hidden sm:flex flex-col justify-center gap-1.5 flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Music className="w-3 h-3 text-[#E35D6A] flex-shrink-0" />
+                    <span className="text-xs text-[#7C444F] font-medium truncate drop-shadow-sm max-w-[120px]">
+                      {currentSong.title}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="range"
+                      min={0}
+                      max={duration || 0}
+                      step={0.1}
+                      value={currentTime}
+                      onChange={handleProgressChange}
+                      className="music-range flex-1 min-w-0"
+                    />
+                    <span className="text-[10px] text-[#7C444F]/80 font-medium tabular-nums w-[4.5ch] text-right flex-shrink-0">
+                      {formatTime(currentTime)} / {formatTime(duration)}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Progress & Info */}
-          <div className="flex-1 min-w-0 hidden sm:flex flex-col justify-center gap-1.5">
-            <div className="flex items-center gap-2">
-              <Music className="w-3 h-3 text-[#E35D6A] flex-shrink-0" />
-              <span className="text-xs text-[#7C444F] font-medium truncate drop-shadow-sm">
-                {currentSong.title}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min={0}
-                max={duration || 0}
-                step={0.1}
-                value={currentTime}
-                onChange={handleProgressChange}
-                className="music-range flex-1"
-              />
-              <span className="text-[10px] text-[#7C444F]/80 font-medium tabular-nums w-[4.5ch] text-right">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
-            </div>
-          </div>
+          {/* 折叠/展开切换按钮 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded((prev) => !prev);
+            }}
+            className="w-6 h-6 rounded-full bg-white/30 hover:bg-white/50 text-[#7C444F] flex items-center justify-center transition-colors flex-shrink-0"
+            title={isExpanded ? '收起' : '展开'}
+          >
+            {isExpanded ? (
+              <ChevronsLeft className="w-4 h-4" />
+            ) : (
+              <ChevronsRight className="w-4 h-4" />
+            )}
+          </button>
         </div>
 
         {/* 首次使用提示 */}
