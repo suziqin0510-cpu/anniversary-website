@@ -192,13 +192,13 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
     setIsWaveformActive(true);
     music.pause();
 
-    const audio = new Audio('/sounds/final_voice_letter.mp3');
+    const audio = new Audio('/sounds/final_voice_letter.m4a');
     voiceAudioRef.current = audio;
     audio.volume = 1;
 
     // Graceful fallback if the file is missing
     audio.addEventListener('error', () => {
-      console.error('[EndingStage] /sounds/final_voice_letter.mp3 加载失败，请确认文件已上传！');
+      console.error('[EndingStage] /sounds/final_voice_letter.m4a 加载失败，请确认文件已上传！');
       setTimeout(() => {
         setIsWaveformActive(false);
         setPhase('finale');
