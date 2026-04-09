@@ -1174,6 +1174,7 @@ export default function TimelinePage() {
   const [showVIPCard, setShowVIPCard] = useState(false);
   const [showMVPBadge, setShowMVPBadge] = useState(false);
   const [showAABill, setShowAABill] = useState(false);
+  const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 四重奏解锁状态: [火锅, 山, 猫, 飞机]
   const [unlockedSlots, setUnlockedSlots] = useState(() => {
@@ -1326,7 +1327,7 @@ export default function TimelinePage() {
     } else if (chapter.id === 'chapter2') {
       return (
         <>
-          在香格里拉的<ClueSpan emoji="⛰️" index={1}>雪山</ClueSpan>脚下，我们找到了属于两人的私密时光。
+          在香格里拉的雪山脚下，我们找到了属于两人的私密时光。
           <br /><br />
           泡在温暖的私汤里，看着窗外的雪山和星空，世界仿佛只剩下我们两个人。那份宁静与温暖，是只属于我们的浪漫。
         </>
@@ -1579,7 +1580,21 @@ export default function TimelinePage() {
             {/* 右栏：照片画廊 */}
             <div className="lg:pt-8">
               <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01}>
-                <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/50 relative"
+                <div
+                  className="bg-white/40 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/50 relative"
+                  onMouseEnter={() => {
+                    if (chapter.id === 'chapter2' && !unlockedSlots[1]) {
+                      photoHoverTimerRef.current = setTimeout(() => {
+                        unlockSlot(1);
+                      }, 3000);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (photoHoverTimerRef.current) {
+                      clearTimeout(photoHoverTimerRef.current);
+                      photoHoverTimerRef.current = null;
+                    }
+                  }}
                 >
                   <PhotoGallery photos={chapter.photos} onPhotoClick={setSelectedPhoto} />
                 </div>
