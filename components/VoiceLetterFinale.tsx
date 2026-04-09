@@ -169,6 +169,10 @@ export default function VoiceLetterFinale({ onComplete }: VoiceLetterFinaleProps
       const audioCtx = new AudioContextClass();
       audioCtxRef.current = audioCtx;
 
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       analyserRef.current = analyser;
