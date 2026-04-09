@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
+import confetti from 'canvas-confetti';
 import GrandChapterToast from '@/components/GrandChapterToast';
 import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
 import { celebratePets } from '@/lib/utils/celebrate';
@@ -121,6 +122,83 @@ export default function PetsPage() {
     celebrate: celebratePets,
   });
 
+  // SZQLD 极客暗号逻辑
+  const keySeqRef = useRef('');
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [showLoveMessage, setShowLoveMessage] = useState(false);
+  const [isTriggered, setIsTriggered] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFlipped(false);
+        setShowLoveMessage(false);
+        setIsTriggered(false);
+        keySeqRef.current = '';
+        return;
+      }
+      if (isTriggered) return;
+
+      keySeqRef.current = (keySeqRef.current + e.key.toLowerCase()).slice(-5);
+
+      if (keySeqRef.current === 'szqld') {
+        setIsTriggered(true);
+        setIsFlipped(true);
+
+        // 0.5s 后：夸张玫瑰雨
+        setTimeout(() => {
+          const duration = 5000;
+          const end = Date.now() + duration;
+          const colors = ['#E35D6A', '#F472B6', '#FB7185', '#FDA4AF', '#FECDD3', '#FFFFFF'];
+          const frame = () => {
+            confetti({
+              particleCount: 12,
+              angle: 60,
+              spread: 70,
+              origin: { x: 0 },
+              colors,
+              shapes: ['circle'],
+              scalar: 2,
+              gravity: 1.2,
+            });
+            confetti({
+              particleCount: 12,
+              angle: 120,
+              spread: 70,
+              origin: { x: 1 },
+              colors,
+              shapes: ['circle'],
+              scalar: 2,
+              gravity: 1.2,
+            });
+            confetti({
+              particleCount: 25,
+              spread: 120,
+              origin: { y: 0.5 },
+              colors,
+              shapes: ['circle'],
+              scalar: 2.5,
+              gravity: 1.5,
+              drift: 0,
+            });
+            if (Date.now() < end) {
+              requestAnimationFrame(frame);
+            }
+          };
+          frame();
+        }, 500);
+
+        // 2s 后：终极告白
+        setTimeout(() => {
+          setShowLoveMessage(true);
+        }, 2000);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isTriggered]);
+
   const handleShiliuClick = () => {
     const newCount = shiliuClicks + 1;
     setShiliuClicks(newCount);
@@ -167,7 +245,7 @@ export default function PetsPage() {
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
       <GrandChapterToast toast={toast} />
-      <div className="min-h-screen pt-24 pb-12 relative z-10">
+      <div className={`min-h-screen pt-24 pb-12 relative z-10 transition-transform duration-1000 ${isFlipped ? 'scale-y-[-1]' : ''}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <div className="flex justify-center mb-4"><HandDrawnPaw /></div>
@@ -285,6 +363,40 @@ export default function PetsPage() {
           </Tilt>
         </motion.div>
       </div>
+
+      {/* 终极告白 */}
+      <AnimatePresence>
+        {showLoveMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 ${isFlipped ? 'scale-y-[-1]' : ''}`}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+              className="relative text-center"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+                className="text-8xl md:text-9xl mb-6"
+              >
+                ❤️
+              </motion.div>
+              <h2 className="text-2xl md:text-5xl font-bold text-[#E35D6A] drop-shadow-[0_4px_8px_rgba(255,255,255,0.9)]">
+                💖 极客浪漫解锁：苏子钦永远爱李丹！💖
+              </h2>
+              <p className="mt-6 text-white/90 text-base md:text-lg drop-shadow-md">
+                按 ESC 键恢复世界常态
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   </>
   );
