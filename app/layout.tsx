@@ -3,7 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AmbientBlobs from "@/components/AmbientBlobs";
-import JiumiRain from "@/components/JiumiRain";
+import HeartReactor from "@/components/HeartReactor";
 import GlobalEffects from "@/components/GlobalEffects";
 import SecretCode from "@/components/SecretCode";
 import HeartCursorTrail from "@/components/HeartCursorTrail";
@@ -62,7 +62,7 @@ export default function RootLayout({
             </GateKeeper>
 
             <Footer />
-            <JiumiRain />
+            <HeartReactor />
             <FinalPuzzleModal />
           </MusicProvider>
         </GameProvider>
