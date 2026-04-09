@@ -1455,15 +1455,15 @@ export default function TimelinePage() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 页面标题 */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl md:text-5xl font-bold text-[#7C444F] mb-2 font-serif-display tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 font-serif-display tracking-tight" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.6)' }}>
             我们的故事
           </h1>
-          <p className="text-[#9B6A6C] text-sm font-serif-display tracking-wide">从昆明开始，到一起的未来</p>
+          <p className="text-white/90 text-sm font-serif-display tracking-wide" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>从昆明开始，到一起的未来</p>
         </motion.div>
 
         <div className="flex justify-center mb-6">
@@ -1476,38 +1476,47 @@ export default function TimelinePage() {
 
         {selectedYear === 2026 ? (
           <>
-            {/* 章节进度条 - 流体发光节点 */}
+            {/* 章节进度条 - 液态光影时间线 */}
         <div className="mb-10">
           <div className="flex items-center justify-between relative px-4">
-            {/* 柔和发光连线 */}
-            <div className="absolute top-1/2 left-4 right-4 h-px bg-gradient-to-r from-rose-200/30 via-rose-300/40 to-rose-200/30 -translate-y-1/2 blur-[1px]" />
-            <motion.div 
-              className="absolute top-1/2 left-4 h-px bg-gradient-to-r from-[#E35D6A] via-[#F4A460] to-rose-300 -translate-y-1/2 transition-all duration-700"
-              style={{ width: `${(currentChapter / (chapters.length - 1)) * 100}%` }}
+            {/* 底层轨道 */}
+            <div className="absolute top-1/2 left-4 right-4 h-[2px] bg-white/20 -translate-y-1/2 rounded-full" />
+            <motion.div
+              className="absolute top-1/2 left-4 h-[2px] bg-gradient-to-r from-white/40 to-white -translate-y-1/2 rounded-full transition-all duration-700"
+              style={{ width: `${(currentChapter / (chapters.length - 1)) * 100}%`, boxShadow: '0 0 10px rgba(255,255,255,0.5)' }}
             />
-            
+
             {chapters.map((ch, index) => (
               <MagneticButton key={ch.id} strength={12} innerStrength={4}>
-                <button 
-                  onClick={() => { 
-                    setDirection(index > currentChapter ? 1 : -1); 
-                    setCurrentChapter(index); 
-                  }} 
+                <button
+                  onClick={() => {
+                    setDirection(index > currentChapter ? 1 : -1);
+                    setCurrentChapter(index);
+                  }}
                   className="relative z-10 flex flex-col items-center group"
                 >
-                  <motion.div 
-                    whileHover={{ scale: 1.1 }}
-                    className={`w-10 h-10 border transition-all duration-500 flex items-center justify-center shadow-sm ${
-                      index <= currentChapter 
-                        ? 'bg-[#E35D6A] border-[#E35D6A] text-white shadow-[0_0_15px_rgba(227,93,106,0.4)]' 
-                        : 'bg-white/70 border-rose-200 text-[#9B6A6C] hover:border-[#E35D6A] hover:shadow-[0_0_12px_rgba(227,93,106,0.2)]'
-                    }`}
-                    style={{ borderRadius: '40% 60% 55% 45% / 55% 45% 60% 40%' }}
-                  >
-                    <span className="text-xs font-bold font-serif-display">{ch.number}</span>
-                  </motion.div>
+                  <div className="relative">
+                    <motion.div
+                      whileHover={{ scale: 1.08 }}
+                      className={`px-4 py-1.5 rounded-full backdrop-blur-md border transition-all duration-500 flex items-center justify-center shadow-sm ${
+                        index <= currentChapter
+                          ? 'bg-white/20 border-white/40 text-white shadow-[0_0_20px_rgba(255,255,255,0.35)]'
+                          : 'bg-white/10 border-white/30 text-white/70 hover:bg-white/20 hover:border-white/50 hover:text-white'
+                      }`}
+                    >
+                      <span className={`text-xs font-bold font-serif-display transition-all ${
+                        index === currentChapter ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : ''
+                      }`}>{ch.number}</span>
+                    </motion.div>
+                    {index === currentChapter && (
+                      <div
+                        className="absolute inset-0 rounded-full -z-10 blur-md"
+                        style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 70%)' }}
+                      />
+                    )}
+                  </div>
                   <span className={`mt-2 text-xs font-medium transition-colors font-serif-display ${
-                    index === currentChapter ? 'text-[#E35D6A]' : 'text-[#9B6A6C]'
+                    index === currentChapter ? 'text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]' : 'text-white/60'
                   }`}>
                     {ch.title}
                   </span>
@@ -1533,23 +1542,25 @@ export default function TimelinePage() {
               animate="visible"
               variants={{
                 hidden: { opacity: 0 },
-                visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } }
+                visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } }
               }}
-              className="space-y-4"
+              className="relative"
             >
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
+              <div className="bg-black/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/10 relative overflow-hidden">
+                <div className="space-y-5">
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 标题栏 + 解密按钮 */}
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-4xl font-bold text-[#E35D6A]/30 font-serif-display">
+                    <span className="text-4xl font-bold text-white/20 font-serif-display">
                       {chapter.number}
                     </span>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-[#7C444F] font-serif-display">
+                      <h2 className="text-3xl md:text-4xl font-bold text-white font-serif-display" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}>
                         {chapter.title}
                       </h2>
-                      <p className="text-[#E35D6A] text-sm font-serif-display tracking-wide">{chapter.subtitle}</p>
+                      <p className="text-rose-200 text-sm font-serif-display tracking-wide" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>{chapter.subtitle}</p>
                     </div>
                   </div>                  
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -1601,14 +1612,14 @@ export default function TimelinePage() {
               </motion.div>
 
               {/* 故事文字块 - 解锁前模糊 */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}>
               <Tilt tiltMaxAngleX={2} tiltMaxAngleY={2} perspective={1000} scale={1.01}>                <div
                   className={`relative rounded-2xl p-5 liquid-glass-deep transition-all duration-500 ${
                     !isUnlocked ? 'blur-[2px]' : ''
                   }`}
                 >
                   <div className="max-w-2xl">
-                    <p className="text-[#7C444F] leading-relaxed whitespace-pre-line text-base">
+                    <p className="text-white/90 leading-relaxed whitespace-pre-line text-base" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
                       {renderStory()}
                     </p>
                   </div>
@@ -1616,13 +1627,13 @@ export default function TimelinePage() {
               </Tilt>
               </motion.div>
               
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 标签 */}
               <div className="flex flex-wrap gap-2">
                 {chapter.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 rounded-full bg-white/25 backdrop-blur-sm text-xs text-[#7C444F] border border-white/20"
+                    className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-xs text-white/90 border border-white/20"
                   >
                     #{tag}
                   </span>
@@ -1630,16 +1641,16 @@ export default function TimelinePage() {
               </div>
               </motion.div>
               
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 引用块 - 带引号装饰和粉色边框 */}
               <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} perspective={1000} scale={1.02}>
                 <div className="relative rounded-2xl p-5 liquid-glass-deep border-l-4 border-[#E35D6A]/80 overflow-hidden">
                   <Quote className="absolute top-3 right-3 w-8 h-8 text-[#E35D6A]/20" />
                   <div className="relative z-10">
-                    <p className="text-lg text-[#7C444F] italic leading-relaxed font-light font-serif-display">
+                    <p className="text-lg text-white/90 italic leading-relaxed font-light font-serif-display" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
                       "{chapter.quote}"
                     </p>
-                    <div className="mt-3 flex items-center gap-2 text-[#9B6A6C] text-xs">
+                    <div className="mt-3 flex items-center gap-2 text-white/70 text-xs">
                       <RedHeart />
                       <span>苏子钦</span>
                     </div>
@@ -1648,17 +1659,17 @@ export default function TimelinePage() {
               </Tilt>
               </motion.div>
               
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}>
               {/* 高光时刻 */}
               <div className="rounded-xl p-4 liquid-glass">
-                <h3 className="text-sm font-medium text-[#7C444F] mb-3 flex items-center gap-2 font-serif-display">
-                  <Sparkles className="w-4 h-4 text-[#E35D6A]" />
+                <h3 className="text-sm font-medium text-white/90 mb-3 flex items-center gap-2 font-serif-display">
+                  <Sparkles className="w-4 h-4 text-rose-300" />
                   高光时刻
                 </h3>                
                 <div className="space-y-2">
                   {chapter.highlights.map((highlight, index) => (
-                    <div key={highlight} className="flex items-center gap-2 text-[#7C444F] text-sm">
-                      <span className="w-5 h-5 rounded-full bg-[#E35D6A]/10 flex items-center justify-center text-xs text-[#E35D6A] font-handwriting">
+                    <div key={highlight} className="flex items-center gap-2 text-white/90 text-sm">
+                      <span className="w-5 h-5 rounded-full bg-rose-300/20 flex items-center justify-center text-xs text-rose-300 font-handwriting">
                         {index + 1}
                       </span>
                       <span>{highlight}</span>
@@ -1667,6 +1678,10 @@ export default function TimelinePage() {
                 </div>
               </div>
               </motion.div>
+                </div>
+              </div>
+              {/* 渐变暗场遮罩 */}
+              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent pointer-events-none rounded-b-2xl" />
             </motion.div>
             
             {/* 右栏：照片画廊 */}
