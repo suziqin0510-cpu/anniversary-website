@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Tilt from 'react-parallax-tilt';
 import ScratchCard from '@/components/ScratchCard';
 import CinemaModal from '@/components/CinemaModal';
+import InventoryBar from '@/components/InventoryBar';
 import PolaroidFlip from '@/components/PolaroidFlip';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { useRouter } from 'next/navigation';
@@ -877,7 +878,7 @@ export default function HomePage() {
 
       <div className="min-h-screen relative z-10">
 
-      <div className="max-w-7xl mx-auto px-4 pt-20 pb-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 pt-20 pb-40 relative z-10">
         {/* 头部标题区 - 直接悬浮在背景上 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -1097,6 +1098,8 @@ export default function HomePage() {
             <span>咪啾咪啾</span>
           </div>
         </motion.div>
+
+        <InventoryBar />
       </div>
 
       {/* AI影院模态框 */}

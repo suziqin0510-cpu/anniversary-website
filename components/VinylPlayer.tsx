@@ -142,7 +142,7 @@ export default function VinylPlayer() {
       `}</style>
 
       <motion.div
-        className="fixed bottom-6 left-6 z-[9999]"
+        className="fixed bottom-6 left-6 z-[100]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}

@@ -19,10 +19,10 @@ export default function InventoryBar() {
 
   return (
     <motion.div
-      initial={{ y: 100, opacity: 0 }}
+      initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 1, duration: 0.5 }}
-      className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
+      transition={{ delay: 0.5, duration: 0.5 }}
+      className="relative w-full mt-10"
     >
       <div className="max-w-2xl mx-auto px-4 pb-4">
         <div className="bg-white/40 backdrop-blur-md border-t border-white/60 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] rounded-2xl p-4 pointer-events-auto">

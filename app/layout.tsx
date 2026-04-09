@@ -61,7 +61,6 @@ export default function RootLayout({
 
             <Footer />
             <JiumiRain />
-            <InventoryBar />
             <FinalPuzzleModal />
           </MusicProvider>
         </GameProvider>
