@@ -385,7 +385,7 @@ export default function PetsPage() {
                 ❤️
               </motion.div>
               <h2 className="text-2xl md:text-5xl font-bold text-[#E35D6A] drop-shadow-[0_4px_8px_rgba(255,255,255,0.9)]">
-                💖 极客浪漫解锁：苏子钦永远爱李丹！💖
+                💖 苏子钦永远爱李丹 💖
               </h2>
               <p className="mt-6 text-white/90 text-base md:text-lg drop-shadow-md">
                 按 ESC 键恢复世界常态
