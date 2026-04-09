@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin, Calendar, X, Sparkles, Lock, Unlock, Heart, Quote } from 'lucide-react';
 import Tilt from 'react-parallax-tilt';
 import TimeCapsule from '@/components/TimeCapsule';
-import EmojiLock from '@/components/EmojiLock';
+import MasterGatekeeper from '@/components/MasterGatekeeper';
 
 // ==================== 隐藏 Emoji 样式 ====================
 // 技巧1: 悬停提示 - 悬停"火锅"文字时显示🍲
@@ -508,7 +508,6 @@ const chapters: Chapter[] = [
 
 // ==================== 解密游戏组件 ====================
 
-type GameType = 'password' | 'line' | 'click' | 'slot' | 'fill' | 'puzzle';
 
 const HandwrittenText = ({ text, isVisible }: { text: string; isVisible: boolean }) => {
   const characters = text.split('');
@@ -582,359 +581,31 @@ const PasswordGame = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 // 头像连线游戏 - 带爱心动画
-const LineGame = ({ onSuccess }: { onSuccess: () => void }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [showHeart, setShowHeart] = useState(false);
-  const [avatarsMoved, setAvatarsMoved] = useState(false);
-
-  // 头像位置
-  const leftPos = { x: 60, y: 75 };
-  const rightPos = { x: 240, y: 75 };
-  const avatarSize = 50;
-  const hitRadius = 40;
-
-  // 头像图片URL (使用情侣头像或默认头像)
-  const maleAvatar = 'https://i.ibb.co/ym8T8kmn/Gemini-Generated-Image-rjdmmmrjdmmmrjdm.png';
-  const femaleAvatar = 'https://i.ibb.co/dwRmX2YL/Gemini-Generated-Image-6zhqrq6zhqrq6zhq.png';
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // 加载头像图片
-    const loadImages = async () => {
-      const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve(img);
-        img.src = src;
-      });
-
-      const [maleImg, femaleImg] = await Promise.all([
-        loadImage(maleAvatar),
-        loadImage(femaleAvatar)
-      ]);
-
-      drawScene(ctx, maleImg, femaleImg, leftPos, rightPos);
-    };
-
-    loadImages();
-  }, []);
-
-  const drawScene = (
-    ctx: CanvasRenderingContext2D,
-    maleImg: HTMLImageElement,
-    femaleImg: HTMLImageElement,
-    left: { x: number, y: number },
-    right: { x: number, y: number }
-  ) => {
-    ctx.clearRect(0, 0, 300, 150);
-
-    // 绘制虚线提示
-    ctx.beginPath();
-    ctx.setLineDash([5, 5]);
-    ctx.strokeStyle = '#E35D6A40';
-    ctx.lineWidth = 2;
-    ctx.moveTo(left.x + avatarSize/2, left.y);
-    ctx.lineTo(right.x - avatarSize/2, right.y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // 绘制发光边框
-    const drawGlow = (x: number, y: number, color: string) => {
-      ctx.beginPath();
-      ctx.arc(x, y, avatarSize/2 + 3, 0, Math.PI * 2);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // 呼吸灯效果
-      ctx.beginPath();
-      ctx.arc(x, y, avatarSize/2 + 6, 0, Math.PI * 2);
-      ctx.strokeStyle = color + '40';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    };
-
-    // 绘制苏子钦头像
-    drawGlow(left.x, left.y, '#3B82F6');
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(left.x, left.y, avatarSize/2, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(maleImg, left.x - avatarSize/2, left.y - avatarSize/2, avatarSize, avatarSize);
-    ctx.restore();
-
-    // 绘制李丹头像
-    drawGlow(right.x, right.y, '#EC4899');
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(right.x, right.y, avatarSize/2, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(femaleImg, right.x - avatarSize/2, right.y - avatarSize/2, avatarSize, avatarSize);
-    ctx.restore();
-
-    // 绘制名字标签
-    ctx.fillStyle = '#7C444F';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('苏子钦', left.x, left.y + avatarSize/2 + 18);
-    ctx.fillText('李丹', right.x, right.y + avatarSize/2 + 18);
-  };
-
-  const redrawCanvas = (currentX?: number, currentY?: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // 重新加载图片并绘制
-    const loadImages = async () => {
-      const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve(img);
-        img.src = src;
-      });
-
-      const [maleImg, femaleImg] = await Promise.all([
-        loadImage(maleAvatar),
-        loadImage(femaleAvatar)
-      ]);
-
-      // 计算新位置（头像向中间靠拢）
-      const newLeft = avatarsMoved
-        ? { x: 100, y: 75 }  // 向中间移动
-        : leftPos;
-      const newRight = avatarsMoved
-        ? { x: 200, y: 75 }  // 向中间移动
-        : rightPos;
-
-      drawScene(ctx, maleImg, femaleImg, newLeft, newRight);
-
-      // 绘制连线
-      if (currentX !== undefined && currentY !== undefined) {
-        ctx.beginPath();
-        ctx.strokeStyle = '#E35D6A';
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.moveTo(newLeft.x, newLeft.y);
-        ctx.lineTo(currentX, currentY);
-        ctx.stroke();
-      }
-    };
-
-    loadImages();
-  };
-
-  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    const startX = avatarsMoved ? 100 : leftPos.x;
-    const startY = avatarsMoved ? 75 : leftPos.y;
-
-    const distToStart = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
-    if (distToStart < hitRadius) setIsDrawing(true);
-  };
-
-  const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    redrawCanvas(x, y);
-
-    const endX = avatarsMoved ? 200 : rightPos.x;
-    const endY = avatarsMoved ? 75 : rightPos.y;
-
-    const distToEnd = Math.sqrt(Math.pow(x - endX, 2) + Math.pow(y - endY, 2));
-    if (distToEnd < hitRadius && !completed) {
-      setCompleted(true);
-      setAvatarsMoved(true);
-      setShowHeart(true);
-      setTimeout(() => onSuccess(), 1500);
-    }
-  };
-
-  const handleEnd = () => {
-    if (!completed) {
-      setIsDrawing(false);
-      redrawCanvas();
-    }
-  };
-
-  return (
-    <div className="text-center space-y-3 relative">
-      <div className="text-4xl">💕</div>
-      <h4 className="text-lg font-bold text-[#7C444F]">心动连线</h4>
-      <p className="text-xs text-[#9B6A6C]">从苏子钦画一条线到李丹</p>
-
-      <div className="relative w-full max-w-[300px] h-[150px] mx-auto">
-        <canvas
-          ref={canvasRef}
-          width={300}
-          height={150}
-          onMouseDown={handleStart}
-          onMouseMove={handleMove}
-          onMouseUp={handleEnd}
-          onMouseLeave={handleEnd}
-          onTouchStart={handleStart}
-          onTouchMove={handleMove}
-          onTouchEnd={handleEnd}
-          className="w-full h-full bg-white/60 rounded-xl border border-rose-200 touch-none cursor-crosshair"
-        />
-
-        {/* 爱心动画 */}
-        <AnimatePresence>
-          {showHeart && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 2, opacity: 0 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
-            >
-              <div className="text-6xl filter drop-shadow-lg">❤️</div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* 头像靠拢动画提示 */}
-        <AnimatePresence>
-          {avatarsMoved && !showHeart && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            >
-              <span className="text-rose-500 text-xs font-medium bg-white/80 px-2 py-1 rounded-full">
-                靠近中...
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-};
-const ClickGame = ({ onSuccess }: { onSuccess: () => void }) => {
-  const [clicks, setClicks] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(3);
-  const [isActive, setIsActive] = useState(false);
-  const targetClicks = 10;
-  
-  useEffect(() => {
-    if (isActive && timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (isActive && timeLeft === 0) {
-      if (clicks >= targetClicks) {
-        onSuccess();
-      } else {
-        setIsActive(false);
-        setClicks(0);
-        setTimeLeft(3);
-      }
-    }
-  }, [isActive, timeLeft, clicks, onSuccess]);
-  
-  const handleClick = () => {
-    if (!isActive) setIsActive(true);
-    setClicks(c => c + 1);
-  };
-  
-  return (
-    <div className="text-center space-y-3">
-      <div className="text-4xl">💓</div>
-      <h4 className="text-lg font-bold text-[#7C444F]">狂戳屏幕</h4>
-      <p className="text-xs text-[#9B6A6C]">{targetClicks}次点击 · {timeLeft}秒</p>
-      
-      <div className="flex justify-center gap-6">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-[#E35D6A]">{clicks}</div>
-          <div className="text-xs text-[#9B6A6C]">点击</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-[#E35D6A]">{timeLeft}</div>
-          <div className="text-xs text-[#9B6A6C]">秒</div>
-        </div>
-      </div>
-      
-      <motion.button
-        onClick={handleClick}
-        animate={isActive ? { scale: [1, 1.1, 1] } : {}}
-        transition={{ duration: 0.1 }}
-        className="w-24 h-24 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 shadow-lg shadow-rose-400/40 flex items-center justify-center text-white text-3xl active:scale-95 transition-transform mx-auto"
-      >
-        💖
-      </motion.button>
-      
-      {!isActive && clicks === 0 && (
-        <p className="text-xs text-[#9B6A6C] animate-pulse">点击开始！</p>
-      )}
-    </div>
-  );
-};
-
-
-// ==================== 解密弹窗组件 ====================
-
 const DecryptionModal = ({
   isOpen,
   onClose,
   chapter,
   isUnlocked,
   onUnlock,
-  unlockedSlots,
-  onUnlockSlot
 }: {
   isOpen: boolean;
   onClose: () => void;
   chapter: Chapter;
   isUnlocked: boolean;
   onUnlock: () => void;
-  unlockedSlots: boolean[];
-  onUnlockSlot: (index: number) => void;
 }) => {
-  const [currentGame, setCurrentGame] = useState<GameType>('password');
-
   const [gameWon, setGameWon] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
-  
+
   useEffect(() => {
     if (isOpen && !isUnlocked) {
-      // 固定游戏分配：Chapter 1=连线, Chapter 2=密码, Chapter 3=狂戳, Chapter 4=随机
-      const chapterGames: Record<string, GameType> = {
-        'chapter1': 'line',
-        'chapter2': 'slot',
-        'chapter3': 'fill',
-        'chapter4': 'puzzle'
-      };
-      const game = chapterGames[chapter.id] || 'password';
-      setCurrentGame(game);
       setGameWon(false);
       setShowMessage(false);
     } else if (isOpen && isUnlocked) {
       setShowMessage(true);
     }
   }, [isOpen, isUnlocked]);
-  
+
   const handleGameSuccess = () => {
     setGameWon(true);
     setTimeout(() => {
@@ -942,19 +613,7 @@ const DecryptionModal = ({
       onUnlock();
     }, 400);
   };
-  
-  const games = {
-    password: <PasswordGame onSuccess={handleGameSuccess} />,
-    line: <LineGame onSuccess={handleGameSuccess} />,
-    click: <ClickGame onSuccess={handleGameSuccess} />,
-    slot: <SlotPassword onSuccess={handleGameSuccess} unlockedSlots={unlockedSlots} onUnlockSlot={onUnlockSlot} />,
-    fill: <HeartFillGame onSuccess={handleGameSuccess} />,
-    puzzle: <PuzzleGame onSuccess={handleGameSuccess} />
-  };
-  
-  // 调试探针：打印当前解锁状态
-  console.log("当前解锁状态检查:", unlockedSlots);
-  
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -976,7 +635,7 @@ const DecryptionModal = ({
             <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-5 shadow-2xl border border-white/60 overflow-hidden">
               <div className="absolute -top-8 -right-8 w-24 h-24 bg-rose-200/30 rounded-full blur-2xl" />
               <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-rose-300/20 rounded-full blur-2xl" />
-              
+
               <button
                 onClick={onClose}
                 className="absolute top-3 right-3 w-8 h-8 rounded-full bg-rose-100 hover:bg-rose-200 flex items-center justify-center text-rose-500 hover:text-rose-600 transition-all z-10 shadow-md border border-rose-200"
@@ -984,7 +643,7 @@ const DecryptionModal = ({
               >
                 <X className="w-5 h-5" />
               </button>
-              
+
               <div className="relative z-10">
                 {!showMessage ? (
                   <>
@@ -993,9 +652,9 @@ const DecryptionModal = ({
                         <Lock className="w-6 h-6 text-rose-500" />
                       </div>
                       <h3 className="text-lg font-bold text-[#7C444F] mb-1">解密专属留言</h3>
-                      <p className="text-xs text-[#9B6A6C]">完成小游戏解锁隐藏消息</p>
+                      <p className="text-xs text-[#9B6A6C]">输入暗号解锁隐藏消息</p>
                     </div>
-                    
+
                     {gameWon ? (
                       <motion.div
                         initial={{ scale: 0 }}
@@ -1006,7 +665,7 @@ const DecryptionModal = ({
                         <p className="text-base font-bold text-[#E35D6A]">解锁成功！</p>
                       </motion.div>
                     ) : (
-                      games[currentGame]
+                      <PasswordGame onSuccess={handleGameSuccess} />
                     )}
                   </>
                 ) : (
@@ -1018,13 +677,13 @@ const DecryptionModal = ({
                     <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center">
                       <Unlock className="w-6 h-6 text-white" />
                     </div>
-                    
+
                     <h3 className="text-lg font-bold text-[#7C444F] mb-3">来自苏子钦的留言</h3>
-                    
+
                     <div className="bg-rose-50/80 rounded-xl p-4 border border-rose-100">
                       <HandwrittenText text={chapter.hiddenMessage} isVisible={showMessage} />
                     </div>
-                    
+
                     <motion.button
                       onClick={onClose}
                       whileHover={{ scale: 1.02 }}
@@ -1157,7 +816,17 @@ export default function TimelinePage() {
   const [catClickCount, setCatClickCount] = useState(0);
 
   // 四重奏解锁状态: [火锅, 山, 猫, 飞机]
-  const [unlockedSlots, setUnlockedSlots] = useState([false, false, false, false]);
+  const [unlockedSlots, setUnlockedSlots] = useState(() => {
+    if (typeof window === 'undefined') return [false, false, false, false];
+    const saved = localStorage.getItem('timeline-emoji-slots');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === 4) return parsed;
+      } catch (e) {}
+    }
+    return [false, false, false, false];
+  });
 
   const unlockSlot = (index: number) => {
     if (!unlockedSlots[index]) {
@@ -1170,6 +839,11 @@ export default function TimelinePage() {
     }
     return false;
   };
+
+  // 持久化四重奏解锁状态到 localStorage
+  useEffect(() => {
+    localStorage.setItem('timeline-emoji-slots', JSON.stringify(unlockedSlots));
+  }, [unlockedSlots]);
 
   const handlePrev = () => {
     if (currentChapter > 0) {
@@ -1610,8 +1284,6 @@ export default function TimelinePage() {
       <DecryptionModal
         isOpen={decryptionModalOpen}
         onClose={() => setDecryptionModalOpen(false)}
-        unlockedSlots={unlockedSlots}
-        onUnlockSlot={unlockSlot}
         chapter={chapter}
         isUnlocked={isUnlocked}
         onUnlock={() => {
@@ -1660,8 +1332,8 @@ export default function TimelinePage() {
         )}
       </AnimatePresence>
 
-      {/* Emoji 密码锁 - 通往足迹地图 */}
-      <EmojiLock />
+      {/* 时光密码锁 - 通往足迹地图 */}
+      <MasterGatekeeper unlockedSlots={unlockedSlots} />
     </div>
   );
 }
@@ -1669,437 +1341,3 @@ export default function TimelinePage() {
 // ==================== 新增游戏组件 ====================
 
 // 第二章：复古拨轮密码锁 - 四重奏渐进式解密
-const SlotPassword = ({
-  onSuccess,
-  unlockedSlots,
-  onUnlockSlot
-}: {
-  onSuccess: () => void;
-  unlockedSlots: boolean[];
-  onUnlockSlot: (index: number) => void;
-}) => {
-  const [digits, setDigits] = useState([0, 0, 0, 0]);
-  const [activeSlot, setActiveSlot] = useState(0);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
-
-  const allUnlocked = unlockedSlots.every(Boolean);
-
-  const targetCodes = ['0520', '0607'];
-  const slotIcons = ['🍲', '⛰️', '🐱', '✈️'];
-
-  const showToast = (msg: string, type: 'success' | 'error') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2000);
-  };
-
-  const handleDigitChange = (index: number, direction: 'up' | 'down') => {
-    if (!unlockedSlots[index]) return;
-    setDigits(prev => {
-      const newDigits = [...prev];
-      if (direction === 'up') {
-        newDigits[index] = (newDigits[index] + 1) % 10;
-      } else {
-        newDigits[index] = (newDigits[index] - 1 + 10) % 10;
-      }
-      return newDigits;
-    });
-  };
-
-  const checkCode = () => {
-    if (!allUnlocked) {
-      showToast('🔒 请先收集所有回忆碎片', 'error');
-      return;
-    }
-    const code = digits.join('');
-    if (targetCodes.includes(code)) {
-      setIsSuccess(true);
-      setTimeout(() => onSuccess(), 1000);
-    } else {
-      setIsError(true);
-      setTimeout(() => setIsError(false), 500);
-    }
-  };
-
-  return (
-    <div className="text-center space-y-4 relative">
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`absolute top-0 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium shadow-lg z-50 ${
-              toast.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {toast.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-        <div className="text-3xl">🔐</div>
-        <h4 className="text-lg font-bold text-[#7C444F]">时光密码锁</h4>
-        <p className="text-xs text-[#9B6A6C]">
-          {allUnlocked ? '所有回忆碎片已收集！输入纪念日或生日解锁' : '收集 4 个回忆碎片以激活密码锁'}
-        </p>
-        <div className="flex justify-center space-x-2 mt-2">
-          {unlockedSlots.map((unlocked, idx) => (
-            <motion.div
-              key={idx}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                unlocked ? 'bg-green-100 text-green-600 shadow-lg' : 'bg-gray-100 text-gray-400'
-              }`}
-              animate={unlocked ? { scale: [1, 1.2, 1] } : {}}
-            >
-              {unlocked ? slotIcons[idx] : '🔒'}
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      <div className="flex justify-center space-x-3">
-        {digits.map((digit, index) => {
-          const isLocked = !unlockedSlots[index];
-
-          return (
-            <div key={index} className="relative">
-              {isLocked ? (
-                <div 
-                  className="w-14 h-14 rounded-full border-4 bg-zinc-100 border-zinc-200 flex items-center justify-center select-none cursor-not-allowed"
-                  onClick={() => alert('🔒 拨盘已锁定，请先收集对应的回忆碎片！')}
-                >
-                  <span className="text-3xl grayscale opacity-50">🔒</span>
-                </div>
-              ) : (
-                <div className="relative">
-                  <motion.div
-                    onClick={() => {
-                      if (!unlockedSlots[index]) {
-                        alert('🔒 拨盘已锁定，请先收集对应的回忆碎片！');
-                        return;
-                      }
-                      setActiveSlot(index);
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-14 h-14 rounded-full border-4 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md relative
-                      ${activeSlot === index
-                        ? 'bg-white border-[#E35D6A] shadow-[0_0_15px_rgba(227,93,106,0.5)]'
-                        : 'bg-white border-amber-300'
-                      }`}
-                  >
-                    <span className="text-3xl font-bold text-[#7C444F]">{isSuccess ? '✓' : digit}</span>
-                  </motion.div>
-
-                  <motion.button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDigitChange(index, 'up');
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm z-10"
-                  >
-                    ▲
-                  </motion.button>
-                  <motion.button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDigitChange(index, 'down');
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 text-xs shadow-sm z-10"
-                  >
-                    ▼
-                  </motion.button>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <motion.button
-        whileHover={allUnlocked ? { scale: 1.05 } : {}}
-        whileTap={allUnlocked ? { scale: 0.95 } : {}}
-        onClick={checkCode}
-        disabled={!allUnlocked}
-        className={`px-8 py-3 rounded-xl font-bold shadow-lg transition-all ${
-          allUnlocked
-            ? 'bg-gradient-to-r from-[#E35D6A] to-rose-500 text-white hover:shadow-xl'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-        }`}
-      >
-        {isSuccess ? '解锁成功!' : allUnlocked ? '转动解锁' : `收集碎片 (${unlockedSlots.filter(Boolean).length}/4)`}
-      </motion.button>
-    </div>
-  );
-};
-
-// 第三章：爱意填充 - 长按心形注入爱意
-const HeartFillGame = ({ onSuccess }: { onSuccess: () => void }) => {
-  const [fillLevel, setFillLevel] = useState(0);
-  const [isPressing, setIsPressing] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
-  
-  const maxFill = 100;
-  
-  const addParticle = () => {
-    const id = Date.now();
-    const x = 50 + (Math.random() - 0.5) * 40;
-    const y = 50 + (Math.random() - 0.5) * 40;
-    setParticles(prev => [...prev, { id, x, y }]);
-    setTimeout(() => {
-      setParticles(prev => prev.filter(p => p.id !== id));
-    }, 1000);
-  };
-  
-  const handlePressStart = () => {
-    setIsPressing(true);
-  };
-  
-  const handlePressEnd = () => {
-    setIsPressing(false);
-  };
-  
-  // 长按填充逻辑 - 使用 useEffect
-  useEffect(() => {
-    if (!isPressing || fillLevel >= maxFill) return;
-    
-    const interval = setInterval(() => {
-      setFillLevel(prev => {
-        const newLevel = Math.min(prev + 3, maxFill);
-        if (newLevel >= maxFill && !isComplete) {
-          setIsComplete(true);
-          setTimeout(() => onSuccess(), 1000);
-        }
-        return newLevel;
-      });
-      addParticle();
-    }, 50);
-    
-    return () => clearInterval(interval);
-  }, [isPressing, fillLevel, isComplete, onSuccess]);
-  
-  return (
-    <div className="text-center space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-2"
-      >
-        <div className="text-3xl">💝</div>
-        <h4 className="text-lg font-bold text-[#7C444F]">爱意填充</h4>
-        <p className="text-xs text-[#9B6A6C]">长按心形注入你的爱意</p>
-      </motion.div>
-      
-      {/* 心形容器 */}
-      <div className="relative w-40 h-40 mx-auto">
-        {/* 背景心形（空心） */}
-        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
-          <path
-            d="M50 85 L45 80 C20 55 5 40 5 25 C5 12 15 5 27 5 C37 5 45 12 50 20 C55 12 63 5 73 5 C85 5 95 12 95 25 C95 40 80 55 55 80 Z"
-            fill="none"
-            stroke="#E35D6A30"
-            strokeWidth="3"
-          />
-        </svg>
-        
-        {/* 填充心形（带动画） */}
-        <motion.svg
-          viewBox="0 0 100 100"
-          className="absolute inset-0 w-full h-full"
-          style={{ clipPath: `inset(${100 - fillLevel}% 0 0 0)` }}
-        >
-          <path
-            d="M50 85 L45 80 C20 55 5 40 5 25 C5 12 15 5 27 5 C37 5 45 12 50 20 C55 12 63 5 73 5 C85 5 95 12 95 25 C95 40 80 55 55 80 Z"
-            fill="#E35D6A"
-          />
-        </motion.svg>
-        
-        {/* 粒子效果 */}
-        {particles.map(p => (
-          <motion.div
-            key={p.id}
-            initial={{ scale: 0, opacity: 1 }}
-            animate={{ scale: 1.5, opacity: 0, y: -30 }}
-            transition={{ duration: 1 }}
-            className="absolute text-xl pointer-events-none"
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
-          >
-            ✨
-          </motion.div>
-        ))}
-        
-        {/* 按下区域 */}
-        <button
-          onMouseDown={handlePressStart}
-          onMouseUp={handlePressEnd}
-          onMouseLeave={handlePressEnd}
-          onTouchStart={handlePressStart}
-          onTouchEnd={handlePressEnd}
-          className="absolute inset-0 cursor-pointer"
-          style={{ background: 'transparent' }}
-        />
-      </div>
-      
-      {/* 进度条 */}
-      <div className="w-48 h-3 bg-gray-200 rounded-full mx-auto overflow-hidden">
-        <motion.div
-          className="h-full bg-gradient-to-r from-[#E35D6A] to-rose-400"
-          initial={{ width: 0 }}
-          animate={{ width: `${fillLevel}%` }}
-          transition={{ type: 'spring', stiffness: 100 }}
-        />
-      </div>
-      
-      <p className="text-sm text-[#9B6A6C]">
-        {isComplete ? '爱意已满! ❤️' : `${fillLevel}%`}
-      </p>
-      
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.9 }}
-        onMouseDown={handlePressStart}
-        onMouseUp={handlePressEnd}
-        onMouseLeave={handlePressEnd}
-        onTouchStart={handlePressStart}
-        onTouchEnd={handlePressEnd}
-        className={`px-8 py-3 rounded-xl font-bold transition-all ${
-          isPressing
-            ? 'bg-[#E35D6A] text-white shadow-[0_0_30px_rgba(227,93,106,0.6)]'
-            : 'bg-rose-100 text-[#E35D6A]'
-        }`}
-      >
-        {isPressing ? '注入中...' : '长按注入爱意'}
-      </motion.button>
-    </div>
-  );
-};
-
-// 第四章：拼图记忆 - 3x3 九宫格拼图游戏
-const PuzzleGame = ({ onSuccess }: { onSuccess: () => void }) => {
-  const [pieces, setPieces] = useState<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 8]);
-  const [isComplete, setIsComplete] = useState(false);
-  const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  
-  // 拼图图片 - 使用用户提供的图片
-  const puzzleImage = 'https://i.ibb.co/PZLTVCnT/9114388504c03d401ca120a0654393bd.jpg';
-  
-  // Fisher-Yates 洗牌算法 - 确保真正的随机打乱
-  const shufflePieces = () => {
-    const array = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    
-    // 确保打乱后不是正确顺序
-    const isCorrect = array.every((piece, i) => piece === i);
-    if (isCorrect) {
-      // 如果是正确顺序，交换最后两个元素
-      [array[7], array[8]] = [array[8], array[7]];
-    }
-    
-    return array;
-  };
-  
-  // 组件加载时打乱拼图
-  useEffect(() => {
-    const shuffled = shufflePieces();
-    setPieces(shuffled);
-    setIsReady(true);
-  }, []);
-  
-  const handlePieceClick = (index: number) => {
-    if (isComplete) return;
-    
-    if (selectedPiece === null) {
-      setSelectedPiece(index);
-    } else {
-      // 交换两个拼图块
-      const newPieces = [...pieces];
-      [newPieces[selectedPiece], newPieces[index]] = [newPieces[index], newPieces[selectedPiece]];
-      setPieces(newPieces);
-      setSelectedPiece(null);
-      
-      // 检查是否完成
-      const isCorrect = newPieces.every((piece, i) => piece === i);
-      if (isCorrect) {
-        setIsComplete(true);
-        setTimeout(() => onSuccess(), 1000);
-      }
-    }
-  };
-  
-  return (
-    <div className="text-center space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-2"
-      >
-        <div className="text-3xl">🧩</div>
-        <h4 className="text-lg font-bold text-[#7C444F]">记忆拼图</h4>
-        <p className="text-xs text-[#9B6A6C]">点击两块拼图交换位置，拼出完整回忆</p>
-      </motion.div>
-      
-      {/* 拼图区域 - 3x3 九宫格 */}
-      <div className="relative w-56 h-56 mx-auto bg-gray-100 rounded-xl overflow-hidden shadow-inner"
-      >
-        <div className="grid grid-cols-3 gap-0.5 w-full h-full p-0.5">
-          {pieces.map((pieceIndex, displayIndex) => {
-            // 计算每个拼图块应显示的图片位置 (3x3)
-            const row = Math.floor(pieceIndex / 3);
-            const col = pieceIndex % 3;
-            
-            return (
-              <motion.button
-                key={displayIndex}
-                onClick={() => handlePieceClick(displayIndex)}
-                className={`relative overflow-hidden rounded-sm transition-all ${
-                  selectedPiece === displayIndex
-                    ? 'ring-2 ring-[#E35D6A] z-10'
-                    : 'hover:opacity-90'
-                } ${isComplete ? 'ring-1 ring-green-400' : ''}`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-no-repeat"
-                  style={{
-                    backgroundImage: `url(${puzzleImage})`,
-                    backgroundPosition: `${col * 50}% ${row * 50}%`,
-                    backgroundSize: '300% 300%',
-                  }}
-                />
-                
-                {/* 拼图边框装饰 */}
-                <div className="absolute inset-0 border border-white/20 rounded-sm pointer-events-none" />
-              </motion.button>
-            );
-          })}
-        </div>
-        
-        {/* 完成动画 */}
-        {isComplete && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl"
-          >
-            <div className="text-6xl">🎉</div>
-          </motion.div>
-        )}
-      </div>
-      
-      <p className="text-sm text-[#9B6A6C]">
-        {isComplete ? '回忆已完整! 💕' : selectedPiece !== null ? '再选一块交换' : '点击选择拼图块'}
-      </p>
-    </div>
-  );
-};
-// 部署时间: Wed Apr  8 04:46:14 CST 2026
