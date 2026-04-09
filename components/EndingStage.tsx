@@ -16,6 +16,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   const [showWaveform, setShowWaveform] = useState(false);
   const [isWaveformActive, setIsWaveformActive] = useState(false);
   const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  const [showShaker, setShowShaker] = useState(true);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -25,19 +26,15 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const music = useMusic();
 
-  // Mount: brute-force cleanup
+  // Mount: brute-force cleanup (runs once)
   useEffect(() => {
-    console.log('[EndingStage] Mount - sequence starting');
-    document.body.classList.add('violent-shake');
     document.body.style.background = '#000000';
     document.body.style.overflow = 'hidden';
 
-    // Kill BGM from MusicContext
+    // Kill BGM
     try {
       music.pause();
     } catch {}
-
-    // Kill any <audio> elements in the DOM
     document.querySelectorAll('audio').forEach((audio) => {
       try {
         audio.pause();
@@ -46,35 +43,39 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       } catch {}
     });
 
-    // Remove lingering confetti canvases
+    // Remove stray confetti canvases
     document.querySelectorAll('canvas').forEach((c) => {
-      const style = window.getComputedStyle(c);
-      if (style.position === 'fixed' && style.pointerEvents === 'none' && c !== canvasRef.current) {
-        c.remove();
-      }
+      try {
+        const style = window.getComputedStyle(c);
+        if (style.position === 'fixed' && style.pointerEvents === 'none' && c !== canvasRef.current) {
+          c.remove();
+        }
+      } catch {}
     });
 
     // Shake -> spotlight after 3s
     const t1 = setTimeout(() => {
-      document.body.classList.remove('violent-shake');
-      const body = document.body;
-      if (body) {
-        body.style.transform = 'none';
-        void body.offsetHeight;
-        body.style.transform = '';
-      }
+      setShowShaker(false);
       setPhase('spotlight');
       console.log('[EndingStage] Spotlight ready');
     }, 3000);
 
     return () => {
       clearTimeout(t1);
-      document.body.classList.remove('violent-shake');
       document.body.style.overflow = '';
     };
-  }, [music]);
+  }, []);
 
-  // User click to start - this is the key gesture to unlock all audio
+  // Spotlight complete -> restore background
+  useEffect(() => {
+    if (phase === 'finale') {
+      document.body.style.background = '';
+      const t = setTimeout(() => onComplete(), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [phase, onComplete]);
+
+  // User click to start - inside gesture to unlock all audio
   const handleStartSignal = async () => {
     if (phase !== 'spotlight' || hasStartedTyping) return;
     setHasStartedTyping(true);
@@ -82,7 +83,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
 
     console.log('[EndingStage] User clicked start signal - unlocking audio');
 
-    // 1. Initialize shared AudioContext inside user gesture
+    // Initialize shared AudioContext inside user gesture
     const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
     const audioCtx = new AudioContextClass();
     sharedAudioCtxRef.current = audioCtx;
@@ -90,7 +91,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       await audioCtx.resume();
     }
 
-    // 2. Prepare voice audio and Web Audio graph inside the same gesture
+    // Prepare voice audio graph inside same gesture
     const audio = new Audio('/sounds/final_voice_letter.m4a');
     voiceAudioRef.current = audio;
     audio.volume = 1;
@@ -104,21 +105,19 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       source.connect(analyser);
       analyser.connect(audioCtx.destination);
 
-      // Unlock the audio element: play -> pause immediately (registers permission)
       await audio.play();
       audio.pause();
       audio.currentTime = 0;
-      console.log('[EndingStage] Voice audio unlocked successfully');
+      console.log('[EndingStage] Voice audio unlocked');
     } catch (err) {
-      console.warn('[EndingStage] Voice audio unlock attempt failed:', err);
+      console.warn('[EndingStage] Voice unlock attempt failed:', err);
     }
 
-    // 3. Typewriter sequence using the shared AudioContext
+    // Typewriter sequence
     let index = 0;
     const timer = setInterval(() => {
       if (index < FULL_TEXT.length) {
         setTypedText(FULL_TEXT.slice(0, index + 1));
-        // Synthetic typewriter click
         try {
           const duration = 0.045;
           const sampleRate = audioCtx.sampleRate;
@@ -145,13 +144,12 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         index++;
       } else {
         clearInterval(timer);
-        // Small pause then show waveform and auto-play voice
         setTimeout(() => {
           setShowWaveform(true);
           setPhase('waveform');
-          console.log('[EndingStage] Waveform shown - auto-playing voice');
+          console.log('[EndingStage] Auto-playing voice');
           startVoicePlayback();
-        }, 500);
+        }, 400);
       }
     }, 150);
   };
@@ -162,7 +160,6 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       setPhase('finale');
       return;
     }
-
     try {
       setIsWaveformActive(true);
       await audio.play();
@@ -172,7 +169,6 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       });
     } catch (err) {
       console.error('[EndingStage] Auto-play voice failed:', err);
-      // Graceful fallback: show waveform without animation, then exit
       setTimeout(() => {
         setIsWaveformActive(false);
         setPhase('finale');
@@ -225,7 +221,6 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         ctx.shadowBlur = 0;
       }
     } else {
-      // Idle sine wave
       ctx.beginPath();
       ctx.strokeStyle = 'rgba(227, 93, 106, 0.7)';
       ctx.lineWidth = 3 * dpr;
@@ -255,37 +250,41 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
     };
   }, [phase, draw]);
 
-  // Finale cleanup
+  // Cleanup on unmount
   useEffect(() => {
-    if (phase !== 'finale') return;
-    if (voiceAudioRef.current) {
+    return () => {
+      if (voiceAudioRef.current) {
+        try {
+          voiceAudioRef.current.pause();
+          voiceAudioRef.current.currentTime = 0;
+        } catch {}
+      }
       try {
-        voiceAudioRef.current.pause();
-        voiceAudioRef.current.currentTime = 0;
+        sourceRef.current?.disconnect();
+        analyserRef.current?.disconnect();
+        sharedAudioCtxRef.current?.close();
       } catch {}
-    }
-    try {
-      sourceRef.current?.disconnect();
-      analyserRef.current?.disconnect();
-      sharedAudioCtxRef.current?.close();
-    } catch {}
-
-    document.body.style.background = '';
-    const t = setTimeout(() => {
-      onComplete();
-    }, 1500);
-    return () => clearTimeout(t);
-  }, [phase, onComplete]);
+      document.body.style.background = '';
+    };
+  }, []);
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black">
+    <div className="fixed inset-0 z-[9999]">
+      {/* Solid black base */}
+      <div className="absolute inset-0 bg-black" />
+
+      {/* Internal shaker overlay (replaces body.violent-shake) */}
+      {showShaker && (
+        <div className="absolute inset-0 violent-shake bg-black pointer-events-none z-[10002]" />
+      )}
+
       {/* Spotlight */}
       {(phase === 'spotlight' || phase === 'typing' || phase === 'waveform') && (
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none z-[10001]"
           style={{
             background:
-              'radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 65%)',
+              'radial-gradient(circle at center, rgba(255,255,255,0.22) 0%, transparent 60%)',
           }}
         />
       )}
@@ -296,7 +295,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
           initial={{ opacity: 1, scale: 1 }}
           animate={{ opacity: 0, scale: 2 }}
           transition={{ duration: 1.5, ease: 'easeOut' }}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none z-[10001]"
           style={{
             background:
               'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.12) 0%, transparent 50%)',
@@ -307,27 +306,30 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       {/* Emergency Exit */}
       <button
         onClick={onComplete}
-        className="fixed top-4 right-4 z-[10000] px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+        className="fixed top-4 right-4 z-[10003] px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/10 transition-colors"
         aria-label="退出"
       >
         ✕ 退出
       </button>
 
-      {/* Center Stage */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-[9999]">
+      {/* Center Stage - MUST be above everything */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-[10003]">
         {/* Glowing typewriter text */}
-        <p
-          className="text-2xl md:text-3xl font-bold text-center tracking-wide text-white"
-          style={{
-            textShadow:
-              '0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.8), 0 0 45px rgba(227,93,106,0.6)',
-          }}
-        >
-          {typedText}
-          {phase !== 'finale' && typedText.length > 0 && (
-            <span className="inline-block w-1 h-8 md:h-10 bg-white ml-1 align-middle animate-pulse" />
-          )}
-        </p>
+        {(phase === 'typing' || phase === 'waveform' || phase === 'finale') && (
+          <p
+            className="text-2xl md:text-3xl font-bold text-center tracking-wide"
+            style={{
+              color: '#FFFFFF',
+              textShadow:
+                '0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.8), 0 0 45px rgba(227,93,106,0.6)',
+            }}
+          >
+            {typedText}
+            {phase !== 'finale' && typedText.length > 0 && (
+              <span className="inline-block w-1 h-8 md:h-10 bg-white ml-1 align-middle animate-pulse" />
+            )}
+          </p>
+        )}
 
         {/* Start signal button */}
         <AnimatePresence>
@@ -359,18 +361,10 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
               transition={{ duration: 0.6 }}
               className="mt-12 flex flex-col items-center"
             >
-              <div
-                className="relative w-72 h-32 md:w-96 md:h-40 rounded-2xl border border-[#E35D6A]/70 bg-black/20 backdrop-blur-sm overflow-hidden"
-              >
-                <canvas
-                  ref={canvasRef}
-                  className="absolute inset-0 w-full h-full"
-                />
+              <div className="relative w-72 h-32 md:w-96 md:h-40 rounded-2xl border border-[#E35D6A]/70 bg-black/20 backdrop-blur-sm overflow-hidden">
+                <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
               </div>
-
-              <p className="mt-4 text-sm text-white/80 tracking-wider">
-                正在播放...
-              </p>
+              <p className="mt-4 text-sm text-white/80 tracking-wider">正在播放...</p>
             </motion.div>
           )}
         </AnimatePresence>
