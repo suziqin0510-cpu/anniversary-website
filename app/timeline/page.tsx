@@ -677,7 +677,7 @@ const LineGame = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   return (
-    <div className="relative w-full h-52 bg-rose-50/60 rounded-2xl overflow-hidden select-none touch-none">
+    <div className="relative w-[320px] h-[208px] mx-auto bg-rose-50/60 rounded-2xl overflow-hidden select-none touch-none">
       <canvas
         ref={canvasRef}
         width={320}
@@ -707,7 +707,7 @@ const LineGame = ({ onSuccess }: { onSuccess: () => void }) => {
         className="absolute"
         style={{ left: leftPos.x, top: leftPos.y, width: avatarSize, height: avatarSize }}
       >
-        <img src={maleAvatar} alt="苏子钦" className="w-full h-full object-cover rounded-xl" />
+        <img src={maleAvatar} alt="苏子钦" className="w-full h-full object-cover object-center rounded-xl" />
       </motion.div>
 
       {/* 右头像 - 女生 */}
@@ -717,7 +717,7 @@ const LineGame = ({ onSuccess }: { onSuccess: () => void }) => {
         className="absolute"
         style={{ left: rightPos.x, top: rightPos.y, width: avatarSize, height: avatarSize }}
       >
-        <img src={femaleAvatar} alt="李丹" className="w-full h-full object-cover rounded-xl" />
+        <img src={femaleAvatar} alt="李丹" className="w-full h-full object-cover object-center rounded-xl" />
       </motion.div>
 
       {/* 爱心动画 */}
