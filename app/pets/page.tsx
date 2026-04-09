@@ -488,7 +488,7 @@ export default function PetsPage() {
                 >
                   _
                 </motion.span>
-                <span>[ SYSTEM OVERRIDE: PRESS ESC TO INITIATE FINAL PROTOCOL ]</span>
+                <span>Love You Forever</span>
               </motion.div>
             </motion.div>
           </motion.div>

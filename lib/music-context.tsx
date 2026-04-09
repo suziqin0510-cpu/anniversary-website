@@ -85,6 +85,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     audioRef.current = new Audio(currentSong.src);
     audioRef.current.preload = 'auto';
+    audioRef.current.volume = 1;
 
     // 监听歌曲结束，自动播放下一首
     const handleEnded = () => {
@@ -150,6 +151,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     if (audioRef.current) {
       // 更新音频源
       audioRef.current.src = currentSong.src;
+      audioRef.current.volume = 1;
       setHasError(false);
       setDuration(0);
 

@@ -23,6 +23,7 @@ export default function VoiceLetterFinale({ onComplete }: VoiceLetterFinaleProps
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const music = useMusic();
 
@@ -179,8 +180,12 @@ export default function VoiceLetterFinale({ onComplete }: VoiceLetterFinaleProps
 
       const source = audioCtx.createMediaElementSource(audio);
       sourceRef.current = source;
+      const gain = audioCtx.createGain();
+      gain.gain.value = 1.5;
+      gainRef.current = gain;
       source.connect(analyser);
-      analyser.connect(audioCtx.destination);
+      analyser.connect(gain);
+      gain.connect(audioCtx.destination);
 
       await audio.play();
 
@@ -212,6 +217,7 @@ export default function VoiceLetterFinale({ onComplete }: VoiceLetterFinaleProps
     try {
       sourceRef.current?.disconnect();
       analyserRef.current?.disconnect();
+      gainRef.current?.disconnect();
       audioCtxRef.current?.close();
     } catch {
       // ignore
