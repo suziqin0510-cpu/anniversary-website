@@ -1174,6 +1174,7 @@ export default function TimelinePage() {
   const [showVIPCard, setShowVIPCard] = useState(false);
   const [showMVPBadge, setShowMVPBadge] = useState(false);
   const [showAABill, setShowAABill] = useState(false);
+  const [showSnowClue, setShowSnowClue] = useState(false);
   const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 四重奏解锁状态: [火锅, 山, 猫, 飞机]
@@ -1583,9 +1584,9 @@ export default function TimelinePage() {
                 <div
                   className="bg-white/40 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white/50 relative"
                   onMouseEnter={() => {
-                    if (chapter.id === 'chapter2' && !unlockedSlots[1]) {
+                    if (chapter.id === 'chapter2' && !unlockedSlots[1] && !showSnowClue) {
                       photoHoverTimerRef.current = setTimeout(() => {
-                        unlockSlot(1);
+                        setShowSnowClue(true);
                       }, 3000);
                     }
                   }}
@@ -1597,6 +1598,24 @@ export default function TimelinePage() {
                   }}
                 >
                   <PhotoGallery photos={chapter.photos} onPhotoClick={setSelectedPhoto} />
+
+                  {/* 第二章雪山线索浮标 */}
+                  {chapter.id === 'chapter2' && showSnowClue && !unlockedSlots[1] && (
+                    <motion.button
+                      initial={{ scale: 0, opacity: 0, y: 10 }}
+                      animate={{ scale: 1, opacity: 1, y: 0 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => {
+                        unlockSlot(1);
+                        setShowSnowClue(false);
+                      }}
+                      className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 text-white text-xl shadow-lg border-2 border-white flex items-center justify-center z-20"
+                    >
+                      ⛰️
+                    </motion.button>
+                  )}
                 </div>
               </Tilt>
             </div>
