@@ -12,40 +12,43 @@ interface EndingStageProps {
 
 function playSyntheticTypewriter() {
   if (typeof window === 'undefined') return;
-  try {
-    const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
-    const duration = 0.045;
-    const sampleRate = ctx.sampleRate;
-    const buffer = ctx.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) {
-      data[i] = Math.random() * 2 - 1;
+  // Fire-and-forget: run in next microtask so any audio failure never blocks caller
+  Promise.resolve().then(() => {
+    try {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const duration = 0.045;
+      const sampleRate = ctx.sampleRate;
+      const buffer = ctx.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 2800;
+      filter.Q.value = 0.8;
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(now);
+      source.stop(now + duration + 0.02);
+      setTimeout(() => {
+        try {
+          ctx.close();
+        } catch {}
+      }, 120);
+    } catch {
+      // silently ignore audio synthesis failures
     }
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 2800;
-    filter.Q.value = 0.8;
-    const gain = ctx.createGain();
-    const now = ctx.currentTime;
-    gain.gain.setValueAtTime(0.35, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    source.start(now);
-    source.stop(now + duration + 0.02);
-    setTimeout(() => {
-      try {
-        ctx.close();
-      } catch {}
-    }, 120);
-  } catch {
-    // silently ignore audio synthesis failures
-  }
+  });
 }
 
 export default function EndingStage({ onComplete }: EndingStageProps) {
@@ -63,15 +66,14 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const music = useMusic();
 
-  // Phase 1: Screen shake -> directly to spotlight after 3s
+  // Phase 1: Screen shake -> spotlight after 3s
   useEffect(() => {
-    console.log('Ending sequence started');
+    console.log('[EndingStage] Ending sequence started');
     document.body.classList.add('violent-shake');
     document.body.style.background = '#000000';
 
     const t1 = setTimeout(() => {
       document.body.classList.remove('violent-shake');
-      // Force reflow so browsers recalculate any fixed/absolute boxes after transform ends
       const body = document.body;
       if (body) {
         body.style.transform = 'none';
@@ -79,7 +81,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         body.style.transform = '';
       }
       setPhase('spotlight');
-      console.log('Spotlight started');
+      console.log('[EndingStage] Spotlight started');
     }, 3000);
 
     return () => {
@@ -88,7 +90,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
     };
   }, []);
 
-  // Phase 3: Typewriter
+  // Phase 2: Typewriter
   useEffect(() => {
     if (phase !== 'spotlight') return;
     let index = 0;
@@ -102,7 +104,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         setTimeout(() => {
           setPhase('waveform');
           setShowWaveform(true);
-          console.log('Ready for audio');
+          console.log('[EndingStage] Ready for audio');
         }, 600);
       }
     }, 150);
@@ -194,6 +196,15 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
     voiceAudioRef.current = audio;
     audio.volume = 1;
 
+    // Graceful fallback if the file is missing
+    audio.addEventListener('error', () => {
+      console.error('[EndingStage] /sounds/final_voice_letter.mp3 加载失败，请确认文件已上传！');
+      setTimeout(() => {
+        setIsWaveformActive(false);
+        setPhase('finale');
+      }, 3000);
+    });
+
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const audioCtx = new AudioContextClass();
@@ -215,7 +226,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         setPhase('finale');
       });
     } catch (err) {
-      console.error('Voice letter playback failed:', err);
+      console.error('[EndingStage] Voice letter playback failed:', err);
       setTimeout(() => {
         setIsWaveformActive(false);
         setPhase('finale');
@@ -223,7 +234,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
     }
   };
 
-  // Phase 5: Finale restoration
+  // Phase 4: Finale restoration
   useEffect(() => {
     if (phase !== 'finale') return;
     if (voiceAudioRef.current) {
@@ -244,14 +255,14 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   }, [phase, onComplete]);
 
   return (
-    <div className="absolute inset-0 z-[9999] bg-[#000000]">
-      {/* Spotlight radial gradient - brighter and wider */}
+    <div className="fixed inset-0 z-[9999] bg-black">
+      {/* Spotlight */}
       {(phase === 'spotlight' || phase === 'waveform') && (
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22) 0%, transparent 60%)',
+              'radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 65%)',
           }}
         />
       )}
@@ -270,15 +281,23 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         />
       )}
 
+      {/* Emergency Exit */}
+      <button
+        onClick={onComplete}
+        className="fixed top-4 right-4 z-[10000] px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+        aria-label="退出"
+      >
+        ✕ 退出
+      </button>
+
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
         <p
-          className="text-2xl md:text-4xl font-bold text-white text-center tracking-wide transition-opacity duration-500"
+          className="text-2xl md:text-3xl font-bold text-center tracking-wide"
           style={{
-            opacity: 1,
-            filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.8))',
+            color: '#FFFFFF',
             textShadow:
-              '0 0 20px rgba(227, 93, 106, 0.9), 0 0 40px rgba(227, 93, 106, 0.7), 0 0 60px rgba(227, 93, 106, 0.5)',
+              '0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.8), 0 0 45px rgba(227,93,106,0.6)',
           }}
         >
           {typedText}
