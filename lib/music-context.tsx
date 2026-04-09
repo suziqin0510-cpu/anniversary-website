@@ -29,12 +29,18 @@ interface MusicContextType {
   playPrevious: () => void;
   hasStarted: boolean;
   hasError: boolean;
+  currentTime: number;
+  duration: number;
+  seek: (time: number) => void;
+  isShuffle: boolean;
+  toggleShuffle: () => void;
 }
 
 const MusicContext = createContext<MusicContextType | null>(null);
 
 const STORAGE_INDEX_KEY = 'music_current_index';
 const STORAGE_TIME_KEY = 'music_current_time';
+const STORAGE_SHUFFLE_KEY = 'music_shuffle';
 
 export function MusicProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,9 +52,23 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   });
   const [hasStarted, setHasStarted] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isShuffle, setIsShuffle] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(STORAGE_SHUFFLE_KEY) === 'true';
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const interactionListenerAdded = useRef(false);
   const savedTimeRef = useRef<number | null>(null);
+  const isShuffleRef = useRef(isShuffle);
+
+  useEffect(() => {
+    isShuffleRef.current = isShuffle;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_SHUFFLE_KEY, String(isShuffle));
+    }
+  }, [isShuffle]);
 
   const currentSong = PLAYLIST[currentIndex];
 
@@ -67,7 +87,15 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
     // 监听歌曲结束，自动播放下一首
     const handleEnded = () => {
-      const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+      let nextIndex: number;
+      if (isShuffleRef.current) {
+        nextIndex = Math.floor(Math.random() * PLAYLIST.length);
+        if (nextIndex === currentIndex && PLAYLIST.length > 1) {
+          nextIndex = (nextIndex + 1) % PLAYLIST.length;
+        }
+      } else {
+        nextIndex = (currentIndex + 1) % PLAYLIST.length;
+      }
       setCurrentIndex(nextIndex);
       localStorage.removeItem(STORAGE_TIME_KEY);
       savedTimeRef.current = null;
@@ -78,18 +106,38 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       console.warn(`音频加载失败: ${currentSong.src}`);
       setHasError(true);
       // 自动切换到下一首
-      const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+      let nextIndex: number;
+      if (isShuffleRef.current) {
+        nextIndex = Math.floor(Math.random() * PLAYLIST.length);
+        if (nextIndex === currentIndex && PLAYLIST.length > 1) {
+          nextIndex = (nextIndex + 1) % PLAYLIST.length;
+        }
+      } else {
+        nextIndex = (currentIndex + 1) % PLAYLIST.length;
+      }
       setCurrentIndex(nextIndex);
       localStorage.removeItem(STORAGE_TIME_KEY);
       savedTimeRef.current = null;
     };
 
+    const handleLoadedMetadata = () => {
+      if (audioRef.current) {
+        setDuration(audioRef.current.duration || 0);
+      }
+    };
+
     audioRef.current.addEventListener('ended', handleEnded);
     audioRef.current.addEventListener('error', handleError);
+    audioRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+    // 部分浏览器缓存时不会触发 loadedmetadata，手动补一次
+    if (audioRef.current.readyState >= 1) {
+      handleLoadedMetadata();
+    }
 
     return () => {
       audioRef.current?.removeEventListener('ended', handleEnded);
       audioRef.current?.removeEventListener('error', handleError);
+      audioRef.current?.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audioRef.current?.pause();
     };
   }, [currentIndex, currentSong.src]);
@@ -102,12 +150,15 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       // 更新音频源
       audioRef.current.src = currentSong.src;
       setHasError(false);
+      setDuration(0);
 
       // 恢复之前保存的播放时间（页面切换后接着播）
       if (savedTimeRef.current && !isNaN(savedTimeRef.current)) {
         audioRef.current.currentTime = savedTimeRef.current;
+        setCurrentTime(savedTimeRef.current);
       } else {
         audioRef.current.currentTime = 0;
+        setCurrentTime(0);
       }
 
       // 强制开始播放（无论之前是播放还是暂停状态）
@@ -134,24 +185,25 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isPlaying]);
 
-  // 定期保存播放进度，确保切页后能续播
+  // 定期保存播放进度，确保切页后能续播，并同步 currentTime
   useEffect(() => {
     if (!audioRef.current) return;
 
     const saveProgress = () => {
       if (audioRef.current) {
-        localStorage.setItem(STORAGE_TIME_KEY, audioRef.current.currentTime.toString());
+        const t = audioRef.current.currentTime;
+        setCurrentTime(t);
+        localStorage.setItem(STORAGE_TIME_KEY, t.toString());
       }
     };
 
     const interval = setInterval(saveProgress, 1000);
-    const handleTimeUpdate = saveProgress;
 
-    audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
+    audioRef.current.addEventListener('timeupdate', saveProgress);
 
     return () => {
       clearInterval(interval);
-      audioRef.current?.removeEventListener('timeupdate', handleTimeUpdate);
+      audioRef.current?.removeEventListener('timeupdate', saveProgress);
     };
   }, [currentIndex, currentSong.src]);
 
@@ -165,7 +217,15 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
   // 播放下一首 - 只改变索引，播放由 useEffect 处理
   const playNext = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+    let nextIndex: number;
+    if (isShuffleRef.current) {
+      nextIndex = Math.floor(Math.random() * PLAYLIST.length);
+      if (nextIndex === currentIndex && PLAYLIST.length > 1) {
+        nextIndex = (nextIndex + 1) % PLAYLIST.length;
+      }
+    } else {
+      nextIndex = (currentIndex + 1) % PLAYLIST.length;
+    }
     setCurrentIndex(nextIndex);
     localStorage.removeItem(STORAGE_TIME_KEY);
     savedTimeRef.current = null;
@@ -184,6 +244,20 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       setHasStarted(true);
     }
   }, [currentIndex, hasStarted]);
+
+  // 进度跳转
+  const seek = useCallback((time: number) => {
+    if (audioRef.current) {
+      const safeTime = Math.max(0, Math.min(time, audioRef.current.duration || time));
+      audioRef.current.currentTime = safeTime;
+      setCurrentTime(safeTime);
+    }
+  }, []);
+
+  // 切换乱序/顺序播放
+  const toggleShuffle = useCallback(() => {
+    setIsShuffle((prev) => !prev);
+  }, []);
 
   // 处理浏览器自动播放限制：监听第一次用户交互
   useEffect(() => {
@@ -228,6 +302,11 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
         playPrevious,
         hasStarted,
         hasError,
+        currentTime,
+        duration,
+        seek,
+        isShuffle,
+        toggleShuffle,
       }}
     >
       {children}
