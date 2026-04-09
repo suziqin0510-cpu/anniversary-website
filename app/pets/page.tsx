@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
 import confetti from 'canvas-confetti';
+import { animate, random, remove } from 'animejs';
 import GrandChapterToast from '@/components/GrandChapterToast';
 import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
 import { celebratePets } from '@/lib/utils/celebrate';
@@ -124,17 +125,29 @@ export default function PetsPage() {
 
   // SZQLD 极客暗号逻辑
   const keySeqRef = useRef('');
-  const [isFlipped, setIsFlipped] = useState(false);
   const [showLoveMessage, setShowLoveMessage] = useState(false);
   const [isTriggered, setIsTriggered] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsFlipped(false);
         setShowLoveMessage(false);
         setIsTriggered(false);
         keySeqRef.current = '';
+
+        remove('.js-gravity-fragment');
+        document.querySelectorAll('.js-gravity-fragment').forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.position = '';
+          htmlEl.style.top = '';
+          htmlEl.style.left = '';
+          htmlEl.style.width = '';
+          htmlEl.style.height = '';
+          htmlEl.style.zIndex = '';
+          htmlEl.style.margin = '';
+          htmlEl.style.transform = '';
+          htmlEl.style.opacity = '';
+        });
         return;
       }
       if (isTriggered) return;
@@ -143,40 +156,51 @@ export default function PetsPage() {
 
       if (keySeqRef.current === 'szqld') {
         setIsTriggered(true);
-        setIsFlipped(true);
 
-        // 0.5s 后：夸张玫瑰雨 (极高密度，总计约 1000 粒子爆发)
-        setTimeout(() => {
-          const colors = ['#E35D6A', '#F472B6', '#FB7185', '#FDA4AF', '#FECDD3', '#FFFFFF'];
-          const shared = {
-            colors,
-            shapes: ['circle' as const],
-            scalar: 2,
-            gravity: 1.2,
-            drift: 0,
-            ticks: 300,
-          };
+        // 物理崩塌 + 玫瑰雨
+        const colors = ['#E35D6A', '#F472B6', '#FB7185', '#FDA4AF', '#FECDD3', '#FFFFFF'];
+        const burst = (delay: number) => {
+          setTimeout(() => {
+            confetti({ colors, shapes: ['circle'], scalar: 2, gravity: 1.2, drift: 0, ticks: 300, particleCount: 200, spread: 360, origin: { x: 0.5, y: 0.5 } });
+            confetti({ colors, shapes: ['circle'], scalar: 2, gravity: 1.2, drift: 0, ticks: 300, particleCount: 200, spread: 180, origin: { x: 0.2, y: 0.4 } });
+            confetti({ colors, shapes: ['circle'], scalar: 2, gravity: 1.2, drift: 0, ticks: 300, particleCount: 200, spread: 180, origin: { x: 0.8, y: 0.4 } });
+            confetti({ colors, shapes: ['circle'], scalar: 2, gravity: 1.2, drift: 0, ticks: 300, particleCount: 200, spread: 180, origin: { x: 0.3, y: 0.7 } });
+            confetti({ colors, shapes: ['circle'], scalar: 2, gravity: 1.2, drift: 0, ticks: 300, particleCount: 200, spread: 180, origin: { x: 0.7, y: 0.7 } });
+          }, delay);
+        };
+        burst(0);
+        burst(400);
+        burst(800);
 
-          // 核心爆发 ~1000 粒子
-          const burst = (delay: number) => {
-            setTimeout(() => {
-              confetti({ ...shared, particleCount: 200, spread: 360, origin: { x: 0.5, y: 0.5 }, angle: 0 });
-              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.2, y: 0.4 }, angle: 60 });
-              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.8, y: 0.4 }, angle: 120 });
-              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.3, y: 0.7 }, angle: 90 });
-              confetti({ ...shared, particleCount: 200, spread: 180, origin: { x: 0.7, y: 0.7 }, angle: 90 });
-            }, delay);
-          };
+        // 阶段 A：脱离与散落
+        const fragments = document.querySelectorAll('.js-gravity-fragment');
+        fragments.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.position = 'fixed';
+          htmlEl.style.top = `${rect.top}px`;
+          htmlEl.style.left = `${rect.left}px`;
+          htmlEl.style.width = `${rect.width}px`;
+          htmlEl.style.height = `${rect.height}px`;
+          htmlEl.style.zIndex = '100';
+          htmlEl.style.margin = '0';
+        });
 
-          burst(0);
-          burst(400);
-          burst(800);
-        }, 500);
+        animate('.js-gravity-fragment', {
+          top: () => random(0, 180) + 'px',
+          left: () => random(0, window.innerWidth - 80) + 'px',
+          rotate: () => random(-720, 720),
+          scale: [1, random(0.7, 0.95)],
+          opacity: [1, random(0.8, 1)],
+          delay: () => random(0, 500),
+          duration: 1200,
+          easing: 'easeOutBounce',
+        });
 
-        // 2s 后：终极告白
+        // 阶段 B：终极告白
         setTimeout(() => {
           setShowLoveMessage(true);
-        }, 2000);
+        }, 800);
       }
     };
 
@@ -230,9 +254,9 @@ export default function PetsPage() {
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
       <GrandChapterToast toast={toast} />
-      <div className={`min-h-screen pt-24 pb-12 relative z-10 transition-transform duration-1000 ${isFlipped ? 'scale-y-[-1]' : ''}`}>
+      <div className="min-h-screen pt-24 pb-12 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12 js-gravity-fragment">
           <div className="flex justify-center mb-4"><HandDrawnPaw /></div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 font-handwriting drop-shadow-lg">宠物专区</h1>
           <p className="text-white/90 drop-shadow-md">盼盼和石榴，我们小窝里的两位毛孩子</p>
@@ -246,7 +270,7 @@ export default function PetsPage() {
             const isShaking = isShiliu ? isShiliuShaking : isPanpanBarking;
 
             return (
-              <motion.div key={pet.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+              <motion.div key={pet.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="js-gravity-fragment">
                 <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} perspective={1000} scale={1.02} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
                   {/* 卡片容器 - relative 用于定位彩蛋气泡，overflow-visible 确保气泡不被裁剪 */}
                   <div className="glass-card rounded-3xl p-6 h-full relative overflow-visible group glass-card-hover bg-white/30">
@@ -309,13 +333,13 @@ export default function PetsPage() {
         </div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-12">
-          <h3 className="text-xl font-medium text-white mb-6 flex items-center drop-shadow-md">
+          <h3 className="text-xl font-medium text-white mb-6 flex items-center drop-shadow-md js-gravity-fragment">
             <HandDrawnPaw />
             <span className="ml-2">毛孩子的日常</span>
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {petMoments.map((moment, index) => (
-              <motion.div key={moment.title} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + index * 0.1 }}>
+              <motion.div key={moment.title} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + index * 0.1 }} className="js-gravity-fragment">
                 <Tilt tiltMaxAngleX={15} tiltMaxAngleY={15} perspective={1000} scale={1.05} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1rem" style={{ borderRadius: '1rem' }}>
                   <div className="glass-card rounded-2xl p-4 text-center glass-card-hover bg-white/30">
                     <div className="w-12 h-12 mx-auto mb-3 rounded-xl glass-card-highlight bg-white/20 flex items-center justify-center">
@@ -330,7 +354,7 @@ export default function PetsPage() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="js-gravity-fragment">
           <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.01} glareEnable={true} glareMaxOpacity={0.1} glareColor="#E35D6A" glarePosition="all" glareBorderRadius="1.5rem" style={{ borderRadius: '1.5rem' }}>
             <div className="glass-card rounded-3xl p-8 text-center bg-white/30">
               <div className="flex items-center justify-center space-x-2 mb-4">
@@ -368,7 +392,7 @@ export default function PetsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 ${isFlipped ? 'scale-y-[-1]' : ''}`}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
           >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <motion.div
