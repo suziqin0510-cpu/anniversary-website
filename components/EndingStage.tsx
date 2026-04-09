@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useMusic } from '@/lib/music-context';
 
 const FULL_TEXT = '这些代码写不出的，我想亲口说给你听';
 
@@ -20,6 +21,8 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const music = useMusic();
 
   // Mount: brute-force cleanup (runs once)
   useEffect(() => {
@@ -77,6 +80,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       }
       try {
         sourceRef.current?.disconnect();
+        gainRef.current?.disconnect();
         analyserRef.current?.disconnect();
         sharedAudioCtxRef.current?.close();
       } catch {}
@@ -88,6 +92,16 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   const handleStartSignal = async () => {
     if (phase !== 'spotlight') return;
     setPhase('typing');
+
+    // Pause BGM via context and brute-force any stray DOM audio
+    music.pause();
+    document.querySelectorAll('audio').forEach((audio) => {
+      try {
+        audio.pause();
+        (audio as HTMLAudioElement).muted = true;
+        audio.currentTime = 0;
+      } catch {}
+    });
 
     // 1. Initialize shared AudioContext inside user gesture
     const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
@@ -108,7 +122,14 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
       analyserRef.current = analyser;
       const source = audioCtx.createMediaElementSource(audio);
       sourceRef.current = source;
-      source.connect(analyser);
+
+      // Boost quiet voice recording
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = 2.5;
+      gainRef.current = gainNode;
+
+      source.connect(gainNode);
+      gainNode.connect(analyser);
       analyser.connect(audioCtx.destination);
 
       await audio.play();
