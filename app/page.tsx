@@ -185,13 +185,6 @@ function LockedCardLink({
           </p>
         </div>
       </Link>
-      {/* 微观标记 */}
-      <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
-      <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
-      <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
-      <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
-      <span className="absolute top-3 left-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">ID_{(href.replace(/\//g, '') || 'HOME').toUpperCase()}</span>
-      <span className="absolute bottom-3 right-3 text-[10px] font-mono-micro tracking-[0.2em] text-white/40 z-20">v1.0</span>
     </motion.div>
   );
 }
@@ -476,12 +469,6 @@ function DarkroomCard() {
       <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl py-8 px-6 sm:px-10 flex flex-row items-center justify-between cursor-pointer relative overflow-hidden">
         {/* 噪点 overlay */}
         <div className="noise-overlay rounded-2xl" />
-
-        {/* 微观标记 - 纯装饰细线 */}
-        <div className="corner-mark top-3 left-3 border-l border-t border-white/30" />
-        <div className="corner-mark top-3 right-3 border-r border-t border-white/30" />
-        <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30" />
-        <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30" />
 
         {/* 左侧文案 */}
         <div className="flex flex-col items-start relative z-10">
@@ -775,11 +762,6 @@ function PetSectionCard() {
           <p className="text-[10px] text-gray-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">{isLocked ? '关卡未解锁' : '盼盼 & 石榴'}</p>
         </div>
       </Link>
-      {/* 微观标记 - 纯装饰细线 */}
-      <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
-      <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
-      <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
-      <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
     </motion.div>
   );
 }
@@ -873,12 +855,6 @@ function ImageCard({
 
             {/* 噪点胶片 overlay */}
             <div className="noise-overlay rounded-3xl" />
-
-            {/* 微观标记 - 四角（纯装饰细线） */}
-            <div className="corner-mark top-3 left-3 border-l border-t" />
-            <div className="corner-mark top-3 right-3 border-r border-t" />
-            <div className="corner-mark bottom-3 left-3 border-l border-b" />
-            <div className="corner-mark bottom-3 right-3 border-r border-b" />
 
             {/* 装饰光斑 */}
             <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
@@ -999,10 +975,6 @@ export default function HomePage() {
             <OrganicReveal delay={0.3}>
               <div className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60 relative overflow-hidden">
                 <div className="noise-overlay rounded-3xl" />
-                <div className="corner-mark top-2 left-2 border-l border-t border-white/30" />
-                <div className="corner-mark top-2 right-2 border-r border-t border-white/30" />
-                <div className="corner-mark bottom-2 left-2 border-l border-b border-white/30" />
-                <div className="corner-mark bottom-2 right-2 border-r border-b border-white/30" />
                 <div className="relative z-10">
                   <MissYouButton />
                 </div>
@@ -1062,12 +1034,6 @@ export default function HomePage() {
                     {/* 噪点 overlay */}
                     <div className="noise-overlay rounded-3xl" />
 
-                    {/* 微观标记 - 纯装饰细线 */}
-                    <div className="corner-mark top-3 left-3 border-l border-t border-white/30 z-20" />
-                    <div className="corner-mark top-3 right-3 border-r border-t border-white/30 z-20" />
-                    <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30 z-20" />
-                    <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30 z-20" />
-
                     {/* 播放图标 */}
                     <div className="absolute inset-0 flex items-center justify-center z-10">
                       <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -1121,10 +1087,6 @@ export default function HomePage() {
             <OrganicReveal delay={0.4}>
               <div className="h-48 sm:h-56 relative overflow-hidden rounded-3xl">
                 <div className="noise-overlay rounded-3xl" />
-                <div className="corner-mark top-3 left-3 border-l border-t border-white/30 z-20" />
-                <div className="corner-mark top-3 right-3 border-r border-t border-white/30 z-20" />
-                <div className="corner-mark bottom-3 left-3 border-l border-b border-white/30 z-20" />
-                <div className="corner-mark bottom-3 right-3 border-r border-b border-white/30 z-20" />
                 <div className="relative z-10 h-full">
                   <ScratchCard />
                 </div>
