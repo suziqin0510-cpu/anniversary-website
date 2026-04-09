@@ -1183,7 +1183,7 @@ export default function TimelinePage() {
   const [showAABill, setShowAABill] = useState(false);
   const [showSnowClue, setShowSnowClue] = useState(false);
   const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [selectedYear, setSelectedYear] = useState(2025);
+  const [selectedYear, setSelectedYear] = useState(2026);
   const { showToast } = useGame();
 
   // Emoji 线索解锁反馈 Toast
@@ -1473,7 +1473,7 @@ export default function TimelinePage() {
           />
         </div>
 
-        {selectedYear === 2025 ? (
+        {selectedYear === 2026 ? (
           <>
             {/* 章节进度条 */}
         <div className="mb-8">
