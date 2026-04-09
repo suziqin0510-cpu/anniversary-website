@@ -10,68 +10,51 @@ interface EndingStageProps {
   onComplete: () => void;
 }
 
-function playSyntheticTypewriter() {
-  if (typeof window === 'undefined') return;
-  // Fire-and-forget: run in next microtask so any audio failure never blocks caller
-  Promise.resolve().then(() => {
-    try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
-      const duration = 0.045;
-      const sampleRate = ctx.sampleRate;
-      const buffer = ctx.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < data.length; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.value = 2800;
-      filter.Q.value = 0.8;
-      const gain = ctx.createGain();
-      const now = ctx.currentTime;
-      gain.gain.setValueAtTime(0.35, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      source.start(now);
-      source.stop(now + duration + 0.02);
-      setTimeout(() => {
-        try {
-          ctx.close();
-        } catch {}
-      }, 120);
-    } catch {
-      // silently ignore audio synthesis failures
-    }
-  });
-}
-
 export default function EndingStage({ onComplete }: EndingStageProps) {
-  const [phase, setPhase] = useState<'shake' | 'spotlight' | 'waveform' | 'finale'>('shake');
+  const [phase, setPhase] = useState<'shake' | 'spotlight' | 'typing' | 'waveform' | 'finale'>('shake');
   const [typedText, setTypedText] = useState('');
   const [showWaveform, setShowWaveform] = useState(false);
   const [isWaveformActive, setIsWaveformActive] = useState(false);
-  const [hasClickedWaveform, setHasClickedWaveform] = useState(false);
+  const [hasStartedTyping, setHasStartedTyping] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sharedAudioCtxRef = useRef<AudioContext | null>(null);
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const music = useMusic();
 
-  // Phase 1: Screen shake -> spotlight after 3s
+  // Mount: brute-force cleanup
   useEffect(() => {
-    console.log('[EndingStage] Ending sequence started');
+    console.log('[EndingStage] Mount - sequence starting');
     document.body.classList.add('violent-shake');
     document.body.style.background = '#000000';
+    document.body.style.overflow = 'hidden';
 
+    // Kill BGM from MusicContext
+    try {
+      music.pause();
+    } catch {}
+
+    // Kill any <audio> elements in the DOM
+    document.querySelectorAll('audio').forEach((audio) => {
+      try {
+        audio.pause();
+        (audio as HTMLAudioElement).muted = true;
+        audio.currentTime = 0;
+      } catch {}
+    });
+
+    // Remove lingering confetti canvases
+    document.querySelectorAll('canvas').forEach((c) => {
+      const style = window.getComputedStyle(c);
+      if (style.position === 'fixed' && style.pointerEvents === 'none' && c !== canvasRef.current) {
+        c.remove();
+      }
+    });
+
+    // Shake -> spotlight after 3s
     const t1 = setTimeout(() => {
       document.body.classList.remove('violent-shake');
       const body = document.body;
@@ -81,37 +64,123 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         body.style.transform = '';
       }
       setPhase('spotlight');
-      console.log('[EndingStage] Spotlight started');
+      console.log('[EndingStage] Spotlight ready');
     }, 3000);
 
     return () => {
       clearTimeout(t1);
       document.body.classList.remove('violent-shake');
+      document.body.style.overflow = '';
     };
-  }, []);
+  }, [music]);
 
-  // Phase 2: Typewriter
-  useEffect(() => {
-    if (phase !== 'spotlight') return;
+  // User click to start - this is the key gesture to unlock all audio
+  const handleStartSignal = async () => {
+    if (phase !== 'spotlight' || hasStartedTyping) return;
+    setHasStartedTyping(true);
+    setPhase('typing');
+
+    console.log('[EndingStage] User clicked start signal - unlocking audio');
+
+    // 1. Initialize shared AudioContext inside user gesture
+    const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+    const audioCtx = new AudioContextClass();
+    sharedAudioCtxRef.current = audioCtx;
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+
+    // 2. Prepare voice audio and Web Audio graph inside the same gesture
+    const audio = new Audio('/sounds/final_voice_letter.m4a');
+    voiceAudioRef.current = audio;
+    audio.volume = 1;
+
+    try {
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyserRef.current = analyser;
+      const source = audioCtx.createMediaElementSource(audio);
+      sourceRef.current = source;
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      // Unlock the audio element: play -> pause immediately (registers permission)
+      await audio.play();
+      audio.pause();
+      audio.currentTime = 0;
+      console.log('[EndingStage] Voice audio unlocked successfully');
+    } catch (err) {
+      console.warn('[EndingStage] Voice audio unlock attempt failed:', err);
+    }
+
+    // 3. Typewriter sequence using the shared AudioContext
     let index = 0;
     const timer = setInterval(() => {
       if (index < FULL_TEXT.length) {
         setTypedText(FULL_TEXT.slice(0, index + 1));
-        playSyntheticTypewriter();
+        // Synthetic typewriter click
+        try {
+          const duration = 0.045;
+          const sampleRate = audioCtx.sampleRate;
+          const buffer = audioCtx.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const sourceNode = audioCtx.createBufferSource();
+          sourceNode.buffer = buffer;
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.value = 2800;
+          filter.Q.value = 0.8;
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          sourceNode.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          sourceNode.start();
+          sourceNode.stop(audioCtx.currentTime + duration + 0.02);
+        } catch {}
         index++;
       } else {
         clearInterval(timer);
+        // Small pause then show waveform and auto-play voice
         setTimeout(() => {
-          setPhase('waveform');
           setShowWaveform(true);
-          console.log('[EndingStage] Ready for audio');
-        }, 600);
+          setPhase('waveform');
+          console.log('[EndingStage] Waveform shown - auto-playing voice');
+          startVoicePlayback();
+        }, 500);
       }
     }, 150);
-    return () => clearInterval(timer);
-  }, [phase]);
+  };
 
-  // Canvas waveform drawing loop
+  const startVoicePlayback = async () => {
+    const audio = voiceAudioRef.current;
+    if (!audio) {
+      setPhase('finale');
+      return;
+    }
+
+    try {
+      setIsWaveformActive(true);
+      await audio.play();
+      audio.addEventListener('ended', () => {
+        setIsWaveformActive(false);
+        setPhase('finale');
+      });
+    } catch (err) {
+      console.error('[EndingStage] Auto-play voice failed:', err);
+      // Graceful fallback: show waveform without animation, then exit
+      setTimeout(() => {
+        setIsWaveformActive(false);
+        setPhase('finale');
+      }, 4000);
+    }
+  };
+
+  // Canvas drawing loop
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -186,65 +255,19 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
     };
   }, [phase, draw]);
 
-  const handleWaveformClick = async () => {
-    if (hasClickedWaveform || phase !== 'waveform') return;
-    setHasClickedWaveform(true);
-    setIsWaveformActive(true);
-    music.pause();
-
-    const audio = new Audio('/sounds/final_voice_letter.m4a');
-    voiceAudioRef.current = audio;
-    audio.volume = 1;
-
-    // Graceful fallback if the file is missing
-    audio.addEventListener('error', () => {
-      console.error('[EndingStage] /sounds/final_voice_letter.m4a 加载失败，请确认文件已上传！');
-      setTimeout(() => {
-        setIsWaveformActive(false);
-        setPhase('finale');
-      }, 3000);
-    });
-
-    try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const audioCtx = new AudioContextClass();
-      audioCtxRef.current = audioCtx;
-      if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-      }
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      analyserRef.current = analyser;
-      const source = audioCtx.createMediaElementSource(audio);
-      sourceRef.current = source;
-      source.connect(analyser);
-      analyser.connect(audioCtx.destination);
-      await audio.play();
-
-      audio.addEventListener('ended', () => {
-        setIsWaveformActive(false);
-        setPhase('finale');
-      });
-    } catch (err) {
-      console.error('[EndingStage] Voice letter playback failed:', err);
-      setTimeout(() => {
-        setIsWaveformActive(false);
-        setPhase('finale');
-      }, 3000);
-    }
-  };
-
-  // Phase 4: Finale restoration
+  // Finale cleanup
   useEffect(() => {
     if (phase !== 'finale') return;
     if (voiceAudioRef.current) {
-      voiceAudioRef.current.pause();
-      voiceAudioRef.current.currentTime = 0;
+      try {
+        voiceAudioRef.current.pause();
+        voiceAudioRef.current.currentTime = 0;
+      } catch {}
     }
     try {
       sourceRef.current?.disconnect();
       analyserRef.current?.disconnect();
-      audioCtxRef.current?.close();
+      sharedAudioCtxRef.current?.close();
     } catch {}
 
     document.body.style.background = '';
@@ -257,7 +280,7 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
   return (
     <div className="fixed inset-0 z-[9999] bg-black">
       {/* Spotlight */}
-      {(phase === 'spotlight' || phase === 'waveform') && (
+      {(phase === 'spotlight' || phase === 'typing' || phase === 'waveform') && (
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -290,22 +313,43 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
         ✕ 退出
       </button>
 
-      {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+      {/* Center Stage */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-[9999]">
+        {/* Glowing typewriter text */}
         <p
-          className="text-2xl md:text-3xl font-bold text-center tracking-wide"
+          className="text-2xl md:text-3xl font-bold text-center tracking-wide text-white"
           style={{
-            color: '#FFFFFF',
             textShadow:
               '0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.8), 0 0 45px rgba(227,93,106,0.6)',
           }}
         >
           {typedText}
-          {phase !== 'finale' && (
+          {phase !== 'finale' && typedText.length > 0 && (
             <span className="inline-block w-1 h-8 md:h-10 bg-white ml-1 align-middle animate-pulse" />
           )}
         </p>
 
+        {/* Start signal button */}
+        <AnimatePresence>
+          {phase === 'spotlight' && !hasStartedTyping && (
+            <motion.button
+              key="start-signal"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.5 }}
+              onClick={handleStartSignal}
+              className="mt-10 px-8 py-3 rounded-full border border-white/30 bg-white/10 text-white text-sm md:text-base tracking-widest backdrop-blur-sm hover:bg-white/20 hover:border-white/50 transition-all animate-pulse"
+              style={{
+                boxShadow: '0 0 20px rgba(255,255,255,0.15)',
+              }}
+            >
+              点击接收最后的信号
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {/* Waveform */}
         <AnimatePresence>
           {phase === 'waveform' && showWaveform && (
             <motion.div
@@ -315,31 +359,18 @@ export default function EndingStage({ onComplete }: EndingStageProps) {
               transition={{ duration: 0.6 }}
               className="mt-12 flex flex-col items-center"
             >
-              <button
-                onClick={handleWaveformClick}
-                disabled={hasClickedWaveform}
-                className={`relative w-72 h-32 md:w-96 md:h-40 rounded-2xl border transition-all ${
-                  hasClickedWaveform
-                    ? 'border-[#E35D6A]/40 cursor-default'
-                    : 'border-[#E35D6A]/70 hover:border-[#E35D6A] cursor-pointer hover:shadow-[0_0_30px_rgba(227,93,106,0.3)]'
-                } bg-black/20 backdrop-blur-sm`}
+              <div
+                className="relative w-72 h-32 md:w-96 md:h-40 rounded-2xl border border-[#E35D6A]/70 bg-black/20 backdrop-blur-sm overflow-hidden"
               >
                 <canvas
                   ref={canvasRef}
-                  className="absolute inset-0 w-full h-full rounded-2xl"
+                  className="absolute inset-0 w-full h-full"
                 />
-              </button>
+              </div>
 
-              {!hasClickedWaveform && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="mt-4 text-sm text-white/80 tracking-wider"
-                >
-                  点击波形，听我说
-                </motion.p>
-              )}
+              <p className="mt-4 text-sm text-white/80 tracking-wider">
+                正在播放...
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
