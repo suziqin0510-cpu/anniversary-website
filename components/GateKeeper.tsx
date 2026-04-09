@@ -246,7 +246,7 @@ export default function GateKeeper({ children }: GateKeeperProps) {
                 className="mb-10 flex items-center justify-center gap-2 font-mono-micro text-[10px] md:text-xs tracking-widest text-white/50"
               >
                 <span className="inline-block w-1.5 h-px bg-white/40" />
-                <span>ENTER OVERRIDE CODE_</span>
+                <span>Happy First Anniversary of Our Love</span>
                 <span className="inline-block w-1.5 h-px bg-white/40" />
               </motion.div>
 
@@ -301,7 +301,7 @@ export default function GateKeeper({ children }: GateKeeperProps) {
                   animate={{ opacity: inputValue.trim().length > 0 ? 1 : 0.5 }}
                   className="mt-4 font-mono-micro text-[10px] tracking-widest text-white/30"
                 >
-                  {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : 'AWAITING INPUT_'}
+                  {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : '专属我们的恋爱暗号'}
                 </motion.p>
 
                 {/* 错误 / 成功提示 */}
