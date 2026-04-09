@@ -8,6 +8,7 @@ import ScratchCard from '@/components/ScratchCard';
 import CinemaModal from '@/components/CinemaModal';
 import InventoryBar from '@/components/InventoryBar';
 import PolaroidFlip from '@/components/PolaroidFlip';
+import RelationshipStats from '@/components/RelationshipStats';
 import { useGame, Letter, LEVEL_ROUTES } from '@/lib/game-context';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
@@ -911,6 +912,16 @@ export default function HomePage() {
           >
             "在这个充满变数的世界里，我为你撑起一个永远恒温的小窝"
           </motion.p>
+        </motion.div>
+
+        {/* 爱情仪表盘 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-12"
+        >
+          <RelationshipStats />
         </motion.div>
 
         {/* ===== V9.0 艺术手账本布局 ===== */}

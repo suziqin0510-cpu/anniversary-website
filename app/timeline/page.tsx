@@ -7,6 +7,9 @@ import Tilt from 'react-parallax-tilt';
 import TimeCapsule from '@/components/TimeCapsule';
 import MasterGatekeeper from '@/components/MasterGatekeeper';
 import GrandChapterToast from '@/components/GrandChapterToast';
+import YearSelector from '@/components/YearSelector';
+import { YEARS } from '@/lib/year-config';
+import { useGame } from '@/lib/game-context';
 import { useGrandChapterCelebration } from '@/lib/hooks/useGrandChapterCelebration';
 import { celebrateTimeline } from '@/lib/utils/celebrate';
 import { playUnlock } from '@/lib/utils/playSound';
@@ -1180,6 +1183,8 @@ export default function TimelinePage() {
   const [showAABill, setShowAABill] = useState(false);
   const [showSnowClue, setShowSnowClue] = useState(false);
   const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const { showToast } = useGame();
 
   // Emoji 线索解锁反馈 Toast
   const [clueToast, setClueToast] = useState<{
@@ -1460,7 +1465,17 @@ export default function TimelinePage() {
           <p className="text-[#9B6A6C] text-sm">从昆明开始，到一起的未来</p>
         </motion.div>
 
-        {/* 章节进度条 */}
+        <div className="flex justify-center mb-6">
+          <YearSelector
+            selectedYear={selectedYear}
+            onSelectYear={setSelectedYear}
+            onLockedClick={(text) => showToast(text)}
+          />
+        </div>
+
+        {selectedYear === 2025 ? (
+          <>
+            {/* 章节进度条 */}
         <div className="mb-8">
           <div className="flex items-center justify-between relative px-2">
             <div className="absolute top-1/2 left-2 right-2 h-0.5 bg-rose-200/50 -translate-y-1/2" />
@@ -1699,6 +1714,10 @@ export default function TimelinePage() {
             <ChevronRight className="w-4 h-4 text-[#E35D6A]" />
           </button>
         </div>
+          </>
+        ) : (
+          <LockedYearPlaceholder year={selectedYear} />
+        )}
       </div>
 
       {/* 照片预览弹窗 */}
@@ -1823,6 +1842,20 @@ export default function TimelinePage() {
     </div>
   );
 }
+
+const LockedYearPlaceholder = ({ year }: { year: number }) => {
+  const yearConfig = YEARS.find((y) => y.year === year);
+  return (
+    <div className="py-20 text-center">
+      <div className="inline-flex flex-col items-center bg-white/60 backdrop-blur-md rounded-3xl p-10 border border-white/70 shadow-xl">
+        <Lock className="w-16 h-16 text-rose-300 mb-4" />
+        <h3 className="text-xl font-bold text-[#7C444F] mb-2">{yearConfig?.title}</h3>
+        <p className="text-[#9B6A6C] mb-4">该章节尚未解锁，敬请期待</p>
+        <span className="text-xs text-rose-400/70">{yearConfig?.subtitle}</span>
+      </div>
+    </div>
+  );
+};
 
 // ==================== 新增游戏组件 ====================
 
