@@ -262,7 +262,7 @@ export default function PetsPage() {
     <>
       <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/pets_bg.png?v=1')" }}
+        style={{ backgroundImage: "url('/pets_bg.png?v=2')" }}
       />
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
       <GrandChapterToast toast={toast} />
