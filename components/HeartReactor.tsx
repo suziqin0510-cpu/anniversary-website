@@ -257,7 +257,7 @@ export default function HeartReactor() {
                 >
                   <div className="bg-white p-2 pb-6 rounded-xl shadow-2xl rotate-1">
                     <img
-                      src="/images/9607ee30635b921d2b85d787a80249bd.jpg"
+                      src="https://i.ibb.co/4HTy8Y3/9607ee30635b921d2b85d787a80249bd.jpg"
                       alt="专属回忆"
                       className="w-full rounded-lg"
                     />
