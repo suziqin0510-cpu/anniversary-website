@@ -1180,6 +1180,14 @@ export default function TimelinePage() {
   const [showSnowClue, setShowSnowClue] = useState(false);
   const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Emoji 线索解锁反馈 Toast
+  const [clueToast, setClueToast] = useState<{
+    show: boolean;
+    emoji: string;
+    title: string;
+    message: string;
+  }>({ show: false, emoji: '', title: '', message: '' });
+
   const { toast } = useGrandChapterCelebration({
     level: 1,
     id: 'timeline',
@@ -1201,6 +1209,29 @@ export default function TimelinePage() {
     return [false, false, false, false];
   });
 
+  const clueMessages = [
+    {
+      emoji: '🍲',
+      title: '初见',
+      message: '还记得那顿火锅吗？恭喜你，找到了第一个Emoji，快去找第二个吧。',
+    },
+    {
+      emoji: '🏔️',
+      title: '旅程',
+      message: '恭喜你找到第二个Emoji。这座山代表我们的旅程，我们的旅程还在继续，请你牵着我的手，我们将走完这个世界，快去找第三个Emoji吧。',
+    },
+    {
+      emoji: '🐱',
+      title: '生活',
+      message: '恭喜你老婆，找到了第三个Emoji，这只小猫代表着我们可爱的小家，有你我有盼盼有石榴，快去找第四个emoji吧。',
+    },
+    {
+      emoji: '✈️',
+      title: '跨越山海',
+      message: '我靠，这么隐蔽都被你找到了，还是你聪明呀。这个飞机代表着我们永远在路上的心。快去输入正确的密码吧，时光之门已开启。',
+    },
+  ];
+
   const unlockSlot = (index: number) => {
     if (!unlockedSlots[index]) {
       setUnlockedSlots(prev => {
@@ -1208,6 +1239,14 @@ export default function TimelinePage() {
         newState[index] = true;
         return newState;
       });
+      // 弹出定制化文案
+      const config = clueMessages[index];
+      if (config) {
+        setClueToast({ show: true, ...config });
+        setTimeout(() => {
+          setClueToast(prev => ({ ...prev, show: false }));
+        }, 4500);
+      }
       return true;
     }
     return false;
@@ -1718,6 +1757,67 @@ export default function TimelinePage() {
 
       {/* 时光密码锁 - 通往足迹地图 */}
       <MasterGatekeeper unlockedSlots={unlockedSlots} />
+
+      {/* Emoji 线索解锁反馈 Toast */}
+      <AnimatePresence>
+        {clueToast.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4 pointer-events-none"
+          >
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: -20 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+              className="relative max-w-md w-full bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_20px_60px_rgba(227,93,106,0.35)] rounded-3xl p-8 text-center pointer-events-auto"
+            >
+              {/* 发光背景装饰 */}
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-rose-200/30 via-amber-100/20 to-rose-200/30 -z-10" />
+
+              {/* Emoji 图标 */}
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 15, delay: 0.1 }}
+                className="text-6xl mb-4"
+              >
+                {clueToast.emoji}
+              </motion.div>
+
+              {/* 标题 */}
+              <motion.h3
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="text-xl font-bold text-[#E35D6A] mb-3"
+              >
+                {clueToast.title}
+              </motion.h3>
+
+              {/* 文案 */}
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="text-[#7C444F] text-base leading-relaxed"
+              >
+                {clueToast.message}
+              </motion.p>
+
+              {/* 底部装饰线 */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="mt-6 h-1 w-16 mx-auto rounded-full bg-gradient-to-r from-[#E35D6A] to-[#F4A460]"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
