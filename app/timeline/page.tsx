@@ -1250,6 +1250,10 @@ export default function TimelinePage() {
       <span className="relative inline-block">
         <span
           onClick={handleInteract}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            handleInteract();
+          }}
           onMouseEnter={handleInteract}
           onMouseLeave={() => setShowTip(false)}
           className={`cursor-pointer border-b border-dashed transition-colors ${
