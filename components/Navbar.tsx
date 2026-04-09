@@ -22,7 +22,7 @@ const navItems = [
 
 // 正红色小爱心
 const RedHeartSmall = () => (
-  <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
+  <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4 animate-pulse">
     <path
       d="M10 17.35l-1-1C4.5 12.36 2 9.78 2 6.5 2 4 4 2 6.5 2c1.5 0 2.9.7 3.5 1.8C10.6 2.7 12 2 13.5 2 16 2 18 4 18 6.5c0 3.28-2.5 5.86-7 9.85l-1 1z"
       fill="#DC2626"
@@ -197,9 +197,9 @@ export default function Navbar() {
             {/* Status Indicator & Theme Switcher */}
             <div className="hidden md:flex items-center space-x-3">
               <ThemeSwitcher />
-              <div className="flex items-center space-x-1.5 px-4 py-1.5 glass-card rounded-full">
+              <div className="flex items-center space-x-1.5 px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/60 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/30 transition-all duration-300 rounded-full">
                 <RedHeartSmall />
-                <span className="text-xs text-white/90 drop-shadow-md">
+                <span className="text-xs text-white font-medium drop-shadow-md">
                   {unlockedLevels.length > 0 ? `已解锁 ${unlockedLevels.length} 关` : '温暖相伴'}
                 </span>
               </div>
