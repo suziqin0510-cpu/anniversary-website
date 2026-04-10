@@ -1181,6 +1181,11 @@ export default function TimelinePage() {
   const [decryptionModalOpen, setDecryptionModalOpen] = useState(false);
   const [showVIPCard, setShowVIPCard] = useState(false);
   const [showMVPBadge, setShowMVPBadge] = useState(false);
+
+  // 跨越山海 - 距离归零交互状态
+  const [distanceZero, setDistanceZero] = useState(false);
+  const [currentDistance, setCurrentDistance] = useState(2500);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [showAABill, setShowAABill] = useState(false);
   const [showSnowClue, setShowSnowClue] = useState(false);
   const photoHoverTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -1413,32 +1418,90 @@ export default function TimelinePage() {
         </>
       );
     } else if (chapter.id === 'chapter4') {
+      const handleGoodNightClick = () => {
+        if (distanceZero || isAnimating) return;
+        setIsAnimating(true);
+        
+        const duration = 1500;
+        const startTime = Date.now();
+        const startValue = 2500;
+        
+        const animate = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(startValue * (1 - easeOut));
+          
+          setCurrentDistance(current);
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            setCurrentDistance(0);
+            setDistanceZero(true);
+            setIsAnimating(false);
+          }
+        };
+        
+        requestAnimationFrame(animate);
+      };
+      
       return (
         <>
-          2500公里的距离，是考验也是期待。
+          <AnimatePresence mode="wait">
+            {!distanceZero ? (
+              <motion.span
+                key="distance-line"
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.5 }}
+                className="block"
+              >
+                <motion.span
+                  animate={isAnimating ? { 
+                    textShadow: ['0 0 10px rgba(244,114,182,0.3)', '0 0 20px rgba(244,114,182,0.6)', '0 0 10px rgba(244,114,182,0.3)'] 
+                  } : {}}
+                  transition={{ duration: 0.5, repeat: isAnimating ? Infinity : 0 }}
+                >
+                  {currentDistance}
+                </motion.span>
+                公里的距离，是考验也是期待。
+              </motion.span>
+            ) : (
+              <motion.span
+                key="zero-line"
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="block"
+              >
+                <motion.span
+                  animate={{ 
+                    textShadow: ['0 0 15px rgba(244,114,182,0.5)', '0 0 30px rgba(244,114,182,0.8)', '0 0 15px rgba(244,114,182,0.5)'],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="text-pink-300"
+                >
+                  0
+                </motion.span>
+                {' '}公里的距离，因为你就在我心里。
+              </motion.span>
+            )}
+          </AnimatePresence>
           <br /><br />
-          我知道你打游戏时总爱说自己是
-          <span 
-            onClick={() => setShowMVPBadge(true)}
-            className="relative cursor-pointer font-bold text-purple-600 mx-1 hover:underline decoration-wavy"
+          我知道异地的日子里，隔着屏幕的陪伴总显得单薄。但每次视频快结束时我那句'晚安老婆'，和你轻声回的那句
+          <motion.span 
+            onClick={handleGoodNightClick}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative cursor-pointer font-medium mx-1 text-pink-300"
+            style={{
+              filter: 'drop-shadow(0 0 8px rgba(244,114,182,0.8))',
+              textShadow: '0 0 10px rgba(244,114,182,0.5)',
+            }}
           >
-            <motion.span
-              animate={{
-                textShadow: ['0 0 5px #A855F7', '0 0 15px #A855F7', '0 0 5px #A855F7'],
-              }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              MVP
-            </motion.span>
-            <motion.span
-              animate={{ opacity: [1, 0.3, 1], scale: [1, 1.2, 1] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-              className="absolute -right-3 -top-2 text-yellow-400 text-xs"
-            >
-              ✨
-            </motion.span>
-          </span>
-          ，那一刻的你，比任何国服法师都要耀眼。
+            [ 晚安老公 ]
+          </motion.span>
+          ，都会让我恨不得立刻跨越地图去见你。
           <br /><br />
           以前<ClueSpan emoji="✈️" index={3}>跨越山海</ClueSpan>是为了初见，以后牵手前行是为了团圆。愿我们在新的 365 天里，能在昆明的小窝给盼盼和石榴筑个更温暖的家，去更多没去过的城市看第 N 场落日。不管世界如何变幻，只要你在副驾，这一路山海我都永远不会觉得累。<br /><br />李丹，我们的故事，才刚刚开始。
         </>
