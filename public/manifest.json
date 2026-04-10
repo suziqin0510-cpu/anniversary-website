@@ -1,0 +1,27 @@
+{
+  "name": "S\u0026L 记忆宇宙",
+  "short_name": "S\u0026L",
+  "description": "苏子钦 \u0026 李丹的恋爱纪念空间",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "entertainment"],
+  "lang": "zh-CN"
+}

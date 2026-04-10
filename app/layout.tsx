@@ -15,10 +15,29 @@ export const metadata: Metadata = {
     description: "记录我们恋爱一周年的美好时光",
     type: "website",
   },
+  // PWA manifest
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "S&L",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#E35D6A",
+  themeColor: "#121212",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
