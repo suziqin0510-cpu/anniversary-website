@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
@@ -11,6 +11,8 @@ const RESET_SIGNAL_KEY = 'gatekeeper_reset_signal';
 interface GateKeeperProps {
   children: React.ReactNode;
 }
+
+const HINT_FULL_TEXT = '看来是答不出来过来问我了老婆，你点击下面的“我们”试试。';
 
 // 极简发光锁形 SVG
 const GlowingLock = () => (
@@ -35,6 +37,14 @@ export default function GateKeeper({ children }: GateKeeperProps) {
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Easter egg states
+  const [lockClickCount, setLockClickCount] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [weClickable, setWeClickable] = useState(false);
+  const [finalMessage, setFinalMessage] = useState(false);
+  const [hintText, setHintText] = useState('');
+  const lockTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // 检查本地存储的验证状态
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -48,50 +58,71 @@ export default function GateKeeper({ children }: GateKeeperProps) {
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === RESET_SIGNAL_KEY) {
-        // 管理端发出了重置信号
         localStorage.removeItem(STORAGE_KEY);
         setIsPassed(false);
         setInputValue('');
         setIsSuccess(false);
+        // reset egg states
+        setLockClickCount(0);
+        setShowHint(false);
+        setWeClickable(false);
+        setFinalMessage(false);
+        setHintText('');
+        if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
       }
     };
 
     const handleCustomReset = () => {
-      // 检查当前状态是否被重置
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored !== 'true' && isPassed) {
         setIsPassed(false);
         setInputValue('');
         setIsSuccess(false);
+        setLockClickCount(0);
+        setShowHint(false);
+        setWeClickable(false);
+        setFinalMessage(false);
+        setHintText('');
+        if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('focus', handleCustomReset);
-
-    // 定期检查（防止同一标签页内的状态不同步）
     const interval = setInterval(handleCustomReset, 1000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleCustomReset);
       clearInterval(interval);
+      if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
     };
   }, [isPassed]);
 
+  // 傲娇提示语打字机效果
+  useEffect(() => {
+    if (!showHint) return;
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= HINT_FULL_TEXT.length) {
+        setHintText(HINT_FULL_TEXT.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 45);
+    return () => clearInterval(timer);
+  }, [showHint]);
+
   const handleSubmit = useCallback(() => {
     if (inputValue.trim() === CORRECT_CODE) {
-      // 验证成功
       setIsError(false);
       setIsSuccess(true);
       localStorage.setItem(STORAGE_KEY, 'true');
-
-      // 延迟后切换到主页面
       setTimeout(() => {
         setIsPassed(true);
       }, 1400);
     } else {
-      // 验证失败
       setIsError(true);
       setInputValue('');
     }
@@ -103,10 +134,34 @@ export default function GateKeeper({ children }: GateKeeperProps) {
     }
   };
 
+  const handleLockClick = () => {
+    if (showHint || finalMessage) return;
+    setLockClickCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        setShowHint(true);
+        setWeClickable(true);
+        if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+        return 0;
+      }
+      if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+      lockTimerRef.current = setTimeout(() => {
+        setLockClickCount(0);
+      }, 1500);
+      return next;
+    });
+  };
+
+  const handleWeClick = () => {
+    if (!weClickable || finalMessage) return;
+    setTimeout(() => {
+      setFinalMessage(true);
+    }, 500);
+  };
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0510]">
-        {/* Mesh Gradient blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
@@ -127,7 +182,6 @@ export default function GateKeeper({ children }: GateKeeperProps) {
             style={{ background: 'radial-gradient(circle, rgba(30,58,138,0.35) 0%, transparent 70%)' }}
           />
         </div>
-        {/* Noise overlay */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.04]"
           style={{
@@ -212,16 +266,59 @@ export default function GateKeeper({ children }: GateKeeperProps) {
                 boxShadow: '0 0 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}
             >
-              {/* 锁形 / System Locked */}
+              {/* 锁形 / Hint / System Locked */}
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="mb-8 flex flex-col items-center"
               >
-                <GlowingLock />
-                <div className="mt-4 font-mono-micro text-[10px] tracking-[0.25em] text-white/40">
-                  [ SYSTEM LOCKED ]
+                <motion.button
+                  onClick={handleLockClick}
+                  disabled={showHint || finalMessage}
+                  whileTap={{ scale: 0.88 }}
+                  className={`relative ${showHint || finalMessage ? 'cursor-default' : 'cursor-pointer'}`}
+                  aria-label="Lock"
+                >
+                  <GlowingLock />
+                  {/* Click feedback rings */}
+                  {!showHint && !finalMessage && lockClickCount > 0 && (
+                    <motion.span
+                      key={lockClickCount}
+                      initial={{ scale: 0.8, opacity: 0.6 }}
+                      animate={{ scale: 1.6, opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute inset-0 rounded-full border border-white/40"
+                    />
+                  )}
+                </motion.button>
+
+                <div className="mt-4 h-5">
+                  <AnimatePresence mode="wait">
+                    {showHint ? (
+                      <motion.p
+                        key="hint"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="font-serif-display text-xs md:text-sm text-white/80 tracking-wide"
+                        style={{ textShadow: '0 0 10px rgba(255,255,255,0.25)' }}
+                      >
+                        {hintText}
+                        <span className="inline-block w-0.5 h-4 bg-white/60 ml-1 align-middle animate-pulse" />
+                      </motion.p>
+                    ) : (
+                      <motion.p
+                        key="locked"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="font-mono-micro text-[10px] tracking-[0.25em] text-white/40"
+                      >
+                        [ SYSTEM LOCKED ]
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </div>
               </motion.div>
 
@@ -235,7 +332,18 @@ export default function GateKeeper({ children }: GateKeeperProps) {
                   textShadow: '0 0 20px rgba(255,255,255,0.4), 0 0 40px rgba(255,255,255,0.15)',
                 }}
               >
-                欢迎来到我们的记忆宇宙
+                欢迎来到
+                <span
+                  onClick={weClickable ? handleWeClick : undefined}
+                  className={`transition-all duration-500 ${
+                    weClickable
+                      ? 'cursor-pointer text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.6)] hover:drop-shadow-[0_0_18px_rgba(255,255,255,0.8)]'
+                      : ''
+                  }`}
+                >
+                  我们
+                </span>
+                的记忆宇宙
               </motion.h1>
 
               {/* 副提示 */}
@@ -257,80 +365,104 @@ export default function GateKeeper({ children }: GateKeeperProps) {
                 transition={{ delay: 0.6, duration: 0.8 }}
                 className="relative"
               >
-                <div className="relative flex items-center justify-center">
-                  <input
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => {
-                      setInputValue(e.target.value);
-                      setIsError(false);
-                    }}
-                    onKeyDown={handleKeyDown}
-                    autoFocus
-                    className={`
-                      w-full bg-transparent border-b text-center text-xl md:text-2xl text-white placeholder-white/20
-                      focus:outline-none transition-all duration-500 py-3
-                      ${isError ? 'border-red-400/60' : isSuccess ? 'border-emerald-400/60' : 'border-white/30 focus:border-white/70'}
-                    `}
-                    style={{
-                      caretColor: 'rgba(255,255,255,0.9)',
-                      textShadow: '0 0 12px rgba(255,255,255,0.15)',
-                    }}
-                    placeholder=""
-                  />
+                {!finalMessage ? (
+                  <>
+                    <div className="relative flex items-center justify-center">
+                      <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => {
+                          setInputValue(e.target.value);
+                          setIsError(false);
+                        }}
+                        onKeyDown={handleKeyDown}
+                        autoFocus
+                        className={`
+                          w-full bg-transparent border-b text-center text-xl md:text-2xl text-white placeholder-white/20
+                          focus:outline-none transition-all duration-500 py-3
+                          ${isError ? 'border-red-400/60' : isSuccess ? 'border-emerald-400/60' : 'border-white/30 focus:border-white/70'}
+                        `}
+                        style={{
+                          caretColor: 'rgba(255,255,255,0.9)',
+                          textShadow: '0 0 12px rgba(255,255,255,0.15)',
+                        }}
+                        placeholder=""
+                      />
+                      <AnimatePresence>
+                        {inputValue.trim().length > 0 && !isSuccess && (
+                          <motion.button
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -6 }}
+                            transition={{ duration: 0.25 }}
+                            onClick={handleSubmit}
+                            className="absolute right-0 text-white/60 hover:text-white transition-colors"
+                            aria-label="Submit"
+                          >
+                            <ArrowRight className="w-5 h-5" />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Press Enter 提示 */}
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: inputValue.trim().length > 0 ? 1 : 0.5 }}
+                      className="mt-4 font-mono-micro text-[10px] tracking-widest text-white/30"
+                    >
+                      {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : '专属我们的恋爱暗号'}
+                    </motion.p>
+
+                    {/* 错误 / 成功提示 */}
+                    <AnimatePresence mode="wait">
+                      {isError && (
+                        <motion.p
+                          key="error"
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.25 }}
+                          className="mt-4 text-red-300/80 text-xs tracking-wide"
+                        >
+                          暗号不匹配，请再次尝试
+                        </motion.p>
+                      )}
+                      {isSuccess && (
+                        <motion.p
+                          key="success"
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.25 }}
+                          className="mt-4 text-emerald-300/80 text-xs tracking-wide"
+                        >
+                          暗号正确，欢迎回家
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </>
+                ) : (
                   <AnimatePresence>
-                    {inputValue.trim().length > 0 && !isSuccess && (
-                      <motion.button
-                        initial={{ opacity: 0, x: -6 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -6 }}
-                        transition={{ duration: 0.25 }}
-                        onClick={handleSubmit}
-                        className="absolute right-0 text-white/60 hover:text-white transition-colors"
-                        aria-label="Submit"
+                    <motion.p
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      className="mt-2 text-2xl md:text-3xl font-serif-display text-white tracking-wide"
+                      style={{
+                        textShadow: '0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,200,150,0.3)',
+                      }}
+                    >
+                      <motion.span
+                        animate={{ scale: [1, 1.06, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        className="inline-block"
                       >
-                        <ArrowRight className="w-5 h-5" />
-                      </motion.button>
-                    )}
+                        老婆 啾咪啾咪！
+                      </motion.span>
+                    </motion.p>
                   </AnimatePresence>
-                </div>
-
-                {/* Press Enter 提示 */}
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: inputValue.trim().length > 0 ? 1 : 0.5 }}
-                  className="mt-4 font-mono-micro text-[10px] tracking-widest text-white/30"
-                >
-                  {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : '专属我们的恋爱暗号'}
-                </motion.p>
-
-                {/* 错误 / 成功提示 */}
-                <AnimatePresence mode="wait">
-                  {isError && (
-                    <motion.p
-                      key="error"
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.25 }}
-                      className="mt-4 text-red-300/80 text-xs tracking-wide"
-                    >
-                      暗号不匹配，请再次尝试
-                    </motion.p>
-                  )}
-                  {isSuccess && (
-                    <motion.p
-                      key="success"
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.25 }}
-                      className="mt-4 text-emerald-300/80 text-xs tracking-wide"
-                    >
-                      暗号正确，欢迎回家
-                    </motion.p>
-                  )}
-                </AnimatePresence>
+                )}
               </motion.div>
             </div>
           </motion.div>
