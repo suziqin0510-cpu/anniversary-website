@@ -519,10 +519,13 @@ export default function DetectivePuzzle({ onUnlock }: DetectivePuzzleProps) {
                   案卷已准备就绪，请仔细阅读上方信件，然后开始推理
                 </p>
                 <motion.button
-                  onClick={handleStart}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStart();
+                  }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-white font-medium transition-all"
+                  className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-white font-medium transition-all cursor-pointer pointer-events-auto"
                 >
                   [ 点击开始办案 ]
                 </motion.button>
