@@ -45,13 +45,26 @@ export default function GateKeeper({ children }: GateKeeperProps) {
   const [hintText, setHintText] = useState('');
   const lockTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 检查本地存储的验证状态
+  // 检查本地存储的验证状态 - 添加安全超时防止无限加载
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'true') {
-      setIsPassed(true);
+    // 安全超时：最长3秒后强制结束loading
+    const safetyTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === 'true') {
+        setIsPassed(true);
+      }
+    } catch (e) {
+      console.error('GateKeeper localStorage error:', e);
+    } finally {
+      setIsLoading(false);
+      clearTimeout(safetyTimer);
     }
-    setIsLoading(false);
+
+    return () => clearTimeout(safetyTimer);
   }, []);
 
   // 监听管理端重置信号（跨标签页通信）

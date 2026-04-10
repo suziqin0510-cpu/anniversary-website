@@ -12,11 +12,12 @@ const nextConfig: NextConfig = {
 };
 
 // Configure PWA with next-pwa
+// TEMPORARILY DISABLED: Service Worker causing infinite loading on mobile
 const pwaConfig = withPWA({
   dest: "public",
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
+  disable: true, // DISABLED for now to fix mobile loading issue
   // Cache strategies for static assets
   runtimeCaching: [
     {
