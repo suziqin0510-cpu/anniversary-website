@@ -24,7 +24,7 @@ interface Place {
 
 // 地点数据 - 已绑定18个地点专属实景照片
 const places: Place[] = [
-  { id: '1', name: '昆明', description: '我们的基地，袁老四的麻辣，同德的初见。', date: '2025.05.20', coordinates: '24.88°N, 102.83°E', story: '昆明是起点。长水机场惊艳的初见，同德的那顿火锅，是我们故事的开始。', image: 'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=400', x: 48, y: 58 },
+  { id: '1', name: '昆明', description: '我们的基地，袁老四的麻辣，同德的初见。', date: '2025.05.20', coordinates: '24.88°N, 102.83°E', story: '昆明是起点。长水机场惊艳的初见，同德的那顿火锅，是我们故事的开始。', image: 'https://i.ibb.co/0yF08gZN/3be974f7fb02d2c86758fbfcae67dd1c.jpg', x: 48, y: 58 },
   { id: '2', name: '大理', description: '洱海的风，古城的慢时光。', date: '2025.06', coordinates: '25.61°N, 100.27°E', story: '大理的微风，吹过你的发梢。我们在古城漫步，在洱海边看云卷云舒。', image: 'https://i.ibb.co/mrPKbFGj/8e0d275db8fc8f52d4cba7763388bb3f.jpg', x: 35, y: 48 },
   { id: '3', name: '丽江', description: '后果酒与果酒，醉人的夜晚。', date: '2025.06', coordinates: '26.87°N, 100.23°E', story: '丽江的后果酒让你睡了一路，但那个夜晚的歌声和笑声，我一直记得。', image: 'https://i.ibb.co/FMFZZ7F/9051412ddae22e48e83557c1cf4482ae.jpg', x: 32, y: 38 },
   { id: '4', name: '香格里拉', description: '雪山下的私汤，属于两人的私密时光。', date: '2025.07', coordinates: '27.83°N, 99.70°E', story: '在香格里拉的雪山脚下，泡在温暖的私汤里，看着窗外的雪山和星空，世界仿佛只剩下我们两个人。', image: 'https://i.ibb.co/MdrTZCn/44066b2886e775e6ae02dc3820ac703f.jpg', x: 28, y: 28 },
