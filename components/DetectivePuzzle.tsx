@@ -16,7 +16,7 @@ const SUSPECTS = [
   {
     id: 'shiliu',
     name: '石榴',
-    avatar: '🐱',
+    avatar: 'https://i.ibb.co/7NXKRDmY/ab4fc6c24de7b603f73beaeb3223bc06.jpg',
     color: 'from-orange-400 to-amber-500',
     testimony: '喵喵！（翻译：如果我们中有人说真话，那绝对不是苏子钦。）',
     isGuilty: false,
@@ -25,7 +25,7 @@ const SUSPECTS = [
   {
     id: 'suziqin',
     name: '苏子钦',
-    avatar: '👨',
+    avatar: 'https://i.ibb.co/TVrVrFx/652f2e42115094261fe5bf4d1cad3c78.jpg',
     color: 'from-blue-400 to-indigo-500',
     testimony: '偷吃火腿肠的人，就在我和李丹之间！',
     isGuilty: false,
@@ -34,7 +34,7 @@ const SUSPECTS = [
   {
     id: 'panpan',
     name: '盼盼',
-    avatar: '🐶',
+    avatar: 'https://i.ibb.co/mrVzZYYw/93cfb6ab107246be4ea7b12c9ecef0a7.jpg',
     color: 'from-amber-600 to-yellow-700',
     testimony: '汪汪！（翻译：苏子钦在撒谎，凶手另有其人！）',
     isGuilty: true,
@@ -43,7 +43,7 @@ const SUSPECTS = [
   {
     id: 'lidan',
     name: '李丹',
-    avatar: '👩',
+    avatar: 'https://i.ibb.co/4ggwzGFK/f769a34b36ff9afed085190f8ad13ff0.jpg',
     color: 'from-rose-400 to-pink-500',
     testimony: '反正我没偷吃，盼盼也没偷吃。',
     isGuilty: false,
@@ -115,8 +115,12 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className="w-32 h-32 mx-auto mb-6 relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-6xl shadow-lg">
-                🐕
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+                <img
+                  src="https://i.ibb.co/mrVzZYYw/93cfb6ab107246be4ea7b12c9ecef0a7.jpg"
+                  alt="盼盼"
+                  className="w-full h-full object-cover"
+                />
               </div>
               {/* 手铐装饰 */}
               <motion.div
@@ -238,9 +242,13 @@ const SuspectCard = ({
     >
       {/* 头像 */}
       <div
-        className={`w-16 h-16 rounded-full bg-gradient-to-br ${suspect.color} flex items-center justify-center text-3xl mb-3 mx-auto shadow-lg`}
+        className={`w-16 h-16 rounded-full bg-gradient-to-br ${suspect.color} flex items-center justify-center mb-3 mx-auto shadow-lg overflow-hidden`}
       >
-        {suspect.avatar}
+        <img
+          src={suspect.avatar}
+          alt={suspect.name}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* 名字 */}
