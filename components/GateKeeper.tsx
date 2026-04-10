@@ -365,104 +365,108 @@ export default function GateKeeper({ children }: GateKeeperProps) {
                 transition={{ delay: 0.6, duration: 0.8 }}
                 className="relative"
               >
-                {!finalMessage ? (
-                  <>
-                    <div className="relative flex items-center justify-center">
-                      <input
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => {
-                          setInputValue(e.target.value);
-                          setIsError(false);
-                        }}
-                        onKeyDown={handleKeyDown}
-                        autoFocus
-                        className={`
-                          w-full bg-transparent border-b text-center text-xl md:text-2xl text-white placeholder-white/20
-                          focus:outline-none transition-all duration-500 py-3
-                          ${isError ? 'border-red-400/60' : isSuccess ? 'border-emerald-400/60' : 'border-white/30 focus:border-white/70'}
-                        `}
-                        style={{
-                          caretColor: 'rgba(255,255,255,0.9)',
-                          textShadow: '0 0 12px rgba(255,255,255,0.15)',
-                        }}
-                        placeholder=""
-                      />
-                      <AnimatePresence>
-                        {inputValue.trim().length > 0 && !isSuccess && (
-                          <motion.button
-                            initial={{ opacity: 0, x: -6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -6 }}
-                            transition={{ duration: 0.25 }}
-                            onClick={handleSubmit}
-                            className="absolute right-0 text-white/60 hover:text-white transition-colors"
-                            aria-label="Submit"
-                          >
-                            <ArrowRight className="w-5 h-5" />
-                          </motion.button>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    {/* Press Enter 提示 */}
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: inputValue.trim().length > 0 ? 1 : 0.5 }}
-                      className="mt-4 font-mono-micro text-[10px] tracking-widest text-white/30"
-                    >
-                      {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : '专属我们的恋爱暗号'}
-                    </motion.p>
-
-                    {/* 错误 / 成功提示 */}
-                    <AnimatePresence mode="wait">
-                      {isError && (
-                        <motion.p
-                          key="error"
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.25 }}
-                          className="mt-4 text-red-300/80 text-xs tracking-wide"
-                        >
-                          暗号不匹配，请再次尝试
-                        </motion.p>
-                      )}
-                      {isSuccess && (
-                        <motion.p
-                          key="success"
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.25 }}
-                          className="mt-4 text-emerald-300/80 text-xs tracking-wide"
-                        >
-                          暗号正确，欢迎回家
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </>
-                ) : (
-                  <AnimatePresence>
-                    <motion.p
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                {/* 最终宠溺消息 — 与输入框共存 */}
+                <AnimatePresence>
+                  {finalMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                      className="mt-2 text-2xl md:text-3xl font-serif-display text-white tracking-wide"
-                      style={{
-                        textShadow: '0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,200,150,0.3)',
-                      }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                      className="mb-4"
                     >
-                      <motion.span
-                        animate={{ scale: [1, 1.06, 1] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                        className="inline-block"
+                      <p
+                        className="text-xl md:text-2xl font-serif-display text-white tracking-wide"
+                        style={{
+                          textShadow: '0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,200,150,0.3)',
+                        }}
                       >
-                        老婆 啾咪啾咪！
-                      </motion.span>
-                    </motion.p>
+                        <motion.span
+                          animate={{ scale: [1, 1.06, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                          className="inline-block"
+                        >
+                          老婆 啾咪啾咪！
+                        </motion.span>
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="relative flex items-center justify-center">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => {
+                      setInputValue(e.target.value);
+                      setIsError(false);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                    className={`
+                      w-full bg-transparent border-b text-center text-xl md:text-2xl text-white placeholder-white/20
+                      focus:outline-none transition-all duration-500 py-3
+                      ${isError ? 'border-red-400/60' : isSuccess ? 'border-emerald-400/60' : 'border-white/30 focus:border-white/70'}
+                    `}
+                    style={{
+                      caretColor: 'rgba(255,255,255,0.9)',
+                      textShadow: '0 0 12px rgba(255,255,255,0.15)',
+                    }}
+                    placeholder=""
+                  />
+                  <AnimatePresence>
+                    {inputValue.trim().length > 0 && !isSuccess && (
+                      <motion.button
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -6 }}
+                        transition={{ duration: 0.25 }}
+                        onClick={handleSubmit}
+                        className="absolute right-0 text-white/60 hover:text-white transition-colors"
+                        aria-label="Submit"
+                      >
+                        <ArrowRight className="w-5 h-5" />
+                      </motion.button>
+                    )}
                   </AnimatePresence>
-                )}
+                </div>
+
+                {/* Press Enter 提示 */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: inputValue.trim().length > 0 ? 1 : 0.5 }}
+                  className="mt-4 font-mono-micro text-[10px] tracking-widest text-white/30"
+                >
+                  {isSuccess ? 'ACCESS GRANTED' : inputValue.trim().length > 0 ? 'PRESS ENTER' : '专属我们的恋爱暗号'}
+                </motion.p>
+
+                {/* 错误 / 成功提示 */}
+                <AnimatePresence mode="wait">
+                  {isError && (
+                    <motion.p
+                      key="error"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="mt-4 text-red-300/80 text-xs tracking-wide"
+                    >
+                      暗号不匹配，请再次尝试
+                    </motion.p>
+                  )}
+                  {isSuccess && (
+                    <motion.p
+                      key="success"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="mt-4 text-emerald-300/80 text-xs tracking-wide"
+                    >
+                      暗号正确，欢迎回家
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </motion.div>
             </div>
           </motion.div>
